@@ -1,0 +1,33 @@
+2023-04-25 17:30:10.443 | DEBUG    | __main__:<module>:11 - this is a debug
+2023-04-25 17:30:27.275 | DEBUG    | __main__:<module>:3 - this is a debug message
+2023-04-25 17:30:27.275 | INFO     | __main__:<module>:4 - this is another debug message
+2023-04-25 17:30:27.275 | WARNING  | __main__:<module>:5 - this is another debug message
+2023-04-25 17:30:27.275 | ERROR    | __main__:<module>:6 - this is another debug message
+2023-04-25 17:30:27.275 | INFO     | __main__:<module>:7 - this is another debug message
+2023-04-25 17:30:27.276 | SUCCESS  | __main__:<module>:8 - this is success message!
+2023-04-25 17:30:27.276 | CRITICAL | __main__:<module>:9 - this is critical message!
+2023-04-25 17:30:27.276 | DEBUG    | __main__:<module>:11 - this is a debug
+2023-04-25 17:30:36.814 | DEBUG    | __main__:<module>:3 - this is a debug message
+2023-04-25 17:30:36.814 | INFO     | __main__:<module>:4 - this is another debug message
+2023-04-25 17:30:36.815 | WARNING  | __main__:<module>:5 - this is another debug message
+2023-04-25 17:30:36.815 | ERROR    | __main__:<module>:6 - this is another debug message
+2023-04-25 17:30:36.815 | INFO     | __main__:<module>:7 - this is another debug message
+2023-04-25 17:30:36.815 | SUCCESS  | __main__:<module>:8 - this is success message!
+2023-04-25 17:30:36.816 | CRITICAL | __main__:<module>:9 - this is critical message!
+2023-04-25 17:30:36.816 | DEBUG    | __main__:<module>:11 - this is a debug
+2023-04-25T17:48:22.973263+0800 DEBUG this is a debug message
+2023-04-25T17:48:22.973263+0800 INFO this is another debug message
+2023-04-25T17:48:22.973263+0800 WARNING this is another debug message
+2023-04-25T17:48:22.973263+0800 ERROR this is another debug message
+2023-04-25T17:48:22.974260+0800 INFO this is another debug message
+2023-04-25T17:48:22.974260+0800 SUCCESS this is success message!
+2023-04-25T17:48:22.974260+0800 CRITICAL this is critical message!
+2023-04-25T17:48:22.974260+0800 DEBUG this is a debug
+2023-04-25T17:48:32.445771+0800 this is a debug message
+2023-04-25T17:48:32.445771+0800 this is another debug message
+2023-04-25T17:48:32.445771+0800 this is another debug message
+2023-04-25T17:48:32.446772+0800 this is another debug message
+2023-04-25T17:48:32.446772+0800 this is another debug message
+2023-04-25T17:48:32.446772+0800 this is success message!
+2023-04-25T17:48:32.446772+0800 this is critical message!
+2023-04-25T17:48:32.446772+0800 this is a debug
