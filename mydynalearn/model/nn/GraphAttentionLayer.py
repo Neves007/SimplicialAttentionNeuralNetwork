@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from torch import Tensor
-from mydynalearn.nn.util.MultiHeadLinear import MultiHeadLinear
+from mydynalearn.model.util.MultiHeadLinear import MultiHeadLinear
 from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.nn.inits import glorot, zeros
 

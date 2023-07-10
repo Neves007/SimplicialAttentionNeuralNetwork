@@ -25,7 +25,7 @@ class er():
         else:
             self.maxDimension = 1
             self.config = config
-            self.nodes,self.edges,self.num_nodes,self.num_edges = self._Create_Network(config.num_nodes,config.avg_k)  # 网络信息
+            self.nodes,self.edges,self.num_nodes,self.num_edges,self.avg_k = self._Create_Network(config.num_nodes,config.avg_k)  # 网络信息
             self.incMatrix_adj0, self.incMatrix_adj1 = self._get_adjInfo()  # 关联矩阵
         self.to_device()
         pass
@@ -47,7 +47,8 @@ class er():
         num_edges = int(k * num_nodes / 2)
         num_edges = num_edges
         edges = self._create_edges(num_nodes,num_edges)
-        return nodes,edges,num_nodes,num_edges
+        avg_k = torch.asarray([2*len(edges)/num_nodes])
+        return nodes,edges,num_nodes,num_edges,avg_k
 
     def _get_adjInfo(self):
         # incMatrix_0：节点和节点的关联矩阵
@@ -68,3 +69,8 @@ class er():
         self.edges = self.edges.to(self.device)
         self.incMatrix_adj0 = self.incMatrix_adj0.to(self.device)
         self.incMatrix_adj1 = self.incMatrix_adj1.to(self.device)
+    def unpack_NetworkInfo(self):
+        nodes = self.nodes
+        edges = self.edges
+        incMatrix = (self.incMatrix_adj0,self.incMatrix_adj1)
+        return nodes, edges, incMatrix

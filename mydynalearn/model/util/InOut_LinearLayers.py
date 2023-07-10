@@ -1,6 +1,6 @@
 import torch.nn
 
-from mydynalearn.nn.models.GraphAttentionLayer import *
+from mydynalearn.model.nn.GraphAttentionLayer import *
 from torch.nn import Sequential
 
 

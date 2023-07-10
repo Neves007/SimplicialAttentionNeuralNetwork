@@ -3,7 +3,7 @@ from tqdm.autonotebook import tqdm
 import numpy as np
 import torch.nn.functional as F
 
-from mydynalearn.dataset import DataSetLoader
+from mydynalearn.dataset import graph_DataSetLoader
 class ModelAnalizer():
     def __init__(self,exp,test_set):
         self.gnn_Model = exp.model
@@ -19,7 +19,7 @@ class ModelAnalizer():
         Maxdegree = adjList_Dict["1-simplex"]["adjListValid"].shape[1]
         return Maxdegree
     def analyze_dgree_TP(self):
-        test_loader = DataSetLoader(self.test_set)
+        test_loader = graph_DataSetLoader(self.test_set)
 
         Maxdegree = self.__get_degree(test_loader)
         S_true_TP_degree = [[] for _ in range(Maxdegree+1)]
@@ -67,7 +67,7 @@ class ModelAnalizer():
         return S_true_TP_degree, S_predict_TP_degree, I_true_TP_degree, I_predict_TP_degree
 
     def analyze_pre_target_y(self):
-        test_loader = DataSetLoader(self.test_set)
+        test_loader = graph_DataSetLoader(self.test_set)
         process_bar = tqdm(
             test_loader,
             maxinterval=1,

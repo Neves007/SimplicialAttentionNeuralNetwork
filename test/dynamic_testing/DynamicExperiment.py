@@ -1,4 +1,4 @@
-from mydynalearn.nn import *
+from mydynalearn.model import *
 from mydynalearn.networks.getter import get as get_network
 from mydynalearn.dynamics.getter import get as get_dynamics
 from mydynalearn.dataset.getter import get as get_dataset

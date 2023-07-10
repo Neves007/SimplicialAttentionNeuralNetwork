@@ -15,7 +15,7 @@ class TrainingConfig(Config):
         cls.batch_size = 1
         cls.num_networks = 1
         cls.num_samples = 10000
-        cls.testSet_timestep = 100 # 测试集的时间步
+        cls.num_test = 100 # 测试集的时间步
         cls.resampling = 2 # 重新初始化的时间
         cls.maxlag = 1
         cls.is_weight = False

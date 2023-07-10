@@ -1,30 +1,28 @@
-from mydynalearn.nn.models.layers import *
+from mydynalearn.model.nn.GraphLayers import *
 import os
 import pickle
 import torch.nn as nn
 import torch
 from .optimizer import get as get_optimizer
-from mydynalearn.dataset import DataSetLoader
+from mydynalearn.dataset import graph_DataSetLoader
 from mydynalearn.drawer import FigureDrawer
 from .util import *
 
 import copy
 
-
-
 from tqdm import tqdm
 
-class Model(nn.Module):
-    def __init__(self, config,logger):
+class graphAttentionModel(nn.Module):
+    def __init__(self, config):
         """Dense version of GAT."""
-        super(Model, self).__init__()
+        super(graphAttentionModel, self).__init__()
         model_config = config.model
         train_details_config = config.train_details
         self.device = config.device
-        self.logger = logger
         self.path_to_modelParams = config.path_to_model
-        self.in_layers_nodeFeature = get_in_layers(model_config)
-        self.in_layers_simplexFeature_1D = get_in_layers(model_config)
+        self.in_layers_nodeFeature = get_node_in_layers(model_config)
+        self.in_layers_edgeFeature = get_edge_in_layers(model_config)
+        self.in_layers_simplexFeature_1D = get_node_in_layers(model_config)
         self.gat_layers = get_gat_layers(model_config)
         self.out_layers = get_out_layers(model_config)
         self.get_optimizer = get_optimizer(model_config.optimizer)
@@ -42,10 +40,12 @@ class Model(nn.Module):
             self.epochs = train_details_config.epochs
         self.optimizer = self.get_optimizer(self.parameters())
 
-    def forward(self, nodeFeature,edge_index,simplices_Dict,simplices_incidence):
+    def forward(self, x0,x1,network):
         # 只考虑edge_index
-        nodeFeature = self.in_layers_nodeFeature(nodeFeature)
-        x = self.gat_layers(nodeFeature,edge_index)
+        # todo:修改
+        x0 = self.in_layers_nodeFeature(x0)
+        x1 = self.in_layers_edgeFeature(x1)
+        x = self.gat_layers(x0,x1,network)
         out = self.out_layers(x)
         return out
 
@@ -64,9 +64,9 @@ class Model(nn.Module):
             val_dataset=None,
             test_dataset=None,
     ):
-        self.test_loader = DataSetLoader(test_dataset)
-        self.train_loader = DataSetLoader(train_dataset)
-        self.val_loader = DataSetLoader(val_dataset)
+        self.test_loader = graph_DataSetLoader(test_dataset)
+        self.train_loader = graph_DataSetLoader(train_dataset)
+        self.val_loader = graph_DataSetLoader(val_dataset)
         if self.checkFirstEpoch:
             if os.path.exists(self.modelFile_name_firstEpochCheckpoints):
                 self.loadFirstEpochCheckpoints()
@@ -81,9 +81,7 @@ class Model(nn.Module):
             for epoch_index in range(self.epochs):
                 testResult_curEpoch = self.getTestResult(epoch_index)
                 self.figureDrawer.visdomDrawEpoch(epoch_index, testResult_curEpoch)
-                self.logger.TestEpoch(epoch_index)
                 self._do_epoch_(epoch_index, batch_size=batch_size)  # 训练
-                self.logger.TrainEpoch(epoch_index)
                 self.low_the_lr(epoch_index)
                 self.figureDrawer.matplot_epochPerformance.saveEpochData(epoch_index,testResult_curEpoch)
             self.eval()
@@ -114,7 +112,7 @@ class Model(nn.Module):
             maxinterval=10,
             mininterval=2,
             bar_format='{l_bar}|{bar}| {n_fmt}/{total_fmt} [{rate_fmt}{postfix}|{elapsed}',
-            total=self.test_loader.data_set['nodeFeature_T'].shape[0],
+            total=self.test_loader.data_set['x0_T'].shape[0],
         )
         testResult_curEpoch = []
         for time_idx, test_dataset_per_time in process_bar:
@@ -131,7 +129,7 @@ class Model(nn.Module):
             maxinterval=10,
             mininterval=2,
             bar_format='{l_bar}|{bar}| {n_fmt}/{total_fmt} [{rate_fmt}{postfix}|{elapsed}',
-            total=self.train_loader.data_set['nodeFeature_T'].shape[0],
+            total=self.train_loader.data_set['x0_T'].shape[0],
         )
         for time_idx, (train_dataset_per_time,val_dataset_per_time) in process_bar:
             if self.checkFirstEpoch:
@@ -169,12 +167,12 @@ class Model(nn.Module):
         return loss,x,y_pred,y_true,y_ob, w
 
     def prepare_output(self, data):
-        nodeFeature,y_ob,y_true,edge_index,simplices_Dict,simplices_incidence,w = data
+        network, x0, x1, y_ob, y_true, adjActEdges, weight = data
         if self.is_weight==False:
             w = torch.ones([y_true.size(i) for i in range(y_true.dim() - 1)]).to(self.device)
         y_true = y_true
-        y_pred = self.forward(nodeFeature,edge_index,simplices_Dict,simplices_incidence)
-        return nodeFeature,y_pred,y_true,y_ob, w
+        y_pred = self.forward(x0,x1,network)
+        return x0,y_pred,y_true,y_ob, weight
 
 
     # save

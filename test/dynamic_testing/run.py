@@ -5,7 +5,7 @@ os.chdir("../../../2.0 myCode_edge_index")
 # 获取配置
 from mydynalearn.config import ExperimentConfig
 config = ExperimentConfig.default(
-    "dynamic-sis-sc",
+    "dynamics-sis-sc",
     "sis",
     "sc",
     seed=0

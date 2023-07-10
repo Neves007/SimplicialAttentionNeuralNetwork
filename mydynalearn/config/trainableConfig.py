@@ -6,10 +6,10 @@ class TrainableConfig(Config):
         super().__init__()
 
     @classmethod
-    def sis(cls):
+    def graphAttentionModel(cls):
         cls = cls()
-        cls.name = "GNNSEDynamics"
-        cls.gnn_name = "DynamicsGATConv"
+        cls.name = "graphAttentionModel"
+        cls.gnn_name = "graphAttention"
         cls.type = "linear"
 
         cls.num_states = 2
@@ -23,9 +23,9 @@ class TrainableConfig(Config):
         cls.out_activation = "relu"
 
         cls.heads = 2
-        cls.in_channels = [cls.num_states,32, 32]
+        cls.in_channels = [2,32, 32]
         cls.gnn_channels = 32
-        cls.out_channels = [32, 32,cls.num_states]
+        cls.out_channels = [32, 32,2]
         cls.concat = False
         cls.bias = True
         cls.self_attention = True

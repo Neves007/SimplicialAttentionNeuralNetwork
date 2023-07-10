@@ -17,10 +17,10 @@ class sir(MessagePassing):
     def runOneStep(self, x, edge_index):
         x = x.to(self.config.device,dtype = torch.long)
         self.neiborDistri = self.getNeiborDistribution(x, edge_index)
-        x, y_ob, y_true = self.update_x(x, self.neiborDistri)
+        x, y_ob, y_true = self.spread(x, self.neiborDistri)
         return x, y_ob, y_true
 
-    def update_x(self, x, neiborDistri):
+    def spread(self, x, neiborDistri):
         x_temp = copy.deepcopy(x)
         true_tp = torch.zeros(x.shape).to(self.config.device)
         s_index = torch.where(x[:, self.statesMap["S"]] == 1)[0].to(self.config.device)

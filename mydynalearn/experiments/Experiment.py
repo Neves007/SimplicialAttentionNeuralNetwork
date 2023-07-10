@@ -1,11 +1,11 @@
-from mydynalearn.nn import *
+from mydynalearn.model import *
 from mydynalearn.networks.getter import get as get_network
 from mydynalearn.dynamics.getter import get as get_dynamics
 from mydynalearn.dataset.getter import get as get_dataset
-from mydynalearn.nn.Models import Model
+from mydynalearn.model.getter import get as get_model
+from mydynalearn.model.graphAttentionModel import graphAttentionModel
 from easydict import EasyDict as edict
 from mydynalearn.evaluator import *
-from mydynalearn.logger.logger import logger
 
 
 class Experiment():
@@ -16,10 +16,8 @@ class Experiment():
 
         self.network = get_network(config.network)
         self.dynamics = get_dynamics(config.dynamics)
-        assert self.network.maxDimension == self.dynamics.maxDimension == 1
-        self.dataset = get_dataset(config.train_details)
-        self.logger = logger(config)
-        self.model = Model(config,self.logger)
+        self.dataset = get_dataset(config.train_details,self.network,self.dynamics)
+        self.model = get_model(config)
         self.__tasks__ = [
             "generate_data",
             "partition_dataSet",
@@ -44,7 +42,6 @@ class Experiment():
             self.saveDataSet()
         else:
             self.loadDataSet()
-        self.logger.generate_data(self.network, self.dynamics)
 
     def saveDataSet(self):
         info = {
@@ -69,28 +66,9 @@ class Experiment():
         self.dataset.run_dynamicProcess(self.network, self.dynamics)
 
     def partition_dataSet(self):
-        testSet_timestep = self.config.train_details.testSet_timestep
-        self.testSet = edict({
-            "network": self.network,
-            "nodeFeature_T":self.dataset.nodeFeature_T[-testSet_timestep:],
-            "y_ob_T": self.dataset.y_ob_T[-testSet_timestep:],
-            "y_true_T": self.dataset.y_true_T[-testSet_timestep:],
-            "weight": self.dataset.weight[-testSet_timestep:],
-        })
-        self.trainSet = edict({
-            "network": self.network,
-            "nodeFeature_T":self.dataset.nodeFeature_T[:-testSet_timestep:2],
-            "y_ob_T": self.dataset.y_ob_T[:-testSet_timestep:2],
-            "y_true_T": self.dataset.y_true_T[:-testSet_timestep:2],
-            "weight": self.dataset.weight[:-testSet_timestep:2],
-        })
-        self.valSet = edict({
-            "network": self.network,
-            "nodeFeature_T":self.dataset.nodeFeature_T[1:-testSet_timestep:2],
-            "y_ob_T": self.dataset.y_ob_T[1:-testSet_timestep:2],
-            "y_true_T": self.dataset.y_true_T[1:-testSet_timestep:2],
-            "weight": self.dataset.weight[1:-testSet_timestep:2],
-        })
+        num_test = self.config.train_details.num_test
+        self.trainSet, self.valSet, self.testSet = self.dataset.splitDataset(num_test)
+
 
     def train_model(self, restore_best=True):
         self.model.fit(
@@ -101,4 +79,3 @@ class Experiment():
     def performance_evaluation(self):
         epochEvaluator = EpochEvaluator(self.config)
         epochEvaluator.evaluate()
-        self.logger.evaluate()

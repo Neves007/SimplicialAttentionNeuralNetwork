@@ -1,6 +1,11 @@
-from mydynalearn.nn.util.InOut_LinearLayers import inLinearLayers,outLinearLayers
-from mydynalearn.nn.models.GraphAttentionLayer import GraphAttentionLayer
-def get_in_layers(config):
+from mydynalearn.model.util.InOut_LinearLayers import inLinearLayers,outLinearLayers
+from mydynalearn.model.nn import GraphAttentionLayer,GraphAttentionLayerSparse
+def get_node_in_layers(config):
+    in_channels = config.in_channels
+    device = config.device
+    in_layer = inLinearLayers(in_channels).to(device)
+    return in_layer
+def get_edge_in_layers(config):
     in_channels = config.in_channels
     device = config.device
     in_layer = inLinearLayers(in_channels).to(device)
@@ -12,7 +17,7 @@ def get_gat_layers(config):
     concat = config.concat
     heads = config.heads
     device = config.device
-    gat_layers = GraphAttentionLayer(in_features, out_features, heads, concat).to(device)
+    gat_layers = GraphAttentionLayerSparse(in_features, out_features, heads, concat).to(device)
     return gat_layers
 
 def get_out_layers(config):

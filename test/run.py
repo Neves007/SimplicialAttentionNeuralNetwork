@@ -10,7 +10,7 @@ from mydynalearn.experiments import Experiment
 def fix_config(config):
     # T总时间步
     config.train_details.num_samples = num_samples
-    config.train_details.testSet_timestep = testSet_timestep
+    config.train_details.num_test = testSet_timestep
     config.train_details.epochs = epochs  # 10
     # 检查点
     config.train_details.checkFirstEpoch = checkFirstEpoch  # 10

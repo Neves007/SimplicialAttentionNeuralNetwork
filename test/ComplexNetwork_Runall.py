@@ -9,7 +9,7 @@ from mydynalearn.experiments import Experiment
 def fix_config(config):
     # T总时间步
     config.train_details.num_samples = num_samples
-    config.train_details.testSet_timestep = testSet_timestep
+    config.train_details.num_test = testSet_timestep
     config.train_details.epochs = epochs  # 10
     # 检查点
     config.train_details.checkFirstEpoch = checkFirstEpoch  # 10
@@ -35,6 +35,7 @@ def sis_ER_notWeight():
         "dynamicLearning-edgeindex-sis-er",
         "sis",
         "er",
+        "graph",
         is_weight=False,
         seed=0
     )
@@ -68,7 +69,7 @@ def sis_SC_notWeight():
 
 num_samples = 10000
 testSet_timestep = 10
-epochs = 30 # 10
+epochs = 1 # 10
 checkFirstEpoch = False # 10
 checkFirstEpoch_max_time = 1000
 checkFirstEpoch_timestep = 100

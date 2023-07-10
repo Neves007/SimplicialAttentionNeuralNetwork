@@ -1,4 +1,4 @@
 from .DataSet_GNN import *
-from .DataSetLoader import *
+from .graph_DataSetLoader import *
 from .testSetLoader import *
-from .DynamicDataset_Graph import *
+from .graph_DynamicDataset import *
