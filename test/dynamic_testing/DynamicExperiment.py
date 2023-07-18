@@ -14,15 +14,14 @@ class DynamicExperiment():
 
         self.network = get_network(config.network)
         self.dynamics = get_dynamics(config.dynamics)
-        self.dataset = get_dataset(config.train_details)
-        self.logger = logger()
+        self.dataset = get_dataset(config,self.network,self.dynamics)
     def run(self):
         eff_infectionList,stady_rho_list = self.generate_DanamicProcessData()
         self.dynamic_evaluation(eff_infectionList,stady_rho_list)
 
 
     def generate_DanamicProcessData(self):
-        len_betaList = 51
+        len_betaList = 101
         eff_infectionList = torch.linspace(0, 2, len_betaList)
         stady_rho_list = 1. * torch.ones(len_betaList)
 
@@ -32,10 +31,10 @@ class DynamicExperiment():
         return eff_infectionList,stady_rho_list
     def get_stady_rho(self,eff_infection):
         self.dynamics.eff_infection[0] = eff_infection
-        self.dataset.run_dynamicProcess(self.network, self.dynamics)
+        self.dataset.run_dynamicProcess()
         node_timeEvolution = self.dataset.y_ob_T
 
-        stady_nodeState = node_timeEvolution[-100:]
+        stady_nodeState = node_timeEvolution[-50:]
         stady_rho = stady_nodeState.sum(dim=-2)[:,1].mean()
         return stady_rho
 
@@ -43,4 +42,3 @@ class DynamicExperiment():
     def dynamic_evaluation(self,eff_infectionList,stady_rho_list):
         dynamicEvaluator = DynamicEvaluator(self.config)
         dynamicEvaluator.evaluate(eff_infectionList,stady_rho_list)
-        self.logger.evaluate()

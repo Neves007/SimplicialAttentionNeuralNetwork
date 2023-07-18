@@ -16,7 +16,7 @@ class Experiment():
 
         self.network = get_network(config.network)
         self.dynamics = get_dynamics(config.dynamics)
-        self.dataset = get_dataset(config.train_details,self.network,self.dynamics)
+        self.dataset = get_dataset(config.dataset,self.network,self.dynamics)
         self.model = get_model(config)
         self.__tasks__ = [
             "generate_data",
@@ -66,7 +66,7 @@ class Experiment():
         self.dataset.run_dynamicProcess(self.network, self.dynamics)
 
     def partition_dataSet(self):
-        num_test = self.config.train_details.num_test
+        num_test = self.config.dataset.num_test
         self.trainSet, self.valSet, self.testSet = self.dataset.splitDataset(num_test)
 
 

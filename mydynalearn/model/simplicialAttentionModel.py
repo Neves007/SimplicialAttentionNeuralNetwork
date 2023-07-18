@@ -4,7 +4,7 @@ import pickle
 import torch.nn as nn
 import torch
 from .optimizer import get as get_optimizer
-from mydynalearn.dataset import graph_DataSetLoader
+from mydynalearn.dataset import simplicial_DataSetLoader
 from mydynalearn.drawer import FigureDrawer
 from .util import *
 
@@ -12,40 +12,41 @@ import copy
 
 from tqdm import tqdm
 
-class graphAttentionModel(nn.Module):
+class simplicialAttentionModel(nn.Module):
     def __init__(self, config):
         """Dense version of GAT."""
-        super(graphAttentionModel, self).__init__()
+        super(simplicialAttentionModel, self).__init__()
         model_config = config.model
-        dataset_config = config.dataset
+        dataset = config.dataset
         self.device = config.device
         self.path_to_modelParams = config.path_to_model
         self.in_layers_nodeFeature = get_node_in_layers(model_config)
         self.in_layers_edgeFeature = get_edge_in_layers(model_config)
         self.in_layers_simplexFeature_1D = get_node_in_layers(model_config)
-        self.gat_layers = get_gat_layers(model_config)
+        self.sat_layers = get_sat_layers(model_config)
         self.out_layers = get_out_layers(model_config)
         self.get_optimizer = get_optimizer(model_config.optimizer)
         self.firstEpochCheckpoints = []
-        self.checkFirstEpoch = dataset_config.checkFirstEpoch
+        self.checkFirstEpoch = dataset.checkFirstEpoch
         self.is_weight = config.is_weight
-        self.checkFirstEpoch_max_time = dataset_config.checkFirstEpoch_max_time
-        self.checkFirstEpoch_timestep = dataset_config.checkFirstEpoch_timestep
+        self.checkFirstEpoch_max_time = dataset.checkFirstEpoch_max_time
+        self.checkFirstEpoch_timestep = dataset.checkFirstEpoch_timestep
         self.modelDir_firstEpochCheckpoints = self.path_to_modelParams + "/firstEpochCheckpoints/"
         self.modelFile_name_firstEpochCheckpoints = self.modelDir_firstEpochCheckpoints + "/{:d}_{:d}model_firstEpochCheckpoints.pkl".format(self.checkFirstEpoch_max_time,self.checkFirstEpoch_timestep)
         self.figureDrawer = FigureDrawer(config)
         if self.checkFirstEpoch:
             self.epochs = 1
         else:
-            self.epochs = dataset_config.epochs
+            self.epochs = dataset.epochs
         self.optimizer = self.get_optimizer(self.parameters())
 
-    def forward(self, x0,x1,network):
+    def forward(self, x0,x1,x2,network):
         # 只考虑edge_index
         # todo:修改
         x0 = self.in_layers_nodeFeature(x0)
         x1 = self.in_layers_edgeFeature(x1)
-        x = self.gat_layers(x0,x1,network)
+        x2 = self.in_layers_edgeFeature(x2)
+        x = self.sat_layers(x0, x1, x2, network)
         out = self.out_layers(x)
         return out
 
@@ -64,9 +65,9 @@ class graphAttentionModel(nn.Module):
             val_dataset=None,
             test_dataset=None,
     ):
-        self.test_loader = graph_DataSetLoader(test_dataset)
-        self.train_loader = graph_DataSetLoader(train_dataset)
-        self.val_loader = graph_DataSetLoader(val_dataset)
+        self.test_loader = simplicial_DataSetLoader(test_dataset)
+        self.train_loader = simplicial_DataSetLoader(train_dataset)
+        self.val_loader = simplicial_DataSetLoader(val_dataset)
         if self.checkFirstEpoch:
             if os.path.exists(self.modelFile_name_firstEpochCheckpoints):
                 self.loadFirstEpochCheckpoints()
@@ -80,10 +81,10 @@ class graphAttentionModel(nn.Module):
             self.train()
             for epoch_index in range(self.epochs):
                 testResult_curEpoch = self.getTestResult(epoch_index)
+                self.figureDrawer.matplot_epochPerformance.saveEpochData(epoch_index,testResult_curEpoch)
                 self.figureDrawer.visdomDrawEpoch(epoch_index, testResult_curEpoch)
                 self._do_epoch_(epoch_index, batch_size=batch_size)  # 训练
                 self.low_the_lr(epoch_index)
-                self.figureDrawer.matplot_epochPerformance.saveEpochData(epoch_index,testResult_curEpoch)
             self.eval()
 
     # 定义模型
@@ -167,11 +168,11 @@ class graphAttentionModel(nn.Module):
         return loss,x,y_pred,y_true,y_ob, w
 
     def prepare_output(self, data):
-        network, x0, x1, y_ob, y_true, weight = data
+        network, x0, x1, x2, y_ob, y_true, weight = data
         if self.is_weight==False:
             w = torch.ones([y_true.size(i) for i in range(y_true.dim() - 1)]).to(self.device)
         y_true = y_true
-        y_pred = self.forward(x0,x1,network)
+        y_pred = self.forward(x0,x1,x2,network)
         return x0,y_pred,y_true,y_ob, weight
 
 

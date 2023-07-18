@@ -7,7 +7,7 @@ from mydynalearn.dynamics.util.Simple_Dynamic_weight import Simple_Dynamic_weigh
 from abc import abstractmethod
 from easydict import EasyDict as edict
 
-class graph_DynamicDataset():
+class simplicial_DynamicDataset():
     def __init__(self, config,network,dynamics) -> None:
         self.config = config
         self.num_samples = config.num_samples
@@ -15,43 +15,49 @@ class graph_DynamicDataset():
         self.device = config.device
         self.network = network
         self.dynamics = dynamics
-        assert self.network.maxDimension == self.dynamics.maxDimension == 1
+        assert self.network.maxDimension == self.dynamics.maxDimension == 2
         self.setDynamicInfo(network, dynamics)  # 设置
 
 
     def run_dynamicProcess(self):
-        self.x0, self.x1 = self.ini_simplexFeatures()  # 初始化单纯型状态
-        self.incMatrix_AdjAct1 = self.get_incMatrix_AdjAct1(self.x0)
+        self.x0, self.x1, self.x2 = self.ini_simplexFeatures()  # 初始化单纯型状态
         for t in range(self.num_samples):
-            x0, y_ob, y_true,neighborSimplexActivation_Matrix = self.dynamic.runOneStep(self.x0, self.incMatrix_AdjAct1, self.network)
-            self.x0 = y_ob
-            self.incMatrix_AdjAct1 = self.get_incMatrix_AdjAct1(self.x0)
-            self.saveDynamicInfo(t, x0, y_ob, y_true,neighborSimplexActivation_Matrix)
+            self.incMatrix_AdjAct1 = self.get_incMatrix_AdjAct1(self.x0, self.x1)
+            self.incMatrix_AdjAct2 = self.get_incMatrix_AdjAct2(self.x0, self.x2)
+            x0, x1, x2, new_x0, new_x1, new_x2, y_true, adjActEdges, adjActTriangles= self.dynamic.runOneStep(self.x0,self.x1,self.x2, self.incMatrix_AdjAct1,self.incMatrix_AdjAct2, self.network)
+            self.x0 = new_x0
+            self.x1 = new_x1
+            self.x2 = new_x2
+            self.saveDynamicInfo(t, x0, x1, x2, new_x0, y_true, adjActEdges, adjActTriangles)
 
     def run(self, network, dynamic):
         self.setDynamicInfo(network, dynamic) # 设置
         for t in range(self.num_samples):
-            self.x0, self.x1 = self.ini_simplexFeatures()  # 初始化单纯型状态
+            self.x0, self.x1, self.x2 = self.ini_simplexFeatures()  # 初始化单纯型状态
             self.incMatrix_AdjAct1 = self.get_incMatrix_AdjAct1(self.x0,self.x1)
-            x0, x1, y_ob, y_true, adjActEdges = self.dynamic.runOneStep(self.x0,self.x1, self.incMatrix_AdjAct1, self.network)
-            self.x0 = y_ob
-            self.saveDynamicInfo(t, x0, x1, y_ob, y_true,adjActEdges)
+            self.incMatrix_AdjAct2 = self.get_incMatrix_AdjAct2(self.x0,self.x2)
+            x0, x1, x2, new_x0, new_x1, new_x2, y_true, adjActEdges, adjActTriangles = self.dynamic.runOneStep(self.x0,self.x1,self.x2, self.incMatrix_AdjAct1,self.incMatrix_AdjAct2, self.network)
+            self.x0 = new_x0
+            self.saveDynamicInfo(t, x0, x1, x2, new_x0, y_true, adjActEdges, adjActTriangles)
         simple_Dynamic_weight = Simple_Dynamic_weight(self.device, self.x0_T, self.adjActEdges_T, self.y_true_T,self.network)
         self.weight = simple_Dynamic_weight.weight
 
-    def saveDynamicInfo(self, t, x0, x1, y_ob, y_true, adjActEdges):
+    def saveDynamicInfo(self, t, x0, x1, x2, y_ob, y_true, adjActEdges, adjActTriangles):
         self.x0_T[t] = x0
         self.x1_T[t] = x1
+        self.x2_T[t] = x2
         self.y_ob_T[t] = y_ob
         self.y_true_T[t] = y_true
         self.adjActEdges_T[t] = adjActEdges
+        self.adjActTriangles_T[t] = adjActTriangles
 
     def setDynamicInfo(self,network, dynamic):
         self.network = network
         self.dynamic = dynamic
-        assert self.network.maxDimension == self.dynamic.maxDimension == 1
+        assert self.network.maxDimension == self.dynamic.maxDimension == 2
         self.num_nodes = network.num_nodes
         self.num_edges = network.num_edges
+        self.num_triangles = network.num_triangles
         self.maxDimension = network.maxDimension
         self.infSeeds = int(dynamic.initSeedFraction * self.num_nodes)
         self.num_state = dynamic.num_state
@@ -59,9 +65,11 @@ class graph_DynamicDataset():
 
         self.x0_T = torch.ones(self.num_samples, self.num_nodes, self.num_state).to(self.config.device,dtype = torch.float)
         self.x1_T = torch.ones(self.num_samples, self.num_edges, self.num_state).to(self.config.device,dtype = torch.float)
+        self.x2_T = torch.ones(self.num_samples, self.num_triangles, self.num_state).to(self.config.device,dtype = torch.float)
         self.y_ob_T = torch.ones(self.num_samples, self.num_nodes, self.num_state).to(self.config.device,dtype = torch.float)
         self.y_true_T = torch.ones(self.num_samples, self.num_nodes, self.num_state).to(self.config.device,dtype = torch.float)
         self.adjActEdges_T = torch.ones(self.num_samples, self.num_nodes).to(self.config.device, dtype = torch.long)
+        self.adjActTriangles_T = torch.ones(self.num_samples, self.num_nodes).to(self.config.device, dtype = torch.long)
         self.simplicesFeature_T = list()
 
     def get_incMatrix_AdjAct1(self, x0, x1):
@@ -74,14 +82,30 @@ class graph_DynamicDataset():
         _incMatrix_globleLastNumI1 = (x1 - _expand_x0)[:,:,-1]
         # 判断1-单纯型（边）是否为激活态
         _threshold_scAct1 = 1 # 1-simplex中其他节点感染人数阈值
-        _incMatrix_globleAct1_indices = torch.where(_incMatrix_globleLastNumI1 >=_threshold_scAct1)
+        _incMatrix_globleAct1_indices = torch.where(_incMatrix_globleLastNumI1==_threshold_scAct1)
         _incMatrix_globleAct1_values = _incMatrix_globleLastNumI1[_incMatrix_globleAct1_indices]
         # 节点-激活边 关联矩阵
         _incMatrix_globleAct1_indices = torch.stack(_incMatrix_globleAct1_indices,dim=0)
         _incMatrix_globleAct1 = torch.sparse_coo_tensor(indices=_incMatrix_globleAct1_indices,values=_incMatrix_globleAct1_values,size=_incMatrix_globleLastNumI1.shape)
         incMatrix_AdjAct1 = self.network.incMatrix_adj1*_incMatrix_globleAct1
         return incMatrix_AdjAct1
-
+    def get_incMatrix_AdjAct2(self, x0, x2):
+        '''
+        更具节点状态更新单纯形状态
+        '''
+        # _expand_x0: 节点特征扩展矩阵
+        _expand_x0 = x0.unsqueeze(1).repeat_interleave(self.network.num_triangles, dim=1)
+        # _globle_incMatrix_lastNumI：边特征减去节点特征，计算剩余节点，I态个数
+        _incMatrix_globleLastNumI = (x2 - _expand_x0)[:,:,-1]
+        # 判断2-单纯型（边）是否为激活态
+        _threshold_scAct2 = 2 # 2-simplex中其他节点感染人数阈值
+        _incMatrix_globleAct2_indices = torch.where(_incMatrix_globleLastNumI>=_threshold_scAct2)
+        _incMatrix_globleAct2_values = torch.ones(_incMatrix_globleAct2_indices[0].shape).to(self.device)
+        # 节点-激活边 关联矩阵
+        _incMatrix_globleAct2_indices = torch.stack(_incMatrix_globleAct2_indices,dim=0)
+        _incMatrix_globleAct2 = torch.sparse_coo_tensor(indices=_incMatrix_globleAct2_indices,values=_incMatrix_globleAct2_values,size=_incMatrix_globleLastNumI.shape)
+        incMatrix_AdjAct2 = self.network.incMatrix_adj2*_incMatrix_globleAct2
+        return incMatrix_AdjAct2
 
 
 
@@ -98,17 +122,19 @@ class graph_DynamicDataset():
             num_infNodes = int(self.num_nodes * self.dynamic.initSeedFraction)
             infNodes_index = random.sample(range(self.num_nodes), num_infNodes)
             x0[infNodes_index] = self.nodeState_map[1]
-            # edges_feature: 表示边的特征
+            # x1: 表示边的特征
             x1 = torch.sum(x0[self.network.edges], dim=-2)
-        return x0, x1
+            # x2: 表示三角形的特征
+            x2 = torch.sum(x0[self.network.triangles], dim=-2)
+        return x0, x1, x2
     def get_dataset_from_index(self,index):
         dataset = edict({
             "network":self.network,
             "x0_T":self.x0_T[index],
             "x1_T":self.x1_T[index],
+            "x2_T":self.x2_T[index],
             "y_ob_T":self.y_ob_T[index],
             "y_true_T":self.y_true_T[index],
-            "adjActEdges_T":self.adjActEdges_T[index],
             "weight":self.weight[index]
         })
         return dataset

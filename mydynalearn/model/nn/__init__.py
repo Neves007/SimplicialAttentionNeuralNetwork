@@ -1,2 +1,2 @@
 from .GraphAttentionLayer import *
-from .GraphAttentionLayerSparse import *
+from .SimplicialAttentionLayer import *

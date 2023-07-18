@@ -1,20 +1,46 @@
 import os
-os.chdir("../../../2.0 myCode_edge_index")
-
-
-# 获取配置
 from mydynalearn.config import ExperimentConfig
-config = ExperimentConfig.default(
-    "dynamics-sis-sc",
-    "sis",
-    "sc",
-    seed=0
-)
-# T总时间步
-config.train_details.num_samples = 500
-config.train_details.epochs = 1 # 10
-config.set_path()
-
 from DynamicExperiment import DynamicExperiment
-exp = DynamicExperiment(config)
+
+def fix_config(config):
+    # T总时间步
+    config.dataset.num_samples = num_samples
+    config.dataset.num_test = testSet_timestep
+    config.dataset.epochs = epochs  # 10
+    # 检查点
+    config.dataset.checkFirstEpoch = checkFirstEpoch  # 10
+    config.dataset.checkFirstEpoch_max_time = checkFirstEpoch_max_time
+    config.dataset.checkFirstEpoch_timestep = checkFirstEpoch_timestep
+    config.set_path()
+
+
+def getExperiment(name, network, dynamics, topology, weight):
+    config = ExperimentConfig.default(
+        name=name,
+        network=network,
+        dynamics=dynamics,
+        nn_type=topology,
+        is_weight=weight,
+        seed=0
+    )
+    fix_config(config)
+    exp = DynamicExperiment(config)
+    return exp
+# 获取配置
+
+# T总时间步
+num_samples = 2000
+testSet_timestep = 10
+epochs = 1 # 10
+checkFirstEpoch = False # 10
+checkFirstEpoch_max_time = 1000
+checkFirstEpoch_timestep = 100
+
+
+exp = getExperiment(name="dynamicTesting-sc_sis-sc_er-simplicial",
+                    network="sc_er",
+                    dynamics="sc_sis",
+                    topology="simplicial",
+                    weight=False)
+
 exp.run()

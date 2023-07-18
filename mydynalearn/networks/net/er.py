@@ -5,7 +5,7 @@ import torch
 from itertools import combinations
 from scipy.special import comb
 from easydict import EasyDict as edict
-from ..util.util import edge_to_node_matrix
+from ..util.util import nodeToEdge_matrix
 
 class er():
     def __init__(self, config,toy_network=False):
@@ -59,7 +59,7 @@ class er():
                                               values=torch.ones(2*self.num_edges),
                                               size=(self.num_nodes,self.num_nodes))
         # incMatrix_1：节点和边的关联矩阵
-        incMatrix_adj1 = edge_to_node_matrix(self.edges, self.nodes)
+        incMatrix_adj1 = nodeToEdge_matrix(self.nodes,self.edges)
         incMatrix_adj1 = incMatrix_adj1.to_sparse()
 
         # 随机断边

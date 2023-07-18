@@ -9,13 +9,13 @@ from mydynalearn.experiments import Experiment
 
 def fix_config(config):
     # T总时间步
-    config.train_details.num_samples = num_samples
-    config.train_details.num_test = testSet_timestep
-    config.train_details.epochs = epochs  # 10
+    config.dataset.num_samples = num_samples
+    config.dataset.num_test = testSet_timestep
+    config.dataset.epochs = epochs  # 10
     # 检查点
-    config.train_details.checkFirstEpoch = checkFirstEpoch  # 10
-    config.train_details.checkFirstEpoch_max_time = checkFirstEpoch_max_time
-    config.train_details.checkFirstEpoch_timestep = checkFirstEpoch_timestep
+    config.dataset.checkFirstEpoch = checkFirstEpoch  # 10
+    config.dataset.checkFirstEpoch_max_time = checkFirstEpoch_max_time
+    config.dataset.checkFirstEpoch_timestep = checkFirstEpoch_timestep
     config.set_path()
 
 def sis_SC_notWeight():

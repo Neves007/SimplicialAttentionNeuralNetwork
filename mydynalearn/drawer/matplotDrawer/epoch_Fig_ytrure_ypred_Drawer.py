@@ -7,7 +7,7 @@ import pickle
 class epoch_Fig_ytrure_ypred_Drawer(MatplotDrawer):
     def __init__(self,config):
         super().__init__(config)
-        self.epochs = config.train_details.epochs
+        self.epochs = config.dataset.epochs
         self.figName = "/epochPerformance_Fig_ytrure_ypred.png"
 
     def saveEpochData(self,epoch_index, testResult):
@@ -31,16 +31,22 @@ class epoch_Fig_ytrure_ypred_Drawer(MatplotDrawer):
         else:
             row = int(row)+1
             col = row
-        self.row = row
-        self.col = col
+        self.totalFigures = int(totalFigures)
+        self.row = int(row)
+        self.col = int(col)
         zoomtimes=0.8
-        self.fig, self.axes = plt.subplots(row,col,figsize=(zoomtimes*37, zoomtimes*35),dpi=200)
+        self.fig, self.axes = plt.subplots(self.row,self.col,figsize=(zoomtimes*37, zoomtimes*35),dpi=200)
 
     def _get_subplotIndex(self,fig_index):
         # 通过epochindex拿到子图axis
         row_index = int(fig_index / self.col)
         col_index = fig_index % self.col
-        ax = self.axes[row_index][col_index]
+        if self.row==self.col==1:
+            ax = self.axes
+        elif self.row==1 and self.col>1:
+            ax = self.axes[col_index]
+        elif self.row>1 and self.col>1:
+            ax = self.axes[row_index][col_index]
         return ax
 
     def draw(self, epoch_index, epochData):

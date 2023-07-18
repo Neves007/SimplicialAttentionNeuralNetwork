@@ -5,7 +5,7 @@ __networks__ = {
     # Todo: 只改了ER
     "er": er,
     "ba": ba,
-    "sc": sc,
+    "sc_er": sc_er,
 }
 
 

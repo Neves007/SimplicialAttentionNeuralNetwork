@@ -8,14 +8,14 @@ class NetworkConfig(Config):
     def __init__(self):
         super().__init__()
     @classmethod
-    def er(cls, num_nodes=2000):
+    def er(cls, num_nodes=1000):
         cls = cls()
         cls.name = 'er'
         cls.num_nodes = num_nodes
         cls.avg_k = torch.tensor([20])
         return cls
     @classmethod
-    def ba(cls, num_nodes=2000):
+    def ba(cls, num_nodes=1000):
         cls = cls()
         cls.name = 'ba'
         cls.num_nodes = num_nodes
@@ -24,12 +24,19 @@ class NetworkConfig(Config):
         cls.BE_eadge_p = 1 - log(1 - cls.__BE_eadge_mu + exp(1) * cls.__BE_eadge_mu) # 断边概率
         return cls
     @classmethod
-    def sc(cls,num_nodes=2000,):
+    def sc_er(cls,num_nodes=1000,):
         cls = cls()
-        cls.name = 'sc'
+        cls.name = 'sc_er'
         cls.num_nodes = num_nodes
         cls.avg_k = torch.tensor([20, 6])
         cls.maxDimension = cls.avg_k.shape[0]
         return cls
 
-
+    @classmethod
+    def sc_ba(cls,num_nodes=1000,):
+        cls = cls()
+        cls.name = 'sc_ba'
+        cls.num_nodes = num_nodes
+        cls.avg_k = torch.tensor([20, 6])
+        cls.maxDimension = cls.avg_k.shape[0]
+        return cls

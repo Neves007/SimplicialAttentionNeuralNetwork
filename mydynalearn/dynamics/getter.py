@@ -3,7 +3,7 @@ from .compartmentModel import *
 __dynamics__ = {
     "sis": sis,
     "sir": sir,
-    "sis_sc": sis,
+    "sc_sis": sc_sis,
 }
 
 

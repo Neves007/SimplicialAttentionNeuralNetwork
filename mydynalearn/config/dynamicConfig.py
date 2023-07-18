@@ -8,7 +8,7 @@ class DynamicConfig(Config):
         cls = cls()
         cls.name = "sis"
         cls.num_state = 2
-        cls.initSeedFraction = 0.1
+        cls.initSeedFraction = 0.2
         cls.eff_infection = torch.tensor([8])
         cls.maxDimension = cls.eff_infection.shape[0]
         cls.recovery = 0.2
@@ -17,10 +17,10 @@ class DynamicConfig(Config):
     @classmethod
     def sis_sc(cls, num_nodes=1000, p=0.004, weights=None):
         cls = cls()
-        cls.name = "sis_sc"
+        cls.name = "sc_sis"
         cls.num_state = 2
-        cls.initSeedFraction = 0.1
-        cls.eff_infection = torch.tensor([8,2])
+        cls.initSeedFraction = 0.2
+        cls.eff_infection = torch.tensor([8,2.5])
         cls.maxDimension = cls.eff_infection.shape[0]
         cls.recovery = 0.2
         return cls
@@ -30,8 +30,8 @@ class DynamicConfig(Config):
         cls = cls()
         cls.name = "sir"
         cls.num_state = 3
-        cls.initSeedFraction = 0.1
-        cls.eff_infection = torch.tensor([2])
+        cls.initSeedFraction = 0.2
+        cls.eff_infection = torch.tensor([8])
         cls.maxDimension = cls.eff_infection.shape[0]
         cls.recovery = 0.2
         return cls
