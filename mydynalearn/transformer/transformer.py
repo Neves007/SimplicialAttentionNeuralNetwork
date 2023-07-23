@@ -7,7 +7,7 @@ def dict_to_tensor(dict):
     for key in dict.keys():
         dict
 
-def data_curEpoch_2_data_T(data_curEpoch):
+def data_curEpoch_2_data_T(data_curEpoch,is_weight):
     T = len(data_curEpoch)
     x_T = torch.zeros([T]+list(data_curEpoch[0]['x'].shape))
     y_pred_T = torch.zeros([T]+list(data_curEpoch[0]['y_pred'].shape))
@@ -25,4 +25,6 @@ def data_curEpoch_2_data_T(data_curEpoch):
         y_ob_T[time] =y_ob
         y_true_T[time] =y_true
         w_T[time] =w
+    if ~is_weight:
+        w_T = torch.ones(w_T.shape).to(w_T.device)
     return x_T.view(-1,2), y_pred_T.view(-1,2), y_ob_T.view(-1,2), y_true_T.view(-1,2),w_T.view(-1)

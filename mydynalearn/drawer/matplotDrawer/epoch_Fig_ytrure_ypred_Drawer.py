@@ -7,6 +7,7 @@ import pickle
 class epoch_Fig_ytrure_ypred_Drawer(MatplotDrawer):
     def __init__(self,config):
         super().__init__(config)
+
         self.epochs = config.dataset.epochs
         self.figName = "/epochPerformance_Fig_ytrure_ypred.png"
 
@@ -50,7 +51,8 @@ class epoch_Fig_ytrure_ypred_Drawer(MatplotDrawer):
         return ax
 
     def draw(self, epoch_index, epochData):
-        x_T, y_pred_T, y_ob_T, y_true_T,w_T = data_curEpoch_2_data_T(epochData)
+        x_T, y_pred_T, y_ob_T, y_true_T,w_T = data_curEpoch_2_data_T(epochData,self.config.is_weight)
+
         ax = self._get_subplotIndex(epoch_index)
         fig_ytrure_ypred = Fig_ytrure_ypred(ax)
         fig_ytrure_ypred.scatterT(epoch_index, x_T, y_pred_T, y_ob_T, y_true_T,w_T)

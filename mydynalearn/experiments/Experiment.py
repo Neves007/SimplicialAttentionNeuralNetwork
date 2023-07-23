@@ -19,9 +19,9 @@ class Experiment():
         self.dataset = get_dataset(config.dataset,self.network,self.dynamics)
         self.model = get_model(config)
         self.__tasks__ = [
-            "generate_data",
-            "partition_dataSet",
-            "train_model",
+            # "generate_data",
+            # "partition_dataSet",
+            # "train_model",
             "performance_evaluation",
         ]
     def run(self):

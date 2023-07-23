@@ -42,28 +42,28 @@ checkFirstEpoch = False # 10
 checkFirstEpoch_max_time = 1000
 checkFirstEpoch_timestep = 100
 
-# exp = getExperiment(name="dynamicLearning-sis-er-GAT",
-#                     network="er",
-#                     dynamics="sis",
-#                     dataset="graph",
-#                     nn_type="graph",
-#                     weight=True)
-# exp.run()
-#
-# exp = getExperiment(name="dynamicLearning-sc_sis-sc_er-GAT",
-#                     network="sc_er",
-#                     dynamics="sc_sis",
-#                     dataset="simplicial",
-#                     nn_type="graph",
-#                     weight=True)
-# exp.run()
+exp = getExperiment(name="dynamicLearning-sis-er-GAT",
+                    network="er",
+                    dynamics="sis",
+                    dataset="graph",
+                    nn_type="graph",
+                    weight=False)
+exp.run()
+
+exp = getExperiment(name="dynamicLearning-sc_sis-sc_er-GAT",
+                    network="sc_er",
+                    dynamics="sc_sis",
+                    dataset="simplicial",
+                    nn_type="graph",
+                    weight=False)
+exp.run()
 
 exp = getExperiment(name="dynamicLearning-sc_sis-sc_er-SAT",
                     network="sc_er",
                     dynamics="sc_sis",
                     dataset="simplicial",
                     nn_type="simplicial",
-                    weight=True)
+                    weight=False)
 exp.run()
 
 
