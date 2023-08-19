@@ -1,76 +1,79 @@
 import random
-import networkx as nx
-import numpy as np
 import torch
-from itertools import combinations
-from scipy.special import comb
-from easydict import EasyDict as edict
 from ..util.util import nodeToEdge_matrix
-
-class er():
-    def __init__(self, config,toy_network=False):
-        # toy_network = True
-        self.toy_network = toy_network
-        self.name = config.name
-        self.device = config.device
-        if toy_network:
-            self.num_nodes = 8
-            self.maxDimension = 2
-            self.simplices_Dict = {
-                "1-simplex": torch.tensor([(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6),
-                              (1, 2), (1, 7),
-                              (2, 7), (4, 5), (5, 6)]).to(self.device),
-                "2-simplex": torch.tensor([(0, 4, 5), (0, 5, 6), (1, 2, 7)]).to(self.device)
-            }
-        else:
-            self.maxDimension = 1
-            self.config = config
-            self.nodes,self.edges,self.num_nodes,self.num_edges,self.avg_k = self._Create_Network(config.num_nodes,config.avg_k)  # 网络信息
-            self.incMatrix_adj0, self.incMatrix_adj1 = self._get_adjInfo()  # 关联矩阵
-        self.to_device()
+from mydynalearn.networks.network import Network
+class ER(Network):
+    def __init__(self, net_config):
+        super().__init__(net_config)
         pass
 
+    def _set_net_info(self):
+        self.nodes = self.net_info["nodes"]
+        self.edges = self.net_info["edges"]
+        self.NUM_NODES = self.net_info["NUM_NODES"]
+        self.NUM_EDGES = self.net_info["NUM_EDGES"]
+        self.AVG_K = self.net_info["AVG_K"]
+
+    def set_inc_matrix_adj_info(self):
+        self.inc_matrix_adj0 = self.inc_matrix_adj_info["inc_matrix_adj0"]
+        self.inc_matrix_adj1 = self.inc_matrix_adj_info["inc_matrix_adj1"]
+
     # 边界矩阵B
-    def _create_edges(self,num_nodes,num_edges):
+    def _create_edges(self,NUM_NODES,NUM_EDGES):
         edges = set()
-        while len(edges) < num_edges:
-            edge = random.sample(range(num_nodes), 2)
+        while len(edges) < NUM_EDGES:
+            edge = random.sample(range(NUM_NODES), 2)
             edge.sort()
             edges.add(tuple(edge))
         return torch.asarray(list(edges))
 
+    def _create_network(self):
+        NUM_NODES = self.net_config.NUM_NODES
+        AVG_K = self.net_config.AVG_K
+        assert len(AVG_K) == self.MAX_DIMENSION
+        k = AVG_K[0]
+        nodes = torch.arange(NUM_NODES)
+        NUM_EDGES = int(k * NUM_NODES / 2)
+        NUM_EDGES = NUM_EDGES
+        edges = self._create_edges(NUM_NODES, NUM_EDGES)
+        AVG_K = torch.asarray([2 * len(edges) / NUM_NODES])
 
-    def _Create_Network(self,num_nodes,avg_k):
-        assert len(avg_k) == self.maxDimension
-        k = avg_k[0]
-        nodes = torch.arange(num_nodes)
-        num_edges = int(k * num_nodes / 2)
-        num_edges = num_edges
-        edges = self._create_edges(num_nodes,num_edges)
-        avg_k = torch.asarray([2*len(edges)/num_nodes])
-        return nodes,edges,num_nodes,num_edges,avg_k
+        net_info = {"nodes": nodes,
+                    "edges": edges,
+                    "NUM_NODES": NUM_NODES,
+                    "NUM_EDGES": NUM_EDGES,
+                    "AVG_K": AVG_K}
+        return net_info
 
-    def _get_adjInfo(self):
-        # incMatrix_0：节点和节点的关联矩阵
+    def _get_adj(self):
+        nodes, edges, NUM_NODES, NUM_EDGES, AVG_K = self._unpack_net_info()
+        # inc_matrix_0：节点和节点的关联矩阵
         # 先对边进行预处理，无相边会有问题。
-        inverse_matrix=torch.asarray([[0, 1], [1, 0]])
-        edges_inverse = torch.mm(self.edges,inverse_matrix) # 对调两行
-        incMatrix_adj0 = torch.sparse_coo_tensor(indices=torch.cat([self.edges.T,edges_inverse.T],dim=1),
-                                              values=torch.ones(2*self.num_edges),
-                                              size=(self.num_nodes,self.num_nodes))
-        # incMatrix_1：节点和边的关联矩阵
-        incMatrix_adj1 = nodeToEdge_matrix(self.nodes,self.edges)
-        incMatrix_adj1 = incMatrix_adj1.to_sparse()
-
+        inverse_matrix = torch.asarray([[0, 1], [1, 0]])
+        edges_inverse = torch.mm(edges, inverse_matrix)  # 对调两行
+        inc_matrix_adj0 = torch.sparse_coo_tensor(indices=torch.cat([edges.T, edges_inverse.T], dim=1),
+                                                 values=torch.ones(2 * NUM_EDGES),
+                                                 size=(NUM_NODES, NUM_NODES))
+        # inc_matrix_1：节点和边的关联矩阵
+        inc_matrix_adj1 = nodeToEdge_matrix(nodes, edges)
+        inc_matrix_adj1 = inc_matrix_adj1.to_sparse()
+        inc_matrix_adj_info = {
+            "inc_matrix_adj0":inc_matrix_adj0,
+            "inc_matrix_adj1":inc_matrix_adj1
+        }
         # 随机断边
-        return incMatrix_adj0, incMatrix_adj1
-    def to_device(self):
+        return inc_matrix_adj_info
+
+    def _to_device(self):
         self.nodes = self.nodes.to(self.device)
         self.edges = self.edges.to(self.device)
-        self.incMatrix_adj0 = self.incMatrix_adj0.to(self.device)
-        self.incMatrix_adj1 = self.incMatrix_adj1.to(self.device)
-    def unpack_NetworkInfo(self):
-        nodes = self.nodes
-        edges = self.edges
-        incMatrix = (self.incMatrix_adj0,self.incMatrix_adj1)
-        return nodes, edges, incMatrix
+        self.NUM_NODES = self.NUM_NODES
+        self.NUM_EDGES = self.NUM_EDGES
+        self.AVG_K = self.AVG_K
+
+        self.inc_matrix_adj0 = self.inc_matrix_adj0.to(self.device)
+        self.inc_matrix_adj1 = self.inc_matrix_adj1.to(self.device)
+    def _unpack_net_info(self):
+        return self.nodes, self.edges, self.NUM_NODES, self.NUM_EDGES, self.AVG_K
+    def _unpack_inc_matrix_adj_info(self):
+        return self.inc_matrix_adj0, self.inc_matrix_adj1

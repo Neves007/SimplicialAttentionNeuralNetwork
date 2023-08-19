@@ -1,1 +1,2 @@
-from .FigureDrawer import *
+from .visdom_controller import *
+from .matplot_controller import *

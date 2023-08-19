@@ -1,17 +1,19 @@
-from .compartmentModel import *
+from mydynalearn.dynamics.compartment_model_graph import *
+from mydynalearn.dynamics.compartment_model_simplicial import *
 
-__dynamics__ = {
-    "sis": sis,
-    "sir": sir,
-    "sc_sis": sc_sis,
+__DYNAMICS__ = {
+    "UAU": UAU,
+    "CompUAU": CompUAU,
+    "SCUAU": SCUAU,
+    "SCCompUAU": SCCompUAU,
 }
 
 
-def get(config):
-    name = config.name
-    if name in __dynamics__:
-        return __dynamics__[name](config)
+def get(config,network):
+    NAME = config.dynamics.NAME
+    if NAME in __DYNAMICS__:
+        return __DYNAMICS__[NAME](config,network)
     else:
         raise ValueError(
-            f"{name} is invalid, possible entries are {list(__dynamics__.keys())}"
+            f"{NAME} is invalid, possible entries are {list(__DYNAMICS__.keys())}"
         )

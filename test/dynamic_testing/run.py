@@ -1,6 +1,6 @@
 import os
 from mydynalearn.config import ExperimentConfig
-from DynamicExperiment import DynamicExperiment
+from dynamic_experiment import DynamicExperiment
 
 def fix_config(config):
     # T总时间步
@@ -8,39 +8,46 @@ def fix_config(config):
     config.dataset.num_test = testSet_timestep
     config.dataset.epochs = epochs  # 10
     # 检查点
-    config.dataset.checkFirstEpoch = checkFirstEpoch  # 10
-    config.dataset.checkFirstEpoch_max_time = checkFirstEpoch_max_time
-    config.dataset.checkFirstEpoch_timestep = checkFirstEpoch_timestep
+    config.dataset.check_first_epoch = check_first_epoch  # 10
+    config.dataset.check_first_epoch_maxtime = check_first_epoch_max_time
+    config.dataset.check_first_epoch_timestep = check_first_epoch_timestep
     config.set_path()
 
 
-def getExperiment(name, network, dynamics, topology, weight):
+def get_experiment(NAME, network, dynamics, dataset, nn_type, weight):
     config = ExperimentConfig.default(
-        name=name,
+        NAME=NAME,
         network=network,
         dynamics=dynamics,
-        nn_type=topology,
+        dataset=dataset,
+        nn_type=nn_type,
         is_weight=weight,
         seed=0
     )
     fix_config(config)
     exp = DynamicExperiment(config)
     return exp
+
 # 获取配置
 
 # T总时间步
-num_samples = 2000
+num_samples = 1000
 testSet_timestep = 10
 epochs = 1 # 10
-checkFirstEpoch = False # 10
-checkFirstEpoch_max_time = 1000
-checkFirstEpoch_timestep = 100
+check_first_epoch = False # 10
+check_first_epoch_max_time = 1000
+check_first_epoch_timestep = 100
 
-
-exp = getExperiment(name="dynamicTesting-sc_sis-sc_er-simplicial",
-                    network="sc_er",
-                    dynamics="sc_sis",
-                    topology="simplicial",
-                    weight=False)
+'''
+network = ["ER","SCER"]
+dynamics = ["UAU","CompUAU","SCUAU","SCCompUAU"]
+dataset = ["graph","simplicial"]
+'''
+exp = get_experiment(NAME="dynamicLearning-SCER-SCCompUAU-SAT",
+                     network="ToySCER",
+                     dynamics="SCCompUAU",
+                     dataset="simplicial",
+                     nn_type="simplicial",
+                     weight=False)
 
 exp.run()

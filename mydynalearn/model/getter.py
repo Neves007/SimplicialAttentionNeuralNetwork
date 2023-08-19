@@ -7,10 +7,10 @@ __Model__ = {
 }
 
 
-def get(config):
-    name = config.model.name
-    if name in __Model__:
-        model = __Model__[name](config)
+def get(config,network,dynamics):
+    NAME = config.model.NAME
+    if NAME in __Model__:
+        model = __Model__[NAME](config,network,dynamics)
         return model
     else:
-        loguru.logger.error("there is no model named {}",name)
+        loguru.logger.error("there is no model named {}",NAME)

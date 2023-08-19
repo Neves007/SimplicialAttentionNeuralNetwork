@@ -1,9 +1,9 @@
 import torch
-def _unpackTestResult_curEpochResult(testResult_curEpoch):
-    T = len(testResult_curEpoch)
+def _unpacktest_result_curepochResult(test_result_curepoch):
+    T = len(test_result_curepoch)
     loss_all = 1.*torch.zeros(T)
     acc_all = 1.*torch.zeros(T)
-    for t,data in enumerate(testResult_curEpoch):
+    for t,data in enumerate(test_result_curepoch):
         time_idx = data['time_idx']
         loss = data['loss']
         acc = data['acc']
@@ -28,6 +28,6 @@ def unpackBatchData(data):
     w = data['w']
     return epoch_idx, time_idx, loss, acc, x, y_pred, y_true, y_ob, w
 
-def compute_testResult_curEpoch_loss_acc(testResult_curEpoch):
-    loss_all,acc_all = _unpackTestResult_curEpochResult(testResult_curEpoch)
+def compute_test_result_curepoch_loss_acc(test_result_curepoch):
+    loss_all,acc_all = _unpacktest_result_curepochResult(test_result_curepoch)
     return loss_all.mean(),acc_all.mean()

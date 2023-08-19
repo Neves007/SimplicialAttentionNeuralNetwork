@@ -11,15 +11,22 @@ __optimizers__ = {
         weight_decay=config.weight_decay,
         amsgrad=config.amsgrad,
     ),
+    "RAdam": lambda config: lambda p: torch.optim.RAdam(
+        p,
+        lr=config.lr,
+        betas=config.betas,
+        eps=config.eps,
+        weight_decay=config.weight_decay,
+    ),
 }
 
 
 def get(config):
-    name = config.name
+    NAME = config.NAME
 
-    if name in __optimizers__:
-        return __optimizers__[name](config)
+    if NAME in __optimizers__:
+        return __optimizers__[NAME](config)
     else:
         raise ValueError(
-            f"{name} is invalid, possible entries are {list(__optimizers__.keys())}"
+            f"{NAME} is invalid, possible entries are {list(__optimizers__.keys())}"
         )

@@ -1,8 +1,8 @@
 from .config import *
-from .dynamicConfig import *
-from .networkConfig import *
-from .trainableConfig import *
-from .datasetConfig import *
+from .config_dynamic import *
+from .config_network import *
+from .config_trainable import *
+from .config_dataset import *
 from .util import *
-from .expeimentConfig import *
+from .config_expeiment import *
 

@@ -1,1 +1,1 @@
-from .Experiment import *
+from .experiment import *

@@ -4,7 +4,7 @@ class OptimizerConfig():
     def default(cls):
         cls = cls()
 
-        cls.name = "Adam"
+        cls.NAME = "RAdam"
         cls.lr = 1.0e-3
         cls.weight_decay = 1.0e-4
         cls.betas = (0.9, 0.999)

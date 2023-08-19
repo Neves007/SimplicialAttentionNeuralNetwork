@@ -27,4 +27,4 @@ def data_curEpoch_2_data_T(data_curEpoch,is_weight):
         w_T[time] =w
     if ~is_weight:
         w_T = torch.ones(w_T.shape).to(w_T.device)
-    return x_T.view(-1,2), y_pred_T.view(-1,2), y_ob_T.view(-1,2), y_true_T.view(-1,2),w_T.view(-1)
+    return x_T.view(-1,x_T.shape[-1]), y_pred_T.view(-1,y_pred_T.shape[-1]), y_ob_T.view(-1,y_ob_T.shape[-1]), y_true_T.view(-1,y_true_T.shape[-1]),w_T.view(-1)
