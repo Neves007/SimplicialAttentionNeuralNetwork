@@ -5,6 +5,7 @@ __DATA_SET__ = {
     "CompUAU": DynamicDatasetCompUAU,
     "SCUAU": DynamicDatasetSCUAU,
     "SCCompUAU": DynamicDatasetCompSCUAU,
+    "ToySCCompUAU": DynamicDatasetCompSCUAU,
 }
 
 def get(config,network,dynamics):

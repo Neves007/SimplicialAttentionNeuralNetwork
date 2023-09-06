@@ -5,6 +5,10 @@ __networks__ = {
     "ER": ER,
     "SCER": SCER,
     "ToySCER": ToySCER,
+    "CONFERENCE": Realnet,
+    "HIGHSCHOOL": Realnet,
+    "HOSPITAL": Realnet,
+    "WORKPLACE": Realnet,
 }
 
 

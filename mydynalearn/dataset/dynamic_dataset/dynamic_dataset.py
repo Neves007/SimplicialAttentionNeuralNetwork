@@ -2,7 +2,7 @@ import pickle
 import torch
 from abc import abstractmethod
 from mydynalearn.dynamics.simple_dynamic_weight.getter import get as weight_getter
-
+from tqdm import *
 class DynamicDataset():
     def __init__(self, config,network,dynamics) -> None:
         self.config = config
@@ -17,12 +17,12 @@ class DynamicDataset():
 
     def save_dataset(self):
         data = self
-        file_name = self.config.path_to_datasets+"/dataset.pkl"
+        file_name = self.config.datapath_to_datasets+"/dataset.pkl"
         with open(file_name, "wb") as file:
             pickle.dump(data,file)
 
     def load_dataset(self):
-        file_name = self.config.path_to_datasets + "/dataset.pkl"
+        file_name = self.config.datapath_to_datasets + "/dataset.pkl"
         with open(file_name, "rb") as file:
             info = pickle.load(file)
         return info
@@ -49,14 +49,16 @@ class DynamicDataset():
     def run_dynamic_process(self):
         self.set_dynamic_info()  # 设置
         self.dynamics.init_net_features()
-        for t in range(self.num_samples):
+        print("create dynamics")
+        for t in tqdm(range(self.num_samples)):
             self.dynamics._run_onestep()
             result_dict = self.dynamics.get_spread_result()
             self.dynamics.set_features(**result_dict)
             self.save_dnamic_info(t, **result_dict)
     def run(self):
+        print("create dynamics")
         self.set_dynamic_info() # 设置
-        for t in range(self.num_samples):
+        for t in tqdm(range(self.num_samples)):
             self.dynamics.init_net_features()  # 初始化单纯型状态
             self.dynamics._run_onestep()
             result_dict = self.dynamics.get_spread_result()

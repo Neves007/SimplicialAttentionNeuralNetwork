@@ -39,13 +39,13 @@ check_first_epoch_max_time = 1000
 check_first_epoch_timestep = 100
 
 '''
-network = ["ER","SCER"]
-dynamics = ["UAU","CompUAU","SCUAU","SCCompUAU"]
+network = ["ER","SCER","ToySCER"]
+dynamics = ["UAU","CompUAU","SCUAU","SCCompUAU","ToySCCompUAU"]
 dataset = ["graph","simplicial"]
 '''
 exp = get_experiment(NAME="dynamicLearning-SCER-SCCompUAU-SAT",
                      network="ToySCER",
-                     dynamics="SCCompUAU",
+                     dynamics="ToySCCompUAU",
                      dataset="simplicial",
                      nn_type="simplicial",
                      weight=False)

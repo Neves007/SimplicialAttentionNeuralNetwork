@@ -115,16 +115,7 @@ class CompUAU(CompartmentModelGraph):
         true_tp[U_index, self.STATES_MAP["A1"]] = (aware_prob*f_A1)[U_index]
         true_tp[U_index, self.STATES_MAP["A2"]] = (aware_prob*f_A2)[U_index]
         return aware_A1_index, aware_A2_index
-    def get_weight(self,old_x0,adj_A1_act_edges,adj_A2_act_edges,new_x0):
-        simple_dynamic_weight = self.SimpleDynamicWeight(self.device,
-                                                         old_x0,
-                                                         new_x0,
-                                                         adj_A1_act_edges,
-                                                         adj_A2_act_edges,
-                                                         self.network,
-                                                         self)
-        weight = simple_dynamic_weight.get_weight()
-        return weight
+
     def _spread(self):
         old_x0, old_x1, true_tp, adj_A1_act_edges, adj_A2_act_edges = self._preparing_spreading_data()
         U_index, A1_index, A2_index = self._get_nodeid_for_each_state()
@@ -132,11 +123,16 @@ class CompUAU(CompartmentModelGraph):
         recover_A1_index = self._dynamic_for_node_A1(A1_index, true_tp)
         recover_A2_index = self._dynamic_for_node_A2(A2_index, true_tp)
         new_x0 , new_x1 = self._get_new_feature(self.x0, aware_A1_index, aware_A2_index, recover_A1_index, recover_A2_index)
-        weight = self.get_weight(old_x0,adj_A1_act_edges,adj_A2_act_edges,new_x0)
-        nan_indices = torch.nonzero(torch.isnan(true_tp))
-        if len(nan_indices)>0:
-            print(nan_indices)
-            raise
+        weight_args = {
+            "device":self.device,
+            "old_x0":old_x0,
+            "adj_A1_act_edges":adj_A1_act_edges,
+            "adj_A2_act_edges":adj_A2_act_edges,
+            "new_x0":new_x0,
+            "network":self.network,
+            "dynamics":self
+        }
+        weight = self.get_weight(**weight_args)
         spread_result = {
             "old_x0":old_x0,
             "old_x1":old_x1,

@@ -19,6 +19,8 @@ class VisdomBatchDrawerCompUAU(VisdomBatchDrawer):
 
         # 初始化窗口参数
 
+
+
     def get_performance_data(self, data):
         epoch_idx, time_idx, loss, acc, x, y_pred, y_true, y_ob, w = unpackBatchData(
             data)
@@ -39,20 +41,16 @@ class VisdomBatchDrawerCompUAU(VisdomBatchDrawer):
             A2_A2_true_pred = torch.cat((y_true[A2_A2,self.STATES_MAP["A2"]].view(-1, 1), y_pred[A2_A2,self.STATES_MAP["A2"]].view(-1, 1)), dim=1).cpu().numpy()
             A2_U_true_pred = torch.cat((y_true[A2_U,self.STATES_MAP["U"]].view(-1, 1), y_pred[A2_U,self.STATES_MAP["U"]].view(-1, 1)), dim=1).cpu().numpy()
 
-        performance_data = (U_U_true_pred,
+        performance_data = [U_U_true_pred,
                             U_A1_true_pred,
                             U_A2_true_pred,
                             A1_A1_true_pred,
                             A1_U_true_pred,
                             A2_A2_true_pred,
-                            A2_U_true_pred)
-        performance_data_type = ((1*np.ones(U_U_true_pred.shape[0])).astype(np.int),
-                            (2*np.ones(U_A1_true_pred.shape[0])).astype(np.int),
-                            (3*np.ones(U_A2_true_pred.shape[0])).astype(np.int),
-                            (4*np.ones(A1_A1_true_pred.shape[0])).astype(np.int),
-                            (5*np.ones(A1_U_true_pred.shape[0])).astype(np.int),
-                            (6*np.ones(A2_A2_true_pred.shape[0])).astype(np.int),
-                            (7*np.ones(A2_U_true_pred.shape[0])).astype(np.int))
+                            A2_U_true_pred]
+        self.performance_data_null_filtering(performance_data)
+        performance_data_type = [((index+1)*np.ones(data.shape[0])).astype(np.int)
+                                 for index,data in enumerate(performance_data)]
         legend = ["U to U",
             "U to A1",
             "U to A2",

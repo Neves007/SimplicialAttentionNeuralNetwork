@@ -31,7 +31,7 @@ class DynamicConfig(Config):
         cls.NAME = "SCUAU"
         cls.NUM_STATES = 2
         cls.SEED_FREC = 0.2
-        cls.EFF_AWARE = torch.tensor([8., 2.5])
+        cls.EFF_AWARE = torch.tensor([8., 4])
         cls.MAX_DIMENSION = 2
         cls.RECOVERY = 0.2
         return cls
@@ -43,8 +43,20 @@ class DynamicConfig(Config):
         cls.NUM_STATES = 3
         cls.SEED_FREC_A1 = 0.2
         cls.SEED_FREC_A2 = 0.2
-        cls.EFF_AWARE_A1 = torch.tensor([8., 2.5])
-        cls.EFF_AWARE_A2 = torch.tensor([8., 2.5])
+        cls.EFF_AWARE_A1 = torch.tensor([8., 4])
+        cls.EFF_AWARE_A2 = torch.tensor([8., 4])
+        cls.MAX_DIMENSION = 2
+        cls.RECOVERY = 0.2
+        return cls
+    @classmethod
+    def toy_sc_comp_UAU(cls):
+        cls = cls()
+        cls.NAME = "ToySCCompUAU"
+        cls.NUM_STATES = 3
+        cls.SEED_FREC_A1 = 0.2
+        cls.SEED_FREC_A2 = 0.2
+        cls.EFF_AWARE_A1 = torch.tensor([8., 4])
+        cls.EFF_AWARE_A2 = torch.tensor([8., 4])
         cls.MAX_DIMENSION = 2
         cls.RECOVERY = 0.2
         return cls

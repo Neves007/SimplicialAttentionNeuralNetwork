@@ -10,63 +10,51 @@ import numpy as np
 import torch
 
 class SimpleDynamicWeight():
-    def __init__(self,device,old_x0,new_x0,adj_A1_act_edges,adj_A2_act_edges,network,dynamics):
+    def __init__(self,device,old_x0,new_x0,network,dynamics,**kwargs):
+        assert len(kwargs) == 0
         self.device = device
         self.dynamics = dynamics
         self.network = network
         self.old_x0 = old_x0
         self.new_x0 = new_x0
         self.T = old_x0.shape[0]
-        self.adj_A1_act_edges = adj_A1_act_edges
-        self.adj_A2_act_edges = adj_A2_act_edges
-        self.weight = self.get_weight()
 
-    def get_weight(self):
-        # 考虑节点的状态分布
-        node_old_state_vec = self.get_node_state_vec(self.old_x0)
-        node_new_state_vec = self.get_node_state_vec(self.new_x0)
-        node_topology_vec = self.get_node_topology_vec()
-        node_neighbor_vec_A1, node_neighbor_vec_A2 = self.get_node_neighbor_vec()
-        node_vec = torch.cat((node_old_state_vec,
-                              node_new_state_vec,
-                              node_topology_vec,
-                              node_neighbor_vec_A1,
-                              node_neighbor_vec_A2),dim=-1)
-        weight = self.vec_to_weight(node_vec)
-        return weight.to(self.device)
+    def compute_element_occurrence(self, array):
+        array = array.view(len(array), 1)
+        neighbor_counts = torch.zeros_like(array)
+        distances_matrix = torch.abs(array.T - array)
+        distances_values, distances_count = torch.unique(distances_matrix, return_counts=True)
+        most_common_width = distances_values[distances_count.argmax()]
+        n_min = array.min()
+        n_max = array.max()
 
+        width = 4 * most_common_width
 
-    def get_node_state_vec(self,x):
+        mask1 = ((array - width) >= n_min).squeeze()
+        mask2 = ((array + width) <= n_max).squeeze()
+        mask3 = ((array - width) < n_min).squeeze()
+        mask4 = ((array + width) > n_max).squeeze()
+
+        count1 = ((array >= (array.T - width)) & (array <= (array.T + width))).sum(dim=1).to(torch.float)
+        count2 = (array <= (n_min + 2 * width)).sum().to(torch.float)
+        count3 = (array >= (n_max - 2 * width)).sum().to(torch.float)
+
+        neighbor_counts[mask1 & mask2] = count1[mask1 & mask2].view(-1, 1)
+        neighbor_counts[mask3] = count2
+        neighbor_counts[mask4] = count3
+
+        return neighbor_counts
+    def map_to_range(self, array, min=1, max=3):
         '''
-            原文是统计所有时间步状态的情况来算分布。
-            这里只用初始种子来做分布。原理是一样的。
-            返回一个(T,NUM_NODES)维向量，元素表示节点状态为xi的概率。
+        将数值隐射到到target_min_value，target_max_value之间
         '''
+        min_value = torch.min(array)
+        max_value = torch.max(array)
+        normalized_values = min + (array - min_value) * (max - min) / (max_value - min_value)
+        return normalized_values
 
-        return x.cpu()
-
-    def get_node_topology_vec(self):
-        node_degree_edge = torch.sum(self.network.inc_matrix_adj0.to_dense(), dim=1)
-        node_degree_edge /= torch.max(node_degree_edge)
-        node_topology_vec = torch.unsqueeze(node_degree_edge,dim=-1)
-        return node_topology_vec.cpu()
-
-    def get_node_neighbor_vec(self):
-        node_neighbor_vec_A1 = self.adj_A1_act_edges.to(torch.float)
-        node_neighbor_vec_A1 /= torch.max(node_neighbor_vec_A1)
-        node_neighbor_vec_A1 = torch.unsqueeze(node_neighbor_vec_A1,dim=-1)
-
-        node_neighbor_vec_A2 = self.adj_A1_act_edges.to(torch.float)
-        node_neighbor_vec_A2 /= torch.max(node_neighbor_vec_A2)
-        node_neighbor_vec_A2 = torch.unsqueeze(node_neighbor_vec_A2,dim=-1)
-        return node_neighbor_vec_A1.cpu(), node_neighbor_vec_A2.cpu()
-    def vec_to_weight(self,node_vec):
-        origin_shape = node_vec.shape
-        node_vec_plan = node_vec.view(-1,origin_shape[-1])
-        distances = torch.cdist(node_vec_plan, node_vec_plan, p=2)
-        distances.fill_diagonal_(0)
-        # 找到每个节点最近的5个节点的索引
-        k = 10
-        nearest_values, nearest_indices =torch.topk(distances, k=k+1,largest=False)  # largest=False 表示找最小的 k 个值
-        weight = nearest_values.sum(dim=-1)
-        return weight
+    def node_state_to_weight(self,x):
+        num_node_state = x.sum(dim=0)
+        num_node_state_prob = (x * num_node_state).sum(dim=1) / self.network.NUM_NODES
+        num_node_state_weight = torch.pow(self.map_to_range(num_node_state_prob),-1)
+        return num_node_state_weight

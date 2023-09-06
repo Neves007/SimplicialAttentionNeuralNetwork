@@ -6,6 +6,7 @@ __DYNAMICS__ = {
     "CompUAU": CompUAU,
     "SCUAU": SCUAU,
     "SCCompUAU": SCCompUAU,
+    "ToySCCompUAU": ToySCCompUAU,
 }
 
 

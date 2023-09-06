@@ -9,7 +9,7 @@ class BesetEpochPicker:
         self.gnnExpeiment_Config = gnnExpeiment_Config
         self.epochs = self.gnnExpeiment_Config.trainingArgs.epochs
         self.patience = self.gnnExpeiment_Config.trainingArgs.patience
-        self.path = self.gnnExpeiment_Config.path_to_model
+        self.path = self.gnnExpeiment_Config.datapath_to_model
         self.train_set = train_set
         self.val_set = val_set
         self.exp = exp

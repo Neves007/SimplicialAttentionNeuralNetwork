@@ -12,6 +12,8 @@ class VisdomBatchDrawer:
         cyan = np.array([ 51,255,153]).reshape(1,3).astype(np.int)
         blue = np.array([ 51,153,255]).reshape(1,3).astype(np.int)
         purple = np.array([ 153,51,255]).reshape(1,3).astype(np.int)
+        gray = np.array([128, 128, 128]).reshape(1,3).astype(np.int)
+        brown = np.array([165, 42, 42]).reshape(1,3).astype(np.int)
         self.COLORS = {
             "red":red,
             "orange":orange,
@@ -20,6 +22,8 @@ class VisdomBatchDrawer:
             "cyan":cyan,
             "blue":blue,
             "purple":purple,
+            "gray":gray,
+            "brown":brown,
         }
 
         # 初始化窗口参数
@@ -56,3 +60,9 @@ class VisdomBatchDrawer:
         self.wind.line([train_acc.data.item()], [time_idx], win='train_acc',opts=opts, update='append')
         self.wind.line([val_loss.data.item()], [time_idx], win='val_loss', opts=opts,update='append')
         self.wind.line([val_acc.data.item()], [time_idx], win='val_acc', opts=opts,update='append')
+
+    def performance_data_null_filtering(self,performance_data):
+        for index,data in enumerate(performance_data):
+            if len(data)==0:
+                null_filter_data = np.array([[-1,-1]],dtype=performance_data[0].dtype)
+                performance_data[index] = null_filter_data

@@ -87,24 +87,22 @@ class SCUAU(CompartmentModelSimplicial):
         true_tp[U_index, self.STATES_MAP["A"]] = aware_prob[U_index]
         return inf_U_index
 
-    def get_weight(self,old_x0,new_x0,adj_act_edges,adj_act_triangles):
-        # todo:修改
-        simple_dynamic_weight = self.SimpleDynamicWeight(self.device,
-                                                         old_x0,
-                                                         new_x0,
-                                                         adj_act_edges,
-                                                         adj_act_triangles,
-                                                         self.network,
-                                                         self)
-        weight = simple_dynamic_weight.get_weight()
-        return weight
     def _spread(self):
         old_x0, old_x1, old_x2, true_tp, adj_act_edges, adj_act_triangles = self._preparing_spreading_data()
         U_index, A_index = self._get_nodeid_for_each_state()
         inf_U_index = self._dynamic_for_node_U(U_index, adj_act_edges, adj_act_triangles, true_tp)
         recover_A_index = self._dynamic_for_node_A(A_index, true_tp)
         new_x0 , new_x1, new_x2 = self._get_new_feature(self.x0, inf_U_index, recover_A_index)
-        weight = self.get_weight(old_x0,new_x0,adj_act_edges,adj_act_triangles)
+        weight_args = {
+            "device":self.device,
+            "old_x0":old_x0,
+            "adj_act_edges":adj_act_edges,
+            "adj_act_triangles":adj_act_triangles,
+            "new_x0":new_x0,
+            "network":self.network,
+            "dynamics":self
+        }
+        weight = self.get_weight(**weight_args)
         spread_result = {
             "old_x0":old_x0,
             "old_x1":old_x1,
@@ -120,3 +118,10 @@ class SCUAU(CompartmentModelSimplicial):
     def _run_onestep(self):
         self.BETA_LIST = (self.EFF_AWARE * self.RECOVERY / self.network.AVG_K).to(self.device)
         self._spread()
+
+    def get_x1_from_x0(self,x0):
+        x1 = torch.sum(x0[self.network.edges], dim=-2)
+        return x1
+    def get_x2_from_x0(self,x0):
+        x2 = torch.sum(x0[self.network.triangles], dim=-2)
+        return x2

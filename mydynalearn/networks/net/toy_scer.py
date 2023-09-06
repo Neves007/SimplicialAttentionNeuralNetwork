@@ -14,7 +14,13 @@ class ToySCER():
         self.net_info = self._create_network()  # 网络信息
         self._set_net_info()
         self.inc_matrix_adj_info = self._get_adj()  # 关联矩阵
+        self.set_inc_matrix_adj_info()
+        self._to_device()
         pass
+    def set_inc_matrix_adj_info(self):
+        self.inc_matrix_adj0 = self.inc_matrix_adj_info["inc_matrix_adj0"]
+        self.inc_matrix_adj1 = self.inc_matrix_adj_info["inc_matrix_adj1"]
+        self.inc_matrix_adj2 = self.inc_matrix_adj_info["inc_matrix_adj2"]
 
     def _set_net_info(self):
         self.nodes = self.net_info["nodes"]
@@ -65,3 +71,15 @@ class ToySCER():
             "inc_matrix_adj2":inc_matrix_adj2
         }
         return inc_matrix_adj_info
+    def _to_device(self):
+        self.nodes = self.nodes.to(self.device)
+        self.edges = self.edges.to(self.device)
+        self.triangles = self.triangles.to(self.device)
+        self.NUM_NODES = self.NUM_NODES
+        self.NUM_EDGES = self.NUM_EDGES
+        self.NUM_TRIANGLES = self.NUM_TRIANGLES
+        self.AVG_K = self.AVG_K
+
+        self.inc_matrix_adj0 = self.inc_matrix_adj0.to(self.device)
+        self.inc_matrix_adj1 = self.inc_matrix_adj1.to(self.device)
+        self.inc_matrix_adj2 = self.inc_matrix_adj2.to(self.device)

@@ -1,9 +1,10 @@
 import loguru
 
-from mydynalearn.model import graphAttentionModel,simplicialAttentionModel
+from mydynalearn.model import GraphAttentionModel,SimplicialAttentionModel
 __Model__ = {
-    "graphAttentionModel": graphAttentionModel,
-    "simplicialAttentionModel": simplicialAttentionModel
+    "GraphAttentionModel": GraphAttentionModel,
+    "SimplicialAttentionModel": SimplicialAttentionModel,
+    "SimplicialDiffAttentionModel": SimplicialAttentionModel
 }
 
 

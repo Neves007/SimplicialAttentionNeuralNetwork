@@ -22,6 +22,10 @@ class CompartmentModelSimplicial():
         self.NUM_NODES = network.NUM_NODES
     def set_x1_from_x0(self):
         self.x1 = torch.sum(self.x0[self.network.edges], dim=-2)
+    def get_weight(self,**weight_args):
+        simple_dynamic_weight = self.SimpleDynamicWeight(**weight_args)
+        weight = simple_dynamic_weight.get_weight()
+        return weight
     def set_x2_from_x0(self):
         self.x2 = torch.sum(self.x0[self.network.triangles], dim=-2)
 
@@ -39,23 +43,11 @@ class CompartmentModelSimplicial():
         self._init_x0()
         self.set_x1_from_x0()
         self.set_x2_from_x0()
+
     def get_inc_matrix_adjacency_activation(self,inc_matrix_col_feature,_threshold_scAct,target_state,inc_matrix_adj):
-        '''
-        更具节点状态更新1-单纯型状态
-        '''
-        inc_matrix_col_dim = inc_matrix_col_feature.shape[0]
-        # _expand_x0: (节点数，扩展维度，节点状态数)节点特征扩展矩阵
-        _expand_x0 = self.x0.unsqueeze(1).repeat_interleave(inc_matrix_col_dim, dim=1)
-        # _inc_matrix_feature_without_i：减去节点i特征，计算剩余节点，I态个数
-        _inc_matrix_feature_without_i = (inc_matrix_col_feature - _expand_x0)[:,:,self.STATES_MAP[target_state]]
-        # 判断1-单纯型（边）是否为激活态
-        _inc_matrix_activate_indices = torch.where(_inc_matrix_feature_without_i >= int(_threshold_scAct))
-        _inc_matrix_activate_values = _inc_matrix_feature_without_i[_inc_matrix_activate_indices]
-        # _inc_matrix_globleAct1：节点-激活边 关联矩阵，全局激活
-        _inc_matrix_activate_indices = torch.stack(_inc_matrix_activate_indices,dim=0)
-        _inc_matrix_activate = torch.sparse_coo_tensor(indices=_inc_matrix_activate_indices,values=_inc_matrix_activate_values,size=_inc_matrix_feature_without_i.shape)
-        # inc_matrix_adj_act_edge：节点-激活边 关联矩阵，即使激活边又相邻
-        inc_matrix_activate_adj = inc_matrix_adj * _inc_matrix_activate
+        num_target_state_in_simplex = inc_matrix_col_feature[:,self.STATES_MAP[target_state]]
+        act_simplex = num_target_state_in_simplex >= _threshold_scAct
+        inc_matrix_activate_adj = torch.sparse.FloatTensor.mul(inc_matrix_adj, act_simplex)
         return inc_matrix_activate_adj
     def set_spread_result(self, spread_result):
         self.spread_result = spread_result

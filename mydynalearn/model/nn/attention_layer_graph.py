@@ -52,6 +52,6 @@ class GraphAttentionLayer(nn.Module):
 
     def forward(self, x0,network):
         inc_matrix_adj0 = network.inc_matrix_adj0
-        x0_1 = torch.stack([gat(x0,x0, inc_matrix_adj0) for gat in self.layer0_1], dim=1)
-        x0_1 = torch.mean(x0_1,dim=1)
+        x0_1 = torch.stack([gat(x0,x0, inc_matrix_adj0) for gat in self.layer0_1])
+        x0_1 = torch.mean(x0_1,dim=0)
         return x0_1

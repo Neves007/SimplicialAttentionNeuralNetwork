@@ -1,8 +1,4 @@
 import matplotlib.pyplot as plt
-from sklearn.metrics import mean_squared_error, r2_score
-import numpy as np
-import torch
-from matplotlib.lines import Line2D
 class Fig_beta_rho():
     def __init__(self):
         pass

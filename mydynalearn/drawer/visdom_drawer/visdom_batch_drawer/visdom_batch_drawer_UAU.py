@@ -28,14 +28,13 @@ class VisdomBatchDrawerUAU(VisdomBatchDrawer):
             A_U_true_pred = torch.cat((y_true[A_U,self.STATES_MAP["U"]].view(-1, 1), y_pred[A_U,self.STATES_MAP["U"]].view(-1, 1)), dim=1).cpu().numpy()
             A_A_true_pred = torch.cat((y_true[A_A,self.STATES_MAP["A"]].view(-1, 1), y_pred[A_A,self.STATES_MAP["A"]].view(-1, 1)), dim=1).cpu().numpy()
 
-        performance_data = (U_U_true_pred,
+        performance_data = [U_U_true_pred,
                             U_A_true_pred,
                             A_U_true_pred,
-                            A_A_true_pred)
-        performance_data_type = ((1*np.ones(U_U_true_pred.shape[0])).astype(np.int),
-                                 (2*np.ones(U_A_true_pred.shape[0])).astype(np.int),
-                                 (3*np.ones(A_U_true_pred.shape[0])).astype(np.int),
-                                 (4*np.ones(A_A_true_pred.shape[0])).astype(np.int))
+                            A_A_true_pred]
+        self.performance_data_null_filtering(performance_data)
+        performance_data_type = [((index+1)*np.ones(data.shape[0])).astype(np.int)
+                                 for index,data in enumerate(performance_data)]
         legend = ["U to U",
                   "U to A",
                   "A to U",

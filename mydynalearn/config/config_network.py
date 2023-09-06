@@ -49,3 +49,40 @@ class NetworkConfig(Config):
         cls.AVG_K = torch.tensor([20, 6])
         cls.MAX_DIMENSION = 2
         return cls
+
+    @classmethod
+    def real_scnet_conference(cls,NUM_NODES=1000,):
+        cls = cls()
+        cls.NAME = 'CONFERENCE'
+        cls.REALNET_DATA_PATH = r"mydynalearn/networks/realnet_source"
+        cls.REALNET_SOURCEDATA_FILENAME = r"conference.dat"
+        cls.REALNET_NETDATA_FILENAME = r"conference.pkl"
+        cls.MAX_DIMENSION = 2
+        return cls
+    @classmethod
+    def real_scnet_high_school(cls,NUM_NODES=1000,):
+        cls = cls()
+        cls.NAME = 'HIGHSCHOOL'
+        cls.REALNET_DATA_PATH = r"mydynalearn/networks/realnet_source"
+        cls.REALNET_SOURCEDATA_FILENAME = r"high_school.csv"
+        cls.REALNET_NETDATA_FILENAME = r"high_school.pkl"
+        cls.MAX_DIMENSION = 2
+        return cls
+    @classmethod
+    def real_scnet_hospital(cls,NUM_NODES=1000,):
+        cls = cls()
+        cls.NAME = 'HOSPITAL'
+        cls.REALNET_DATA_PATH = r"mydynalearn/networks/realnet_source"
+        cls.REALNET_SOURCEDATA_FILENAME = r"hospital.dat"
+        cls.REALNET_NETDATA_FILENAME = r"hospital.pkl"
+        cls.MAX_DIMENSION = 2
+        return cls
+    @classmethod
+    def real_scnet_workplace(cls,NUM_NODES=1000,):
+        cls = cls()
+        cls.NAME = 'WORKPLACE'
+        cls.REALNET_DATA_PATH = r"mydynalearn/networks/realnet_source"
+        cls.REALNET_SOURCEDATA_FILENAME = r"workplace.dat"
+        cls.REALNET_NETDATA_FILENAME = r"workplace.pkl"
+        cls.MAX_DIMENSION = 2
+        return cls

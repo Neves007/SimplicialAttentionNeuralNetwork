@@ -59,7 +59,10 @@ class CompartmentModelGraph():
     def get_x1_from_x0(self,x0):
         x1 = torch.sum(x0[self.network.edges], dim=-2)
         return x1
-
+    def get_weight(self,**weight_args):
+        simple_dynamic_weight = self.SimpleDynamicWeight(**weight_args)
+        weight = simple_dynamic_weight.get_weight()
+        return weight
     @abstractmethod
     def _init_x0(self):
         pass

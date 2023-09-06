@@ -3,7 +3,7 @@ import os
 
 # 获取配置
 from mydynalearn.config import ExperimentConfig
-from mydynalearn.experiments import Experiment
+from mydynalearn.experiments import ExperimentTrain
 
 
 def fix_config(config):
@@ -29,7 +29,7 @@ def get_experiment(NAME, network, dynamics, dataset, nn_type, weight):
         seed=0
     )
     fix_config(config)
-    exp = Experiment(config)
+    exp = ExperimentTrain(config)
     return exp
 
 

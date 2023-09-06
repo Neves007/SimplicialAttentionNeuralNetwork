@@ -5,60 +5,57 @@ import numpy as np
 公式（7）和公式（16），计算Loss前面的那个权重的。
 避免训练数据不平衡导致训练不稳定。
 '''
-
-import matplotlib.pyplot as plt
-from mydynalearn.util.myplot import myplot
-from mydynalearn.transformer import *
-from scipy import stats
+import copy
+from mydynalearn.dynamics.simple_dynamic_weight import *
 import torch
 
-class SimpleDynamicWeightUAU:
-    def __init__(self,device,old_x0,new_x0, adj_act_edges,network,dynamics):
-        self.device = device
-        self.dynamics = dynamics
-        self.network = network
-        self.old_x0 = old_x0
-        self.new_x0 = new_x0
-        self.T = old_x0.shape[0]
+class SimpleDynamicWeightUAU(SimpleDynamicWeight):
+    def __init__(self,adj_act_edges,**kwargs):
+        super().__init__(**kwargs)
         self.adj_act_edges = adj_act_edges
         self.weight = self.get_weight()
 
     def get_weight(self):
         # 考虑节点的状态分布
-        node_state_vec = self.get_node_state_vec()
-        node_topology_vec = self.get_node_topology_vec()
-        node_neighbor_vec = self.get_node_neighbor_vec()
-        node_vec = torch.cat((node_state_vec,
-                            node_topology_vec,
-                            node_neighbor_vec),dim=-1)
-        weight = self.vec_to_weight(node_vec)
-        return weight.to(self.device)
+        node_old_state_weight = self.node_state_to_weight(self.old_x0)
+        node_edge_topology_element_occurrence = self.node_topology_element_occurrence()
+        node_neighbor_act_edge_element_occurrence = self.get_node_neighbor_element_occurrence()
 
+        weight = self.occurrence_to_weight(node_edge_topology_element_occurrence,
+                                           node_neighbor_act_edge_element_occurrence)
+        weight = weight * node_old_state_weight.view(weight.shape)
+        weight = self.map_to_range(weight)
+        return weight.squeeze()
 
-    def get_node_state_vec(self):
+    def occurrence_to_weight(self,
+                             node_edge_topology_element_occurrence,
+                             node_neighbor_act_edge_element_occurrence):
+        node_edge_topology_weight = torch.pow(self.map_to_range(node_edge_topology_element_occurrence),
+                                              -1)
+        node_neighbor_act_edge_weight = torch.pow(
+            self.map_to_range(node_neighbor_act_edge_element_occurrence), -1)
+
+        weight = node_edge_topology_weight * \
+                 node_neighbor_act_edge_weight
+        return weight
+
+    def node_state_to_weight(self, x):
         '''
             原文是统计所有时间步状态的情况来算分布。
             这里只用初始种子来做分布。原理是一样的。
             返回一个(T,NUM_NODES)维向量，元素表示节点状态为xi的概率。
         '''
+        num_node_state = x.sum(dim=0)
+        num_node_state_prob = (x * num_node_state).sum(dim=1) / self.network.NUM_NODES
+        num_node_state_weight = torch.pow(self.map_to_range(num_node_state_prob), -1)
+        return num_node_state_weight
 
-        return self.x_T.cpu()
-
-    def get_node_topology_vec(self):
+    def node_topology_element_occurrence(self):
         node_degree_edge = torch.sum(self.network.inc_matrix_adj0.to_dense(), dim=1)
-        node_degree_edge /= torch.max(node_degree_edge)
-        node_topology_vec = torch.unsqueeze(node_degree_edge,dim=-1)
-        return node_topology_vec.cpu()
+        node_edge_topology_element_occurrence = self.compute_element_occurrence(node_degree_edge)
+        return node_edge_topology_element_occurrence
 
-    def get_node_neighbor_vec(self):
-        node_neighbor_vec = self.adj_act_edges.to(torch.float)
-        node_neighbor_vec /= torch.max(node_neighbor_vec)
-        node_neighbor_vec = torch.unsqueeze(node_neighbor_vec,dim=-1)
-        return node_neighbor_vec.cpu()
-    def vec_to_weight(self,node_vec):
-        distances = torch.cdist(node_vec, node_vec)
-
-        # 找到每个节点最近的5个节点的索引
-        k = 10
-        nearest_values, nearest_indices =torch.topk(distances, k=k+1,largest=False)  # largest=False 表示找最小的 k 个值
-        return nearest_values.sum(dim=-1)
+    def get_node_neighbor_element_occurrence(self):
+        node_neighbor_act_edge = copy.deepcopy(self.adj_act_edges.to(torch.float))
+        node_neighbor_act_edge_element_occurrence = self.compute_element_occurrence(node_neighbor_act_edge)
+        return node_neighbor_act_edge_element_occurrence

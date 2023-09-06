@@ -5,6 +5,7 @@ __DYNAMICS__ = {
     "CompUAU": SimpleDynamicWeightCompUAU,
     "SCUAU": SimpleDynamicWeightSCUAU,
     "SCCompUAU": SimpleDynamicWeightSCCompUAU,
+    "ToySCCompUAU": SimpleDynamicWeightSCCompUAU,
 }
 
 
