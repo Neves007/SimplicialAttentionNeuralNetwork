@@ -1,37 +1,10 @@
-import os
+import itertools
+from mydynalearn.experiments import ExperimentManagerRealnet,ExperimentManagerTrain
+from mydynalearn.analyze import AnalyzeTrainedModelToRealnet
 
-# 获取配置
-from mydynalearn.config import ExperimentConfig
-from mydynalearn.experiments import ExperimentTrain
-
-
-def fix_config(config):
-    # T总时间步
-    config.network.NUM_NODES = num_nodes
-    config.dataset.num_samples = num_samples
-    config.dataset.num_test = testset_timestep
-    config.dataset.epochs = epochs  # 10
-    # 检查点
-    config.dataset.check_first_epoch = check_first_epoch  # 10
-    config.dataset.check_first_epoch_maxtime = check_first_epoch_maxtime
-    config.dataset.check_first_epoch_timestep = check_first_epoch_timestep
-    config.set_path()
-
-
-def get_experiment(**kwags):
-    config = ExperimentConfig.default(**kwags)
-    fix_config(config)
-    exp = ExperimentTrain(config)
-    return exp
-
-
-num_samples = 50
-num_nodes = 1000
-testset_timestep = 10
-epochs = 2  # 10
-check_first_epoch = False  # 10
-check_first_epoch_maxtime = 1000
-check_first_epoch_timestep = 100
+num_samples = 10000
+testset_timestep = 50
+epochs = 30  # 10
 
 
 '''
@@ -39,18 +12,27 @@ network = ["ER","SCER","CONFERENCE","HIGHSCHOOL","HOSPITAL","WORKPLACE"]
 dynamics = ["UAU","CompUAU","SCUAU","SCCompUAU"]
 dataset = ["GAT","SAT","DiffSAT"]
 '''
-kwags = {
-    "NAME": "dynamicLearning-HOSPITAL-SCCompUAU-GAT",
-    "network": "HOSPITAL",
-    "dynamics": "SCCompUAU",
-    "nn_type": "GAT",
-    "is_weight": False,
-    "seed": 0
+
+
+params = {
+    # "grpah_network" : ["ER"],
+    # "grpah_dynamics" : ["UAU","CompUAU"],
+
+    "simplicial_network" : ["SCER"],
+    "real_network" : ["CONFERENCE","HIGHSCHOOL","HOSPITAL","WORKPLACE"],
+    "simplicial_dynamics" : ["SCUAU","SCCompUAU"],
+    "model" : ["GAT","SAT","DiffSAT"],
+    "is_weight" : [True,False]
 }
-exp = get_experiment(**kwags)
-exp.run()
 
+if __name__ == '__main__':
+    experiment_manager_train = ExperimentManagerTrain(num_samples, testset_timestep, epochs, params)
+    experiment_manager_realnet = ExperimentManagerRealnet(num_samples, testset_timestep, epochs, params)
+    analyze_trained_model_to_realnet = AnalyzeTrainedModelToRealnet(experiment_manager_train, experiment_manager_realnet)
 
+    experiment_manager_train.train_model()
+    experiment_manager_realnet.create_realnet_dynamics()
 
+    analyze_trained_model_to_realnet.apply_trained_model_to_realnet()
 
 

@@ -7,22 +7,17 @@ from mydynalearn.evaluator import *
 from mydynalearn.dataset.getter import get as dataset_loader_getter
 
 
-class ExperimentTrain():
+class ExperimentRealnet():
     def __init__(self,config):
         self.config = config
-        self.toyExp = True
         self.NAME = config.NAME
 
         self.network = get_network(config)
         self.dynamics = get_dynamics(config,self.network)
         self.dataset = get_dataset(config,self.network,self.dynamics)
         self.DataSetLoader = dataset_loader_getter(self.config)
-        self.model = get_model(config,self.network,self.dynamics)
         self.TASKS = [
             "generate_data",
-            "partition_dataSet",
-            "train_model",
-            # "performance_evaluation",
         ]
     def run(self):
         tasks = self.TASKS
@@ -35,7 +30,6 @@ class ExperimentTrain():
                 raise ValueError(
                     f"{t} is an invalid task, possible tasks are `{self.TASKS}`"
                 )
-
     def generate_data(self):
         if len(os.listdir(self.config.datapath_to_datasets))==0:
             self.dataset.run()
@@ -54,18 +48,3 @@ class ExperimentTrain():
         self.train_loader = self.DataSetLoader(train_set)
         self.val_loader = self.DataSetLoader(val_set)
         self.test_loader = self.DataSetLoader(test_set)
-
-
-    def train_model(self, restore_best=True):
-        self.model.fit(
-            train_loader=self.train_loader,
-            val_loader=self.val_loader,
-            test_loader=self.test_loader,
-        )
-    def performance_evaluation(self):
-        epoch_evaluator = evaluatorEpoch(self.config,self.dynamics)
-        epoch_evaluator.evaluate()
-
-    def maxR_evaluation(self):
-        epoch_evaluator = evaluatorEpoch(self.config,self.dynamics)
-        epoch_evaluator.draw_maxR()

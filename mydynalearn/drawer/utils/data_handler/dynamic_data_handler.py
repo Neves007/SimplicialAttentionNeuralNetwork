@@ -1,6 +1,6 @@
 import torch
 class DynamicDataHandler():
-    def __init__(self,dynamics, x_T, y_pred_T, y_ob_T, y_true_T,**kwags):
+    def __init__(self,dynamics, x_T, y_pred_T, y_ob_T, y_true_T,**kwargs):
         self.STATES_MAP = dynamics.STATES_MAP
         self.x_T = x_T
         self.y_ob_T = y_ob_T

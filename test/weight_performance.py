@@ -5,7 +5,7 @@ import os
 import pickle
 
 # 获取配置
-from mydynalearn.config import ExperimentConfig
+from mydynalearn.config import ExperimentTrainConfig
 from mydynalearn.experiments import ExperimentTrain
 import itertools
 
@@ -22,8 +22,8 @@ def fix_config(config):
     config.set_path()
 
 
-def get_experiment(**kwags):
-    config = ExperimentConfig.default(**kwags)
+def get_experiment(**kwargs):
+    config = ExperimentTrainConfig.default(**kwargs)
     fix_config(config)
     exp = ExperimentTrain(config)
     return exp
@@ -56,7 +56,7 @@ network_dynamics_dataset_config_list = graph_network_dynamics_dataset_config_lis
 for network_dynamics_dataset_config in network_dynamics_dataset_config_list:
     network,dynamics,model = network_dynamics_dataset_config
     exp_name = "dynamicLearning-" + network + "-" + dynamics + "-"+ model
-    kwags = {
+    kwargs = {
         "NAME" : exp_name,
         "network" : network,
         "dynamics" : dynamics,
@@ -64,7 +64,7 @@ for network_dynamics_dataset_config in network_dynamics_dataset_config_list:
         "is_weight" : False,
         "seed" : 0
     }
-    config = ExperimentConfig.default(**kwags)
+    config = ExperimentTrainConfig.default(**kwargs)
     datapath_to_epochdata = config.datapath_to_epochdata
     for epoch_index in range(epochs):
         fileName = datapath_to_epochdata + "\\epoch{:d}Data.pkl".format(epoch_index)

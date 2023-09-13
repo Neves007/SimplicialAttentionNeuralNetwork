@@ -20,11 +20,13 @@ class DynamicDataset():
         file_name = self.config.datapath_to_datasets+"/dataset.pkl"
         with open(file_name, "wb") as file:
             pickle.dump(data,file)
+        file.close()
 
     def load_dataset(self):
         file_name = self.config.datapath_to_datasets + "/dataset.pkl"
         with open(file_name, "rb") as file:
             info = pickle.load(file)
+        file.close()
         return info
 
     def split_dataset(self, num_test):

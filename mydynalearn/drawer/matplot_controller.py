@@ -20,8 +20,8 @@ class MatplotController():
         for epoch_index in range(self.epochs):
             # 用matplotlib画出每个epoch的结果
             epochData = self.epoch_data_handler.load_epoch_data(epoch_index)
-            kwags = self.epoch_data_handler.epochdata_datacur_2_dataT(epoch_index, epochData)
-            self.matplot_epochPerformance.draw(**kwags)
+            kwargs = self.epoch_data_handler.epochdata_datacur_2_dataT(epoch_index, epochData)
+            self.matplot_epochPerformance.draw(**kwargs)
         # 存储matplot图像。
         self.matplot_epochPerformance.save_fig()
 

@@ -51,15 +51,13 @@ class SATLayer_regular(nn.Module):
             incMatrix_adj0, incMatrix_adj1 = network._unpack_inc_matrix_adj_info()
             xi_0 = self.relu(self.linear_layer1(x0))
             xj_0 = self.relu(self.linear_layer2(x0))
-            xj_1 = self.relu(self.linear_layer3(x1))
 
             ai_0 = self.a_1(xi_0)  # a_1：a*hi
             aj_0 = self.a_2(xj_0)  # a_2：a*hj
-            aj_1 = self.a_3(xj_1)  # a_2：a*hj
-            agg0 = self.attention_agg(xj_0, ai_0, aj_0, incMatrix_adj0)
-            agg1 = self.attention_agg(xj_1, ai_0, aj_1, incMatrix_adj1)
 
-            x0 = xi_0 + self.agg_weight[0]*agg0 + self.agg_weight[1]*agg1
+            agg0 = self.attention_agg(xj_0, ai_0, aj_0, incMatrix_adj0)
+
+            x0 = xi_0 + self.agg_weight[0]*agg0
         else:
             incMatrix_adj0, incMatrix_adj1, incMatrix_adj2 = network._unpack_inc_matrix_adj_info()
             xi_0 = self.relu(self.linear_layer1(x0))

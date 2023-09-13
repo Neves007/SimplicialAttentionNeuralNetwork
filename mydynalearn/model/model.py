@@ -42,8 +42,8 @@ class Model(nn.Module):
         fileName_testreselt = self.config.datapath_to_epochdata + "/epoch{:d}Data.pkl".format(epoch_index)
         with open(fileName_testreselt, "wb") as file:
             pickle.dump(testResult,file)
-    def save_model_state_dict(self):
-        fileName_model_state_dict = self.config.datapath_to_model_state_dict + "/model_state_dict.pth"
+    def save_model_state_dict(self,epoch_index):
+        fileName_model_state_dict = self.config.datapath_to_model_state_dict + "/epoch{:d}_model_state_dict.pth".format(epoch_index)
         if not os.path.exists(fileName_model_state_dict):
             torch.save(self.state_dict(), fileName_model_state_dict)
 
@@ -69,11 +69,11 @@ class Model(nn.Module):
             fileName_testreselt = self.config.datapath_to_epochdata + "/epoch{:d}Data.pkl".format(epoch_index)
             if not os.path.exists(fileName_testreselt):
                 test_result_curepoch = self.get_test_result(epoch_index,self.test_loader)
-                self.VisdomDrawer.visdomDrawEpoch(epoch_index, test_result_curepoch)
+                # self.VisdomDrawer.visdomDrawEpoch(epoch_index, test_result_curepoch)
                 self._do_epoch_(epoch_index, batch_size=batch_size)  # 训练
                 self.low_the_lr(epoch_index)
                 self.save_epoch_data(epoch_index, test_result_curepoch)
-        self.save_model_state_dict()
+                self.save_model_state_dict(epoch_index)
         self.eval()
 
     def pack_batch_data(self, epoch_idx, time_idx, loss, x, y_pred, y_true, y_ob, w):
@@ -137,7 +137,7 @@ class Model(nn.Module):
                                             val_y_true,
                                             val_y_ob,
                                             val_w)
-            self.VisdomDrawer.visdomDrawBatch(train_data, val_data)
+            # self.VisdomDrawer.visdomDrawBatch(train_data, val_data)
         self.eval()
 
     def _do_batch_(self, train_dataset_per_time):
@@ -148,5 +148,5 @@ class Model(nn.Module):
     def prepare_output(self, data):
         x0,y_pred,y_true,y_ob, weight = self.forward(**data)
         if self.is_weight==False:
-            weight = torch.ones(self.network.NUM_NODES).to(self.device)
+            weight = torch.ones(x0.shape[0]).to(self.device)
         return x0,y_pred,y_true,y_ob, weight

@@ -30,7 +30,7 @@ class NetworkConfig(Config):
         cls = cls()
         cls.NAME = 'SCER'
         cls.NUM_NODES = NUM_NODES
-        cls.AVG_K = torch.tensor([20, 6])
+        cls.AVG_K = torch.tensor([20, 20])  # todo: 网络大小，二阶增大，感染率进一步减小
         cls.MAX_DIMENSION = 2
         return cls
     @classmethod

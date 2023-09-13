@@ -2,7 +2,7 @@ import os
 
 
 # 获取配置
-from mydynalearn.config import ExperimentConfig
+from mydynalearn.config import ExperimentTrainConfig
 from mydynalearn.experiments import ExperimentTrain
 
 
@@ -19,7 +19,7 @@ def fix_config(config):
     
     
 def get_experiment(NAME, network, dynamics, dataset, nn_type, weight):
-    config = ExperimentConfig.default(
+    config = ExperimentTrainConfig.default(
         NAME=NAME,
         network=network,
         dynamics=dynamics,

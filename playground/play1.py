@@ -1,13 +1,18 @@
-import torch
+import numpy as np
 
 # 定义张量 a 和 b
-node = torch.tensor([2, 1, 3, 5, 4])
-node_id = torch.arange(node.shape[0])
-edges = torch.tensor([[2, 1], [3, 5], [4,1]])
-triangles = torch.tensor([[2, 1, 3], [3,1, 5], [4,1,3]])
+a = np.random.randn(80).reshape((40,2))
+b = a.reshape((2,20,2))
 
-# 使用广播和逻辑比较找到索引
-edges_to_index = torch.where(edges.view(-1,1)==node.view(1,-1))[1]
-edges_to_index.view(edges.shape)
-# 打印索引
-print(edges_to_index)
+R1 = np.corrcoef(a[:,0],a[:,1])[0,1]
+
+
+R2_0 = np.corrcoef(b[0,:,0],b[0,:,1])[0,1]
+R2_1 = np.corrcoef(b[1,:,0],b[1,:,1])[0,1]
+
+print("R1:",R1)
+print("R2_0:",R2_0)
+print("R2_1:",R2_1)
+print("np.sqrt(R2_0 * R2_1):",2 * R2_0 * R2_1 / (R2_0 + R2_1))
+
+

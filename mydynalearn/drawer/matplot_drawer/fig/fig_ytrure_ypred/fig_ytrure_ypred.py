@@ -13,7 +13,7 @@ class FigYtrureYpred():
         self.markers = None
         self.label = None
 
-    def get_marker_size(self,w_T,max=10,min=2,**kwags):
+    def get_marker_size(self,w_T,max=10,min=2,**kwargs):
 
         w_min = w_T.min()
         w_max = w_T.max()
@@ -39,8 +39,8 @@ class FigYtrureYpred():
         self.ax.legend(handles=self.legend_elements, labels=self.label)
         self.ax.grid(True)
 
-    def scatterT(self, performance_index,performance_data,**kwags):
-        marker_size = self.get_marker_size(max=700, min=50,**kwags)
+    def scatterT(self, performance_index,performance_data,**kwargs):
+        marker_size = self.get_marker_size(max=700, min=50,**kwargs)
         for index in range(len(self.label)):
             self.ax.scatter(x=performance_data[index][:, 0].detach().numpy(),
                             y=performance_data[index][:, 1].detach().numpy(),
