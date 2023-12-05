@@ -3,8 +3,8 @@ import torch
 from easydict import EasyDict as edict
 from mydynalearn.dataset.dynamic_dataset.dynamic_dataset import DynamicDataset
 class DynamicDatasetSCUAU(DynamicDataset):
-    def __init__(self, config,network,dynamics) -> None:
-        super().__init__(config,network,dynamics)
+    def __init__(self, config) -> None:
+        super().__init__(config)
 
     def save_dnamic_info(self, t, old_x0, old_x1,old_x2, new_x0, true_tp, weight, **kwargs):
         self.x0_T[t] = old_x0

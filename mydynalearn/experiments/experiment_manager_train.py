@@ -5,6 +5,7 @@ from mydynalearn.config import ExperimentTrainConfig,ExperimentRealConfig
 from mydynalearn.experiments import ExperimentTrain,ExperimentRealnet
 import torch
 import itertools
+from mydynalearn.logger.logger import *
 
 class ExperimentManagerTrain():
     def __init__(self,num_samples, testset_timestep, epochs,params):
@@ -20,10 +21,11 @@ class ExperimentManagerTrain():
         config.dataset.num_test = self.testset_timestep
         config.dataset.epochs = self.epochs  # 10
 
-    def get_loaded_model_exp(self,train_args):
+    def get_loaded_model_exp(self, train_args, epoch_index):
         model_exp = self.get_train_exp(*train_args)
-        model_file = os.path.join(model_exp.config.datapath_to_model_state_dict, "model_state_dict.pth")
-        model_exp.model.load_state_dict(torch.load(model_file))
+        model_exp.model.load_model(epoch_index)
+        model_exp.generate_data()
+        model_exp.partition_dataSet()
         return model_exp
 
     def set_train_params(self):
@@ -56,15 +58,22 @@ class ExperimentManagerTrain():
             "seed": 0,
             "rootpath": self.rootpath
         }
-        config = ExperimentTrainConfig.default(**kwargs)
+        config = ExperimentTrainConfig().default(**kwargs)
         self.fix_config(config)
         exp = ExperimentTrain(config)
         return exp
 
-    def train_model(self):
+    def run(self):
+        '''
+        训练模型
+        输出：模型的参数 model_state_dict
+        '''
+        print("*"*10+" TRAINING PROCESS "+"*"*10)
         train_params = self.set_train_params()
         for train_param in train_params:
-            args = train_param
-            exp = self.get_train_exp(*args)
+            log_train_begin(train_param)
+            exp = self.get_train_exp(*train_param)
             exp.run()
+            torch.cuda.empty_cache()
+        print("PROCESS COMPLETED!\n\n")
 

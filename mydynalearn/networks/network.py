@@ -16,13 +16,14 @@ class Network():
         self.NAME = self.net_config.NAME
         self.device = self.net_config.device
         self.MAX_DIMENSION = self.net_config.MAX_DIMENSION
-
-        self.net_info = self._create_network()  # 网络信息
+        pass
+    
+    def create_net(self):
+        self.net_info = self.get_net_info()  # 网络信息
         self._set_net_info()
         self.inc_matrix_adj_info = self._get_adj()  # 关联矩阵
         self.set_inc_matrix_adj_info()
         self._to_device()
-        pass
 
     @abstractmethod
     def set_inc_matrix_adj_info(self):
@@ -31,7 +32,7 @@ class Network():
     def _set_net_info(self):
         pass
     @abstractmethod
-    def _create_network(self):
+    def get_net_info(self):
         pass
 
     @abstractmethod

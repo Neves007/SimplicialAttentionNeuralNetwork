@@ -23,7 +23,7 @@ def fix_config(config):
 
 
 def get_experiment(**kwargs):
-    config = ExperimentTrainConfig.default(**kwargs)
+    config = ExperimentTrainConfig().default(**kwargs)
     fix_config(config)
     exp = ExperimentTrain(config)
     return exp
@@ -64,7 +64,7 @@ for network_dynamics_dataset_config in network_dynamics_dataset_config_list:
         "is_weight" : False,
         "seed" : 0
     }
-    config = ExperimentTrainConfig.default(**kwargs)
+    config = ExperimentTrainConfig().default(**kwargs)
     datapath_to_epochdata = config.datapath_to_epochdata
     for epoch_index in range(epochs):
         fileName = datapath_to_epochdata + "\\epoch{:d}Data.pkl".format(epoch_index)

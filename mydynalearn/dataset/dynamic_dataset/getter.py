@@ -8,10 +8,10 @@ __DATA_SET__ = {
     "ToySCCompUAU": DynamicDatasetCompSCUAU,
 }
 
-def get(config,network,dynamics):
+def get(config):
     NAME = config.dynamics.NAME
     if NAME in __DATA_SET__:
-        dataset = __DATA_SET__[NAME](config, network, dynamics)
+        dataset = __DATA_SET__[NAME](config)
         return dataset
     else:
         print("there is no dataset named of {}",NAME)

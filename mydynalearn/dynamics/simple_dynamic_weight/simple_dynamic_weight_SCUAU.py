@@ -51,7 +51,6 @@ class SimpleDynamicWeightSCUAU(SimpleDynamicWeight):
         return weight
 
     def node_topology_element_occurrence(self):
-        # todo:higher order topology
         node_degree_edge = torch.sum(self.network.inc_matrix_adj0.to_dense(), dim=1)
         node_edge_topology_element_occurrence = self.compute_element_occurrence(node_degree_edge)
 

@@ -3,60 +3,60 @@ import torch
 class DynamicConfig(Config):
     def __init__(self):
         super().__init__()
-    @classmethod
-    def UAU(cls, NUM_NODES=1000, p=0.004, weights=None):
-        cls = cls()
-        cls.NAME = "UAU"
-        cls.NUM_STATES = 2
-        cls.SEED_FREC = 0.2
-        cls.EFF_AWARE = torch.tensor([8.])
-        cls.MAX_DIMENSION = 1
-        cls.RECOVERY = 0.2
-        return cls
-    @classmethod
-    def comp_UAU(cls, NUM_NODES=1000, p=0.004, weights=None):
-        cls = cls()
-        cls.NAME = "CompUAU"
-        cls.NUM_STATES = 3
-        cls.SEED_FREC_A1 = 0.2
-        cls.SEED_FREC_A2 = 0.2
-        cls.EFF_AWARE_A1 = torch.tensor([8.])
-        cls.EFF_AWARE_A2 = torch.tensor([8.])
-        cls.MAX_DIMENSION = 1
-        cls.RECOVERY = 0.2
-        return cls
-    @classmethod
-    def sc_UAU(cls, NUM_NODES=1000, p=0.004, weights=None):
-        cls = cls()
-        cls.NAME = "SCUAU"
-        cls.NUM_STATES = 2
-        cls.SEED_FREC = 0.2
-        cls.EFF_AWARE = torch.tensor([8., 4])
-        cls.MAX_DIMENSION = 2
-        cls.RECOVERY = 0.2
-        return cls
+
+    def UAU(self, NUM_NODES=1000, p=0.004, weights=None):
+        
+        self.NAME = "UAU"
+        self.NUM_STATES = 2
+        self.SEED_FREC = 0.1
+        self.EFF_AWARE = torch.tensor([8.])
+        self.MAX_DIMENSION = 1
+        self.RECOVERY = 0.2
+        return self
+
+    def comp_UAU(self, NUM_NODES=1000, p=0.004, weights=None):
+        
+        self.NAME = "CompUAU"
+        self.NUM_STATES = 3
+        self.SEED_FREC_A1 = 0.1
+        self.SEED_FREC_A2 = 0.1
+        self.EFF_AWARE_A1 = torch.tensor([8.])
+        self.EFF_AWARE_A2 = torch.tensor([8.])
+        self.MAX_DIMENSION = 1
+        self.RECOVERY = 0.2
+        return self
+
+    def sc_UAU(self, NUM_NODES=1000, p=0.004, weights=None):
+        
+        self.NAME = "SCUAU"
+        self.NUM_STATES = 2
+        self.SEED_FREC = 0.1
+        self.EFF_AWARE = torch.tensor([8., 4])
+        self.MAX_DIMENSION = 2
+        self.RECOVERY = 0.2
+        return self
     
-    @classmethod
-    def sc_comp_UAU(cls, NUM_NODES=1000, p=0.004, weights=None):
-        cls = cls()
-        cls.NAME = "SCCompUAU"
-        cls.NUM_STATES = 3
-        cls.SEED_FREC_A1 = 0.2
-        cls.SEED_FREC_A2 = 0.2
-        cls.EFF_AWARE_A1 = torch.tensor([8., 4])
-        cls.EFF_AWARE_A2 = torch.tensor([8., 4])
-        cls.MAX_DIMENSION = 2
-        cls.RECOVERY = 0.2
-        return cls
-    @classmethod
-    def toy_sc_comp_UAU(cls):
-        cls = cls()
-        cls.NAME = "ToySCCompUAU"
-        cls.NUM_STATES = 3
-        cls.SEED_FREC_A1 = 0.2
-        cls.SEED_FREC_A2 = 0.2
-        cls.EFF_AWARE_A1 = torch.tensor([8., 4])
-        cls.EFF_AWARE_A2 = torch.tensor([8., 4])
-        cls.MAX_DIMENSION = 2
-        cls.RECOVERY = 0.2
-        return cls
+
+    def sc_comp_UAU(self, NUM_NODES=1000, p=0.004, weights=None):
+        
+        self.NAME = "SCCompUAU"
+        self.NUM_STATES = 3
+        self.SEED_FREC_A1 = 0.1
+        self.SEED_FREC_A2 = 0.1
+        self.EFF_AWARE_A1 = torch.tensor([8., 4])
+        self.EFF_AWARE_A2 = torch.tensor([8., 4])
+        self.MAX_DIMENSION = 2
+        self.RECOVERY = 0.2
+        return self
+
+    def toy_sc_comp_UAU(self):
+        
+        self.NAME = "ToySCCompUAU"
+        self.NUM_STATES = 3
+        self.SEED_FREC_A1 = 0.1
+        self.SEED_FREC_A2 = 0.1
+        self.EFF_AWARE_A1 = torch.tensor([8., 4])
+        self.EFF_AWARE_A2 = torch.tensor([8., 4])
+        self.MAX_DIMENSION = 2
+        self.RECOVERY = 0.2
+        return self

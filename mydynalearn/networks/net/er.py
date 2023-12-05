@@ -27,7 +27,7 @@ class ER(Network):
             edges.add(tuple(edge))
         return torch.asarray(list(edges))
 
-    def _create_network(self):
+    def get_net_info(self):
         NUM_NODES = self.net_config.NUM_NODES
         AVG_K = self.net_config.AVG_K
         assert len(AVG_K) == self.MAX_DIMENSION

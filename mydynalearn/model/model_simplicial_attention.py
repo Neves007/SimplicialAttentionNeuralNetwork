@@ -11,7 +11,6 @@ class SimplicialAttentionModel(Model):
 
     def forward(self, x0,x1,y_true,y_ob,weight,network,**kwargs):
         # 只考虑edge_index
-        # todo:所有类都修改
         dynamics = self.dynamics
         x0_in = self.in_layer(x0)
         x1_in = self.in_layer(x1)

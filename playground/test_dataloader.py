@@ -22,4 +22,3 @@ train_loader = DataLoader(dataset=dataset,
 if __name__ == '__main__':
     for i, data in enumerate(train_loader):
         x,y = data
-        print(x)

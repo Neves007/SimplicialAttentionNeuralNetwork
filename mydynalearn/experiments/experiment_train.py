@@ -15,7 +15,7 @@ class ExperimentTrain():
 
         self.network = get_network(config)
         self.dynamics = get_dynamics(config,self.network)
-        self.dataset = get_dataset(config,self.network,self.dynamics)
+        self.dataset = get_dataset(self.config)
         self.DataSetLoader = dataset_loader_getter(self.config)
         self.model = get_model(config,self.network,self.dynamics)
         self.TASKS = [
@@ -38,7 +38,8 @@ class ExperimentTrain():
 
     def generate_data(self):
         if len(os.listdir(self.config.datapath_to_datasets))==0:
-            self.dataset.run()
+            self.network.create_net()
+            self.dataset.run(self.network, self.dynamics)
             self.dataset.save_dataset()
         else:
             self.dataset = self.dataset.load_dataset()
@@ -47,7 +48,6 @@ class ExperimentTrain():
     def generate_DanamicProcessData(self,beta):
         self.dynamics.beta = beta
         self.dataset.run_dynamic_process(self.network, self.dynamics)
-
     def partition_dataSet(self):
         num_test = self.config.dataset.num_test
         train_set, val_set, test_set = self.dataset.split_dataset(num_test)
@@ -62,10 +62,3 @@ class ExperimentTrain():
             val_loader=self.val_loader,
             test_loader=self.test_loader,
         )
-    def performance_evaluation(self):
-        epoch_evaluator = evaluatorEpoch(self.config,self.dynamics)
-        epoch_evaluator.evaluate()
-
-    def maxR_evaluation(self):
-        epoch_evaluator = evaluatorEpoch(self.config,self.dynamics)
-        epoch_evaluator.draw_maxR()

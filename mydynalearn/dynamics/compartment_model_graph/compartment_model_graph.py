@@ -18,17 +18,19 @@ class CompartmentModelGraph():
         self.NUM_STATES = self.dynamics_config.NUM_STATES
         self.NODE_FEATURE_MAP = torch.eye(self.NUM_STATES).to(self.device, dtype = torch.long)
         self.SimpleDynamicWeight = weight_getter(self.NAME)
+
+
+    def set_network(self,network):
         self.network = network
         self.NUM_NODES = network.NUM_NODES
-
     def set_x1_from_x0(self):
         self.x1 = torch.sum(self.x0[self.network.edges], dim=-2)
 
-    def init_net_features(self):
+    def init_net_features(self,network):
         '''
         初始化更新节点状态
         '''
-
+        self.set_network(network)
         self._init_x0()
         self.set_x1_from_x0()
     def get_inc_matrix_adjacency_activation(self,inc_matrix_col_feature,_threshold_scAct,target_state):

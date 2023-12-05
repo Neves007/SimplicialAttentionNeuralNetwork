@@ -67,7 +67,7 @@ class SCER(Network):
         for edge in edges_in_triangles:
             edges.add(edge)
         return edges
-    def _create_network(self):
+    def get_net_info(self):
         NUM_NODES = self.net_config.NUM_NODES
         AVG_K = self.net_config.AVG_K
         assert len(AVG_K) == self.MAX_DIMENSION

@@ -16,6 +16,15 @@ def trans_node_index(data_df):
 
     return data_df
 
+def get_unique_triangles(triangles):
+    unique_triangles = set()
+    for tri in triangles:
+        tri = list(tri)
+        tri.sort()
+        unique_triangles.add(tuple(tri))
+    unique_triangles = [list(tri) for tri in unique_triangles]
+    unique_triangles = torch.tensor(np.asarray(unique_triangles), dtype=torch.long)
+    return unique_triangles
 def generate_real_network(read_file):
     ######读取文件，聚合成每行为: t [(i1，j1),(i2,j2)```]的形式
     ## 第一列时间戳，第二列节点i，第三列节点j交互的个体。
@@ -113,11 +122,13 @@ def generate_real_network(read_file):
         node_neighbors_dict[n] = G[n].keys()
     triangles_list=tri
     N=G.order()
-
+    triangles = get_unique_triangles(triangles_list)
     nodes = torch.tensor(np.asarray(G.nodes), dtype=torch.long)
     edges = torch.tensor(np.asarray(G.edges), dtype=torch.long)
-    triangles = torch.tensor(np.asarray(triangles_list), dtype=torch.long)
     nodes_id = torch.arange(nodes.shape[0], dtype=torch.long)
     edges = torch.where(edges.view(-1,1)==nodes.view(1,-1))[1].view(edges.shape)
     triangles = torch.where(triangles.view(-1,1)==nodes.view(1,-1))[1].view(triangles.shape)
+
+
+
     return nodes_id, edges, triangles

@@ -5,72 +5,72 @@ class TrainableConfig(Config):
     def __init__(self):
         super().__init__()
 
-    @classmethod
-    def graph_attention_model(cls, NUM_STATES):
-        cls = cls()
-        cls.NAME = "GraphAttentionModel"
 
-        cls.NUM_STATES = NUM_STATES
-        cls.lag = 1
-        cls.lagstep = 1
+    def graph_attention_model(self, NUM_STATES):
+        
+        self.NAME = "GraphAttentionModel"
 
-        cls.optimizer = OptimizerConfig.default()
+        self.NUM_STATES = NUM_STATES
+        self.lag = 1
+        self.lagstep = 1
 
-        cls.in_activation = "relu"
-        cls.gnn_activation = "relu"
-        cls.out_activation = "relu"
+        self.optimizer = OptimizerConfig().default()
 
-        cls.heads = 2
-        cls.in_channels = [cls.NUM_STATES,32, 32]
-        cls.gnn_channels = 32
-        cls.out_channels = [32, 32, 32,cls.NUM_STATES]
-        cls.concat = False
-        cls.bias = True
-        cls.self_attention = True
-        return cls
-    @classmethod
-    def simplicial_attention_model(cls, NUM_STATES):
-        cls = cls()
-        cls.NAME = "SimplicialAttentionModel"
+        self.in_activation = "relu"
+        self.gnn_activation = "relu"
+        self.out_activation = "relu"
 
-        cls.NUM_STATES = NUM_STATES
-        cls.lag = 1
-        cls.lagstep = 1
+        self.heads = 2
+        self.in_channels = [self.NUM_STATES,32, 32]
+        self.gnn_channels = 32
+        self.out_channels = [32, 32, 32,self.NUM_STATES]
+        self.concat = False
+        self.bias = True
+        self.self_attention = True
+        return self
 
-        cls.optimizer = OptimizerConfig.default()
+    def simplicial_attention_model(self, NUM_STATES):
+        
+        self.NAME = "SimplicialAttentionModel"
 
-        cls.in_activation = "relu"
-        cls.gnn_activation = "relu"
-        cls.out_activation = "relu"
+        self.NUM_STATES = NUM_STATES
+        self.lag = 1
+        self.lagstep = 1
 
-        cls.heads = 2
-        cls.in_channels = [cls.NUM_STATES,32, 32]
-        cls.gnn_channels = 32
-        cls.out_channels = [32, 32, 32, cls.NUM_STATES]
-        cls.concat = False
-        cls.bias = True
-        cls.self_attention = True
-        return cls
-    @classmethod
-    def simplicial_diff_attention_model(cls, NUM_STATES):
-        cls = cls()
-        cls.NAME = "SimplicialDiffAttentionModel"
+        self.optimizer = OptimizerConfig().default()
 
-        cls.NUM_STATES = NUM_STATES
-        cls.lag = 1
-        cls.lagstep = 1
+        self.in_activation = "relu"
+        self.gnn_activation = "relu"
+        self.out_activation = "relu"
 
-        cls.optimizer = OptimizerConfig.default()
+        self.heads = 2
+        self.in_channels = [self.NUM_STATES,32, 32]
+        self.gnn_channels = 32
+        self.out_channels = [32, 32, 32, self.NUM_STATES]
+        self.concat = False
+        self.bias = True
+        self.self_attention = True
+        return self
 
-        cls.in_activation = "relu"
-        cls.gnn_activation = "relu"
-        cls.out_activation = "relu"
+    def simplicial_diff_attention_model(self, NUM_STATES):
+        
+        self.NAME = "SimplicialDiffAttentionModel"
 
-        cls.heads = 2
-        cls.in_channels = [cls.NUM_STATES,32, 32]
-        cls.gnn_channels = 32
-        cls.out_channels = [32, 32, 32, cls.NUM_STATES]
-        cls.concat = False
-        cls.bias = True
-        cls.self_attention = True
-        return cls
+        self.NUM_STATES = NUM_STATES
+        self.lag = 1
+        self.lagstep = 1
+
+        self.optimizer = OptimizerConfig().default()
+
+        self.in_activation = "relu"
+        self.gnn_activation = "relu"
+        self.out_activation = "relu"
+
+        self.heads = 2
+        self.in_channels = [self.NUM_STATES,32, 32]
+        self.gnn_channels = 32
+        self.out_channels = [32, 32, 32, self.NUM_STATES]
+        self.concat = False
+        self.bias = True
+        self.self_attention = True
+        return self

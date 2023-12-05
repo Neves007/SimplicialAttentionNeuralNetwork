@@ -16,13 +16,14 @@ class Realnet():
         self.REALNET_SOURCEDATA_FILENAME = net_config.REALNET_SOURCEDATA_FILENAME
         self.REALNET_NETDATA_FILENAME = net_config.REALNET_NETDATA_FILENAME
         self.MAX_DIMENSION = self.net_config.MAX_DIMENSION
+        pass
 
-        self.net_info = self._create_network()  # 网络信息
+    def create_net(self):
+        self.net_info = self.get_net_info()  # 网络信息
         self._set_net_info()
         self.inc_matrix_adj_info = self._get_adj()  # 关联矩阵
         self.set_inc_matrix_adj_info()
         self._to_device()
-        pass
     def set_inc_matrix_adj_info(self):
         self.inc_matrix_adj0 = self.inc_matrix_adj_info["inc_matrix_adj0"]
         self.inc_matrix_adj1 = self.inc_matrix_adj_info["inc_matrix_adj1"]
@@ -45,7 +46,7 @@ class Realnet():
         with open(netdata_file, "rb") as file:
             net_info = pickle.load(file)
         return net_info
-    def _create_network(self):
+    def get_net_info(self):
         netsourve_file = os.path.join(self.REALNET_DATA_PATH, self.REALNET_SOURCEDATA_FILENAME)
         netdata_file = os.path.join(self.REALNET_DATA_PATH, self.REALNET_NETDATA_FILENAME)
         if os.path.exists(netdata_file):

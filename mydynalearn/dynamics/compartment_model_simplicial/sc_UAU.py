@@ -34,6 +34,18 @@ class SCUAU(CompartmentModelSimplicial):
                                                       _threshold_scAct=2,
                                                       target_state='A',
                                                       inc_matrix_adj=self.network.inc_matrix_adj2)
+
+        target_node = 4
+        act_tri_index = torch.where(inc_matrix_adj_act_triangle.to_dense()[target_node]==1)[0]
+        act_tri = self.network.triangles[act_tri_index]
+        act_tri_state = self.x2[act_tri_index]
+
+        act_edge_index = torch.where(inc_matrix_adj_act_edge.to_dense()[target_node]==1)[0]
+        act_edge = self.network.edges[act_edge_index]
+        act_edge_state = self.x1[act_edge_index]
+
+
+
         # adj_act_edges：（节点数）表示节点i相邻激活边数量
         adj_act_edges = torch.sparse.sum(inc_matrix_adj_act_edge,dim=1).to_dense()
         adj_act_triangles = torch.sparse.sum(inc_matrix_adj_act_triangle,dim=1).to_dense()

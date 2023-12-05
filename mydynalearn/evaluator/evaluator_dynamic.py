@@ -1,5 +1,5 @@
 from mydynalearn.evaluator import Evaluator
-from mydynalearn.drawer import *
+from mydynalearn.drawer_old import *
 import pickle
 
 class DynamicEvaluator(Evaluator):

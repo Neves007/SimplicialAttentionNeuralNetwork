@@ -73,7 +73,9 @@ class SATLayer_regular(nn.Module):
             agg1 = self.attention_agg(xj_1, ai_0, aj_1, incMatrix_adj1)
             agg2 = self.attention_agg(xj_2, ai_0, aj_2, incMatrix_adj2)
 
-            x0 = xi_0 + self.agg_weight[0]*agg0 + self.agg_weight[1]*agg1 + self.agg_weight[2]*agg2
+            # x0 = xi_0 + self.agg_weight[0]*agg0 + self.agg_weight[1]*agg1 + self.agg_weight[2]*agg2
+            # todo: 不要一阶
+            x0 = xi_0 + self.agg_weight[0]*agg0 + self.agg_weight[2]*agg2
 
         return x0
 

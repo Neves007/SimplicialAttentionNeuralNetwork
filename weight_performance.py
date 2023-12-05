@@ -8,7 +8,7 @@ import pickle
 from mydynalearn.config import ExperimentTrainConfig
 from mydynalearn.experiments import ExperimentTrain
 import itertools
-from mydynalearn.drawer.matplot_drawer.drawer_matplot_maxR import DrawerMatplotMaxR
+from mydynalearn.drawer_old.matplot_drawer.drawer_matplot_maxR import DrawerMatplotMaxR
 
 
 def fix_config(config):
@@ -24,7 +24,7 @@ def fix_config(config):
 
 
 def get_experiment(**kwargs):
-    config = ExperimentTrainConfig.default(**kwargs)
+    config = ExperimentTrainConfig().default(**kwargs)
     fix_config(config)
     exp = ExperimentTrain(config)
     return exp

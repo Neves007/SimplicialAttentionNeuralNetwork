@@ -174,7 +174,6 @@ class SCCompUAU(CompartmentModelSimplicial):
         self.set_spread_result(spread_result)
 
     def _run_onestep(self):
-        # todo：所有类改network
         assert len(self.EFF_AWARE_A1)==len(self.EFF_AWARE_A2)==len(self.network.AVG_K)
         self.BETA_LIST_A1 = (self.EFF_AWARE_A1 * self.RECOVERY / self.network.AVG_K).to(self.device)
         self.BETA_LIST_A2 = (self.EFF_AWARE_A2 * self.RECOVERY / self.network.AVG_K).to(self.device)

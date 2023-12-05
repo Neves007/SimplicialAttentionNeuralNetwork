@@ -5,6 +5,7 @@ from mydynalearn.config import ExperimentTrainConfig, ExperimentRealConfig
 from mydynalearn.experiments import ExperimentTrain, ExperimentRealnet
 import torch
 import itertools
+from mydynalearn.logger.logger import *
 
 
 class ExperimentManagerRealnet():
@@ -51,7 +52,7 @@ class ExperimentManagerRealnet():
             "seed": 0,
             "rootpath": self.rootpath
         }
-        config = ExperimentRealConfig.default(**kwargs)
+        config = ExperimentRealConfig().default(**kwargs)
         self.fix_config(config)
         exp = ExperimentRealnet(config)
         return exp
@@ -63,12 +64,16 @@ class ExperimentManagerRealnet():
             "SCCompUAU": ["SCCompUAU"],
         }
         return dynamic_map[train_dynamics]
-    def create_realnet_dynamics(self):
-        network_dynamics_dataset_config_list = self.set_realnet_params()
-        for network_dynamics_dataset_config in network_dynamics_dataset_config_list:
-            network, dynamics = network_dynamics_dataset_config
-            exp = self.get_realnet_exp(network, dynamics)
+    def run(self):
+        '''
+        生成真实数据
+        '''
+        realnet_params = self.set_realnet_params()
+        print("*"*10+" REALNET DATASET BUILDING PROCESS "+"*"*10)
+        for realnet_param in realnet_params:
+            log_realnet_begin(realnet_param)
+            exp = self.get_realnet_exp(*realnet_param)
             exp.run()
-
+        print("PROCESS COMPLETED!\n\n")
 
 

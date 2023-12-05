@@ -8,27 +8,27 @@ import torch
 import numpy as np
 
 network_config = {
-    "ER": NetworkConfig.er(),
-    "SCER": NetworkConfig.sc_er(),
-    "CONFERENCE": NetworkConfig.real_scnet_conference(),
-    "HIGHSCHOOL": NetworkConfig.real_scnet_high_school(),
-    "HOSPITAL": NetworkConfig.real_scnet_hospital(),
-    "WORKPLACE": NetworkConfig.real_scnet_workplace(),
+    "ER": NetworkConfig().er(),
+    "SCER": NetworkConfig().sc_er(),
+    "CONFERENCE": NetworkConfig().real_scnet_conference(),
+    "HIGHSCHOOL": NetworkConfig().real_scnet_high_school(),
+    "HOSPITAL": NetworkConfig().real_scnet_hospital(),
+    "WORKPLACE": NetworkConfig().real_scnet_workplace(),
 }
 
 dynamics_config = {
-    "UAU": DynamicConfig.UAU(),
-    "CompUAU": DynamicConfig.comp_UAU(),
-    "SCUAU": DynamicConfig.sc_UAU(),
-    "SCCompUAU": DynamicConfig.sc_comp_UAU(),
-    "ToySCCompUAU": DynamicConfig.toy_sc_comp_UAU(),
+    "UAU": DynamicConfig().UAU(),
+    "CompUAU": DynamicConfig().comp_UAU(),
+    "SCUAU": DynamicConfig().sc_UAU(),
+    "SCCompUAU": DynamicConfig().sc_comp_UAU(),
+    "ToySCCompUAU": DynamicConfig().toy_sc_comp_UAU(),
 }
 nn_config = {
-    "GAT": TrainableConfig.graph_attention_model,
-    "SAT": TrainableConfig.simplicial_attention_model,
-    "DiffSAT": TrainableConfig.simplicial_diff_attention_model
+    "GAT": TrainableConfig().graph_attention_model,
+    "SAT": TrainableConfig().simplicial_attention_model,
+    "DiffSAT": TrainableConfig().simplicial_diff_attention_model
 }
-dataset_config = DatasetConfig.graph_DynamicDataset()
+dataset_config = DatasetConfig().graph_DynamicDataset()
 
 
 class ExperimentTrainConfig(Config):
@@ -75,9 +75,9 @@ class ExperimentTrainConfig(Config):
         # self.make_dir(self.figpath_to_max_R)
 
 
-    @classmethod
+
     def default(
-            cls,
+            self,
             NAME,
             network,
             dynamics,
@@ -89,15 +89,9 @@ class ExperimentTrainConfig(Config):
             is_weight=False,
             seed=None,
     ):
-        print("network: ", network)
-        print("dynamics: ", dynamics)
-        print("weight: ", is_weight)
-        print("model: ", nn_type)
-        cls = cls()
-
-        cls.NAME = NAME
-        cls.is_weight = is_weight
-        cls.seed = seed
+        self.NAME = NAME
+        self.is_weight = is_weight
+        self.seed = seed
         torch.manual_seed(seed)
         random.seed(seed)
         np.random.seed(seed)
@@ -115,9 +109,9 @@ class ExperimentTrainConfig(Config):
             raise ValueError(
                 f"{nn_type} is invalid, valid entries are {list(nn_config.keys())}"
             )
-        cls.set_path(rootpath)
-        cls.network = network_config[network]
-        cls.dynamics = dynamics_config[dynamics]
-        cls.dataset = dataset_config
-        cls.model = nn_config[nn_type](cls.dynamics.NUM_STATES)
-        return cls
+        self.set_path(rootpath)
+        self.network = network_config[network]
+        self.dynamics = dynamics_config[dynamics]
+        self.dataset = dataset_config
+        self.model = nn_config[nn_type](self.dynamics.NUM_STATES)
+        return self

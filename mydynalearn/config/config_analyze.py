@@ -12,12 +12,20 @@ class AnalyzeConfig(Config):
     '''
 
 
-    @classmethod
     def analyze_trained_model_to_realnet(
-            cls,
+            self,
     ):
-        cls.NAME = "AnalyzeTrainedModelToRealnet"
-        cls.rootpath = r"./output/data/analyze/trained_model_to_realnet/"
-        if not os.path.exists(cls.rootpath):
-            os.makedirs(cls.rootpath)
-        return cls
+        self.NAME = "AnalyzeTrainedModelToRealnet"
+        self.rootpath = r"./output/data/analyze/trained_model_to_realnet/"
+        self.test_result_dir = 'test_result'
+        return self
+
+
+    def analyze_trained_model(
+            self,
+    ):
+        self.NAME = "AnalyzeTrainedModel"
+        self.rootpath = r"./output/data/analyze/trained_model/"
+        self.test_result_dir = 'test_result'
+        self.test_maxR_dir = 'maxR'
+        return self

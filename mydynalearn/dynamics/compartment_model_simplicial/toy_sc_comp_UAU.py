@@ -140,7 +140,7 @@ class ToySCCompUAU(CompartmentModelSimplicial):
                    adj_A1_act_triangle,
                    adj_A2_act_triangle,
                    new_x0):
-        # todo:修改
+
         simple_dynamic_weight = self.SimpleDynamicWeight(self.device,
                                                          old_x0,
                                                          new_x0,
@@ -152,7 +152,8 @@ class ToySCCompUAU(CompartmentModelSimplicial):
                                                          self)
         weight = simple_dynamic_weight.get_weight()
         return weight
-    def _spread(self):
+    def _spread(self,network):
+        self.set_network(network)
         old_x0, old_x1, old_x2, true_tp, adj_A1_act_edge, adj_A2_act_edge, adj_A1_act_triangle, adj_A2_act_triangle = self._preparing_spreading_data()
         U_index, A1_index, A2_index = self._get_nodeid_for_each_state()
         aware_A1_index, aware_A2_index = self._dynamic_for_node_U(U_index, adj_A1_act_edge, adj_A2_act_edge, adj_A1_act_triangle, adj_A2_act_triangle, true_tp)
@@ -187,7 +188,6 @@ class ToySCCompUAU(CompartmentModelSimplicial):
         self.set_spread_result(spread_result)
 
     def _run_onestep(self):
-        # todo：所有类改network
         assert len(self.EFF_AWARE_A1)==len(self.EFF_AWARE_A2)==len(self.network.AVG_K)
         self.BETA_LIST_A1 = (self.EFF_AWARE_A1 * self.RECOVERY / self.network.AVG_K).to(self.device)
         self.BETA_LIST_A2 = (self.EFF_AWARE_A2 * self.RECOVERY / self.network.AVG_K).to(self.device)

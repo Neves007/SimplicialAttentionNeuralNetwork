@@ -1,5 +1,5 @@
 from mydynalearn.evaluator import Evaluator
-from mydynalearn.drawer import MatplotController
+from mydynalearn.drawer_old import MatplotController
 import pickle
 import torch
 

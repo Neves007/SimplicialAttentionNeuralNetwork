@@ -1,5 +1,5 @@
 from mydynalearn.dynamics.simple_dynamic_weight import *
-# TODO:修改其他
+
 __DYNAMICS__ = {
     "UAU": SimpleDynamicWeightUAU,
     "CompUAU": SimpleDynamicWeightCompUAU,

@@ -18,6 +18,8 @@ class CompartmentModelSimplicial():
         self.NUM_STATES = self.dynamics_config.NUM_STATES
         self.NODE_FEATURE_MAP = torch.eye(self.NUM_STATES).to(self.device, dtype = torch.long)
         self.SimpleDynamicWeight = weight_getter(self.NAME)
+
+    def set_network(self,network):
         self.network = network
         self.NUM_NODES = network.NUM_NODES
     def set_x1_from_x0(self):
@@ -35,11 +37,11 @@ class CompartmentModelSimplicial():
     def get_x2_from_x0(self,x0):
         x2 = torch.sum(x0[self.network.triangles], dim=-2)
         return x2
-    def init_net_features(self):
+    def init_net_features(self,network):
         '''
         初始化更新节点状态
         '''
-
+        self.set_network(network)
         self._init_x0()
         self.set_x1_from_x0()
         self.set_x2_from_x0()

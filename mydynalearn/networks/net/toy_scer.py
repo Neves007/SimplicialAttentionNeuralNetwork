@@ -11,7 +11,7 @@ class ToySCER():
         self.MAX_DIMENSION = self.net_config.MAX_DIMENSION
         self.NUM_NODES = self.net_config.NUM_NODES
 
-        self.net_info = self._create_network()  # 网络信息
+        self.net_info = self.get_net_info()  # 网络信息
         self._set_net_info()
         self.inc_matrix_adj_info = self._get_adj()  # 关联矩阵
         self.set_inc_matrix_adj_info()
@@ -31,7 +31,7 @@ class ToySCER():
         self.NUM_TRIANGLES = self.net_info["NUM_TRIANGLES"]
         self.AVG_K = self.net_info["AVG_K"]
 
-    def _create_network(self):
+    def get_net_info(self):
 
         nodes =  torch.arange(self.NUM_NODES)
         edges = torch.tensor([(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6),

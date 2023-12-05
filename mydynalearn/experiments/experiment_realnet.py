@@ -14,7 +14,7 @@ class ExperimentRealnet():
 
         self.network = get_network(config)
         self.dynamics = get_dynamics(config,self.network)
-        self.dataset = get_dataset(config,self.network,self.dynamics)
+        self.dataset = get_dataset(config)
         self.DataSetLoader = dataset_loader_getter(self.config)
         self.TASKS = [
             "generate_data",
@@ -32,7 +32,8 @@ class ExperimentRealnet():
                 )
     def generate_data(self):
         if len(os.listdir(self.config.datapath_to_datasets))==0:
-            self.dataset.run()
+            self.network.create_net()
+            self.dataset.run(self.network, self.dynamics)
             self.dataset.save_dataset()
         else:
             self.dataset = self.dataset.load_dataset()
