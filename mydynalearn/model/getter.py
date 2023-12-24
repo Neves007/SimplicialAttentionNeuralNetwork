@@ -2,16 +2,16 @@ import loguru
 
 from mydynalearn.model import GraphAttentionModel,SimplicialAttentionModel
 __Model__ = {
-    "GraphAttentionModel": GraphAttentionModel,
-    "SimplicialAttentionModel": SimplicialAttentionModel,
-    "SimplicialDiffAttentionModel": SimplicialAttentionModel
+    "GAT": GraphAttentionModel,
+    "SAT": SimplicialAttentionModel,
+    "DiffSAT": SimplicialAttentionModel
 }
 
 
-def get(config,network,dynamics):
+def get(config,dataset):
     NAME = config.model.NAME
     if NAME in __Model__:
-        model = __Model__[NAME](config,network,dynamics)
+        model = __Model__[NAME](config,dataset)
         return model
     else:
         loguru.logger.error("there is no model named {}",NAME)

@@ -8,16 +8,16 @@ class MatplotController():
     def __init__(self,config,dynamics):
         self.config = config
         self.dynamics = dynamics
-        self.epochs = config.dataset.epochs
+        self.EPOCHS = config.dataset.EPOCHS
         self.matplot_epochPerformance = DrawerMatplotEpochFigYtrureYpred(config,dynamics)
 
         self.matplot_Dynamic_Stady_rho = matplot_Dynamic_Stady_rho(config)
         self.epoch_data_handler = EpochDataHandler(config,dynamics)
 
     def matplot_draw_epoch(self):
-        self.matplot_epochPerformance.split_subplots(self.epochs)
+        self.matplot_epochPerformance.split_subplots(self.EPOCHS)
         # 遍历所有epoch
-        for epoch_index in range(self.epochs):
+        for epoch_index in range(self.EPOCHS):
             # 用matplotlib画出每个epoch的结果
             epochData = self.epoch_data_handler.load_epoch_data(epoch_index)
             kwargs = self.epoch_data_handler.epochdata_datacur_2_dataT(epochData)

@@ -4,8 +4,8 @@ import random
 from mydynalearn.dynamics.compartment_model_graph.compartment_model_graph import CompartmentModelGraph
 #  进行一步动力学
 class CompUAU(CompartmentModelGraph):
-    def __init__(self, config,network):
-        super().__init__(config,network)
+    def __init__(self, config):
+        super().__init__(config)
         self.EFF_AWARE_A1 = self.dynamics_config.EFF_AWARE_A1
         self.EFF_AWARE_A2 = self.dynamics_config.EFF_AWARE_A2
         self.RECOVERY = self.dynamics_config.RECOVERY
@@ -15,7 +15,7 @@ class CompUAU(CompartmentModelGraph):
         assert len(self.STATES_MAP.keys())==self.NUM_STATES
 
     def _init_x0(self):
-        x0 = torch.zeros(self.NUM_NODES).to(self.device,torch.long)
+        x0 = torch.zeros(self.NUM_NODES).to(self.DEVICE,torch.long)
         x0 = self.NODE_FEATURE_MAP[x0]
         NUM_SEED_NODES_A1 = int(self.NUM_NODES * self.SEED_FREC_A1)
         NUM_SEED_NODES_A2 = int(self.NUM_NODES * self.SEED_FREC_A2)
@@ -44,13 +44,13 @@ class CompUAU(CompartmentModelGraph):
         adj_A1_act_edges, adj_A2_act_edges = self._get_adj_activate_simplex()
         old_x0 = copy.deepcopy(self.x0)
         old_x1 = copy.deepcopy(self.x1)
-        true_tp = torch.zeros(self.x0.shape).to(self.device)
+        true_tp = torch.zeros(self.x0.shape).to(self.DEVICE)
         return old_x0, old_x1, true_tp, adj_A1_act_edges, adj_A2_act_edges
 
     def _get_nodeid_for_each_state(self):
-        U_index = torch.where(self.x0[:, self.STATES_MAP["U"]] == 1)[0].to(self.device, dtype=torch.long)
-        A1_index = torch.where(self.x0[:, self.STATES_MAP["A1"]] == 1)[0].to(self.device, dtype=torch.long)
-        A2_index = torch.where(self.x0[:, self.STATES_MAP["A2"]] == 1)[0].to(self.device, dtype=torch.long)
+        U_index = torch.where(self.x0[:, self.STATES_MAP["U"]] == 1)[0].to(self.DEVICE, dtype=torch.long)
+        A1_index = torch.where(self.x0[:, self.STATES_MAP["A1"]] == 1)[0].to(self.DEVICE, dtype=torch.long)
+        A2_index = torch.where(self.x0[:, self.STATES_MAP["A2"]] == 1)[0].to(self.DEVICE, dtype=torch.long)
         return U_index, A1_index, A2_index
     def _get_new_feature(self, x0, aware_A1_index, aware_A2_index, recover_A1_index, recover_A2_index):
         if aware_A1_index.shape[0] > 0:
@@ -61,21 +61,21 @@ class CompUAU(CompartmentModelGraph):
             x0[recover_A1_index, :] = self.NODE_FEATURE_MAP[self.STATES_MAP["U"]]  # A1->U
         if recover_A2_index.shape[0] > 0:
             x0[recover_A2_index, :] = self.NODE_FEATURE_MAP[self.STATES_MAP["U"]]  # A2->U
-        x1 = self.get_x1_from_x0(x0)
+        x1 = self.get_x1_from_x0(x0,self.network)
         return x0, x1
 
 
     def _dynamic_for_node_A1(self, A1_index, true_tp):
-        recover_prob = self.RECOVERY * torch.ones(A1_index.shape[0]).to(self.device)
-        random_p = torch.rand(A1_index.shape[0]).to(self.device)
+        recover_prob = self.RECOVERY * torch.ones(A1_index.shape[0]).to(self.DEVICE)
+        random_p = torch.rand(A1_index.shape[0]).to(self.DEVICE)
         recover_A1_index = A1_index[torch.where(random_p <= recover_prob)[0]]
         true_tp[A1_index, self.STATES_MAP["U"]] = self.RECOVERY
         true_tp[A1_index, self.STATES_MAP["A1"]] = 1 - self.RECOVERY
         return recover_A1_index
 
     def _dynamic_for_node_A2(self, A2_index, true_tp):
-        recover_prob = self.RECOVERY * torch.ones(A2_index.shape[0]).to(self.device)
-        random_p = torch.rand(A2_index.shape[0]).to(self.device)
+        recover_prob = self.RECOVERY * torch.ones(A2_index.shape[0]).to(self.DEVICE)
+        random_p = torch.rand(A2_index.shape[0]).to(self.DEVICE)
         recover_A2_index = A2_index[torch.where(random_p <= recover_prob)[0]]
         true_tp[A2_index, self.STATES_MAP["U"]] = self.RECOVERY
         true_tp[A2_index, self.STATES_MAP["A2"]] = 1 - self.RECOVERY
@@ -101,12 +101,12 @@ class CompUAU(CompartmentModelGraph):
         f_A1 = g_A1*(1-0.5*g_A2)/(g_A1*(1-0.5*g_A2)+g_A2*(1-0.5*g_A1))
         f_A2 = g_A2*(1-0.5*g_A1)/(g_A1*(1-0.5*g_A2)+g_A2*(1-0.5*g_A1))
         # 影响过程
-        random_p = torch.rand(self.NUM_NODES).to(self.device)
+        random_p = torch.rand(self.NUM_NODES).to(self.DEVICE)
         aware_prob = 1 - unaware_prob  # 至少被一个A1或A2的邻居影响
         aware_index = torch.where((random_p <= aware_prob) & (self.x0[:, self.STATES_MAP["U"]] == 1))[0]
 
-        random_p = torch.rand(self.NUM_NODES).to(self.device)
-        aware_index_bool = torch.zeros(self.NUM_NODES).to(self.device)
+        random_p = torch.rand(self.NUM_NODES).to(self.DEVICE)
+        aware_index_bool = torch.zeros(self.NUM_NODES).to(self.DEVICE)
         aware_index_bool[aware_index] = 1
         aware_A1_index = torch.where((random_p <= f_A1)&(aware_index_bool==1))[0]
         aware_A2_index = torch.where((random_p > f_A1)&(aware_index_bool==1))[0]
@@ -124,7 +124,7 @@ class CompUAU(CompartmentModelGraph):
         recover_A2_index = self._dynamic_for_node_A2(A2_index, true_tp)
         new_x0 , new_x1 = self._get_new_feature(self.x0, aware_A1_index, aware_A2_index, recover_A1_index, recover_A2_index)
         weight_args = {
-            "device":self.device,
+            "DEVICE":self.DEVICE,
             "old_x0":old_x0,
             "adj_A1_act_edges":adj_A1_act_edges,
             "adj_A2_act_edges":adj_A2_act_edges,
@@ -144,6 +144,6 @@ class CompUAU(CompartmentModelGraph):
         self.set_spread_result(spread_result)
 
     def _run_onestep(self):
-        self.BETA_LIST_A1 = (self.EFF_AWARE_A1 * self.RECOVERY / self.network.AVG_K).to(self.device)
-        self.BETA_LIST_A2 = (self.EFF_AWARE_A2 * self.RECOVERY / self.network.AVG_K).to(self.device)
+        self.BETA_LIST_A1 = (self.EFF_AWARE_A1 * self.RECOVERY / self.network.AVG_K).to(self.DEVICE)
+        self.BETA_LIST_A2 = (self.EFF_AWARE_A2 * self.RECOVERY / self.network.AVG_K).to(self.DEVICE)
         self._spread()

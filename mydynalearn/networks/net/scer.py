@@ -21,7 +21,7 @@ class SCER(Network):
         self.inc_matrix_adj0 = self.inc_matrix_adj_info["inc_matrix_adj0"]
         self.inc_matrix_adj1 = self.inc_matrix_adj_info["inc_matrix_adj1"]
         self.inc_matrix_adj2 = self.inc_matrix_adj_info["inc_matrix_adj2"]
-    def get_createSimplex_num(self,NUM_NODES,AVG_K):
+    def get_createSimplex_num(self,NUM_NODES,AVG_K,AVG_K_DELTA):
         '''
             通过平均度计算单纯形创建概率
         '''
@@ -31,7 +31,8 @@ class SCER(Network):
             for j in range(i,self.MAX_DIMENSION):
                 C_matrix[i,j] = comb(j+1,i+1)
         C_matrix_inv = np.linalg.pinv(C_matrix)  # 逆
-        k_prime = np.dot(C_matrix_inv, AVG_K)  # 需要生成的单纯形平均度
+        k_matrix = np.array([AVG_K, AVG_K_DELTA])
+        k_prime = np.dot(C_matrix_inv, k_matrix)  # 需要生成的单纯形平均度
         # 转换为需要生成的单纯形总个数，乘以N除以单纯形中的节点数(重复的单纯形不算)。
         Num_create_simplices = k_prime * NUM_NODES / np.array([i + 2 for i in range(self.MAX_DIMENSION)])
         return Num_create_simplices.astype(np.int)
@@ -67,13 +68,11 @@ class SCER(Network):
         for edge in edges_in_triangles:
             edges.add(edge)
         return edges
-    def get_net_info(self):
+    def get_net_info(self,AVG_K,AVG_K_DELTA):
+        # todo：ER网络
         NUM_NODES = self.net_config.NUM_NODES
-        AVG_K = self.net_config.AVG_K
-        assert len(AVG_K) == self.MAX_DIMENSION
-        k = AVG_K[0]
         nodes = torch.arange(NUM_NODES)
-        NUM_EDGES, NUM_TRIANGLES = self.get_createSimplex_num(NUM_NODES,AVG_K)
+        NUM_EDGES, NUM_TRIANGLES = self.get_createSimplex_num(NUM_NODES,AVG_K,AVG_K_DELTA)
         edges = self._create_edges(NUM_NODES,NUM_EDGES)
         triangles,edges_in_triangles = self._create_triangles(NUM_NODES,NUM_TRIANGLES)
         edges = self._merge_edges(edges,edges_in_triangles)
@@ -113,18 +112,18 @@ class SCER(Network):
         }
         return inc_matrix_adj_info
 
-    def _to_device(self):
-        self.nodes = self.nodes.to(self.device)
-        self.edges = self.edges.to(self.device)
-        self.triangles = self.triangles.to(self.device)
+    def _to_DEVICE(self):
+        self.nodes = self.nodes.to(self.DEVICE)
+        self.edges = self.edges.to(self.DEVICE)
+        self.triangles = self.triangles.to(self.DEVICE)
         self.NUM_NODES = self.NUM_NODES
         self.NUM_EDGES = self.NUM_EDGES
         self.NUM_TRIANGLES = self.NUM_TRIANGLES
         self.AVG_K = self.AVG_K
 
-        self.inc_matrix_adj0 = self.inc_matrix_adj0.to(self.device)
-        self.inc_matrix_adj1 = self.inc_matrix_adj1.to(self.device)
-        self.inc_matrix_adj2 = self.inc_matrix_adj2.to(self.device)
+        self.inc_matrix_adj0 = self.inc_matrix_adj0.to(self.DEVICE)
+        self.inc_matrix_adj1 = self.inc_matrix_adj1.to(self.DEVICE)
+        self.inc_matrix_adj2 = self.inc_matrix_adj2.to(self.DEVICE)
     def _unpack_net_info(self):
         return self.nodes, self.edges, self.triangles, self.NUM_NODES, self.NUM_EDGES, self.NUM_TRIANGLES, self.AVG_K,
     def _unpack_inc_matrix_adj_info(self):

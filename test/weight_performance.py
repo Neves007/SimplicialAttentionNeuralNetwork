@@ -12,9 +12,9 @@ import itertools
 
 def fix_config(config):
     # T总时间步
-    config.dataset.num_samples = num_samples
-    config.dataset.num_test = testset_timestep
-    config.dataset.epochs = epochs  # 10
+    config.dataset.NUM_SAMPLES = NUM_SAMPLES
+    config.dataset.NUM_TEST = TESTSET_TIMESTEP
+    config.dataset.EPOCHS = EPOCHS  # 10
     # 检查点
     config.dataset.check_first_epoch = check_first_epoch  # 10
     config.dataset.check_first_epoch_maxtime = check_first_epoch_maxtime
@@ -29,9 +29,9 @@ def get_experiment(**kwargs):
     return exp
 
 
-num_samples = 10000
-testset_timestep = 10
-epochs = 30  # 10
+NUM_SAMPLES = 10000
+TESTSET_TIMESTEP = 10
+EPOCHS = 30  # 10
 check_first_epoch = False  # 10
 check_first_epoch_maxtime = 1000
 check_first_epoch_timestep = 100
@@ -47,7 +47,7 @@ grpah_dynamics = ["UAU","CompUAU"]
 simplicial_network = ["SCER"]
 simplicial_dynamics = ["SCUAU","SCCompUAU"]
 model = ["GAT","SAT","DiffSAT"]
-is_weight = ["is_weight","not_weight","DiffSAT"]
+IS_WEIGHT = ["IS_WEIGHT","not_weight","DiffSAT"]
 
 graph_network_dynamics_dataset_config_list = list(itertools.product(grpah_network,grpah_dynamics, model))
 simplicial_network_dynamics_dataset_config_list = list(itertools.product(simplicial_network,simplicial_dynamics, model))
@@ -60,13 +60,13 @@ for network_dynamics_dataset_config in network_dynamics_dataset_config_list:
         "NAME" : exp_name,
         "network" : network,
         "dynamics" : dynamics,
-        "nn_type" : model,
-        "is_weight" : False,
+        "MODEL_NAME" : model,
+        "IS_WEIGHT" : False,
         "seed" : 0
     }
     config = ExperimentTrainConfig().default(**kwargs)
     datapath_to_epochdata = config.datapath_to_epochdata
-    for epoch_index in range(epochs):
+    for epoch_index in range(EPOCHS):
         fileName = datapath_to_epochdata + "\\epoch{:d}Data.pkl".format(epoch_index)
         file_path = "../data/dynamicLearning-ER-UAU-GAT/not_weight/modelResult/epoch_data/epoch0Data.pkl"
         with open(fileName, "rb") as file:

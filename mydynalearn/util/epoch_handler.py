@@ -7,14 +7,14 @@ import re
 class BesetEpochPicker:
     def __init__(self, gnnExpeiment_Config, exp,train_set,val_set) -> None:
         self.gnnExpeiment_Config = gnnExpeiment_Config
-        self.epochs = self.gnnExpeiment_Config.trainingArgs.epochs
+        self.EPOCHS = self.gnnExpeiment_Config.trainingArgs.EPOCHS
         self.patience = self.gnnExpeiment_Config.trainingArgs.patience
         self.path = self.gnnExpeiment_Config.datapath_to_model
         self.train_set = train_set
         self.val_set = val_set
         self.exp = exp
         self.loss_values = []
-        self.best = self.epochs + 1
+        self.best = self.EPOCHS + 1
         self.best_epoch = 0
         self.clean_dir()
     def clean_dir(self):
@@ -33,7 +33,7 @@ class BesetEpochPicker:
     def pickBestEpoch(self):
         self.bad_counter = 0
         # 只留一个epoch就是最好的epoch
-        for cur_epoch in range(self.epochs):
+        for cur_epoch in range(self.EPOCHS):
             self.exp.visdomDrawer.init_window()
             loss, acc = self.exp.train(cur_epoch, self.train_set, self.val_set)
             # self.exp.low_the_lr()

@@ -46,7 +46,16 @@ class AnalyzeTrainedModelToRealnet():
         self.R_df = self.R_df.append(series,ignore_index=True)
 
     def put_testdata_in_trained_model(self, model_exp,real_exp, epoch_index):
-        test_result_curepoch = model_exp.model.get_test_result(0, real_exp.test_loader)
+        '''将真实数据集作为测试集放入训练模型中返回结果
+        :param model_exp: 训练实验对象
+        :param real_exp: 真实实验对象
+        :param epoch_index: 训练数据的epoch
+        :return: 测试结果
+        '''
+        print("Model name: ",model_exp.NAME)
+        print("Real data name: ",real_exp.NAME)
+        model_exp.model.set_networks(real_exp.dataset.networks)
+        test_result_curepoch = model_exp.model.get_test_result(epoch_index, real_exp.test_loader)
         kwargs = epochdata_datacur_2_dataT(model_exp,test_result_curepoch)
         dynamic_data_handler = DynamicDataHandler(**kwargs)
         get_performance_index, get_performance_data = performance_data_getter(model_exp.config)
@@ -56,7 +65,7 @@ class AnalyzeTrainedModelToRealnet():
         result = {
             "model_name": model_exp.NAME,
             "epoch_index": epoch_index,
-            "dynamics": model_exp.dynamics,
+            "dynamics": model_exp.dataset.dynamics,
             "performance_index": performance_index,
             "performance_data": performance_data,
             "w_T": kwargs['w_T'],
@@ -86,9 +95,9 @@ class AnalyzeTrainedModelToRealnet():
 
     def analyze_model_to_realnet(self):
         print("*"*10+" ANALYZE MODEL TO REALNET "+"*"*10)
-        train_params = self.experiment_manager_train.set_train_params()
+        train_params = self.experiment_manager_train.get_train_params(only_higher_order=True)
         for train_param in train_params:
-            epoch_index = self.experiment_manager_train.epochs-1
+            epoch_index = self.experiment_manager_train.EPOCHS-1
             model_exp = self.experiment_manager_train.get_loaded_model_exp(train_param,epoch_index)
             dynamics_params = self.experiment_manager_realnet.get_available_realnet_dynamics(train_param[1])
             realnet_params = self.experiment_manager_realnet.set_realnet_params(dynamics_params=dynamics_params)
@@ -96,6 +105,7 @@ class AnalyzeTrainedModelToRealnet():
                 real_exp = self.experiment_manager_realnet.get_loaded_real_exp(realnet_param)
                 file_path = self.get_test_result_filepath(real_exp,train_param,epoch_index)
                 if not os.path.exists(file_path):
+                    # 核心代码
                     result = self.put_testdata_in_trained_model(model_exp,
                                                                 real_exp,
                                                                 epoch_index)
@@ -104,10 +114,13 @@ class AnalyzeTrainedModelToRealnet():
         print("PROCESS COMPLETED!\n\n")
 
     def analyze_R(self):
+        '''分析不同模型应用于真实网络数据的R值
+        io文件：analyze_trained_model_to_realnet.csv
+        '''
         print("*"*10+"ANALYZE R "+"*"*10)
-        train_params = self.experiment_manager_train.set_train_params()
+        train_params = self.experiment_manager_train.get_train_params(only_higher_order=True)
         for train_param in train_params:
-            epoch_index = self.experiment_manager_train.epochs-1
+            epoch_index = self.experiment_manager_train.EPOCHS-1
             train_param_keys = ["ModelNet", "ModelDynamics", "ModelGnn", "ModelIsWeight"]
             train_param_dict = {k: v for k, v in zip(train_param_keys, train_param)}
             dynamics_params = self.experiment_manager_realnet.get_available_realnet_dynamics(train_param[1])

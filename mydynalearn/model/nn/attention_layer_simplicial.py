@@ -40,7 +40,7 @@ class SATLayer_regular(nn.Module):
         output = torch.sparse.mm(attention, xj)
         return output
 
-    def forward(self,network,dynamics, x0, x1, x2=None):
+    def forward(self,network, x0, x1, x2=None):
         """
         features : n * m dense matrix of feature vectors
         adj : n * n  sparse signed orientation matrix

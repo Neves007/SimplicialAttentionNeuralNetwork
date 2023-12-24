@@ -34,7 +34,7 @@ class DrawerMatplotMaxR(MatplotDrawer):
         ax = self.axes
         max_R = self.epoch_data_handler.load_max_R()
         print("exp name:{:s}".format(self.config.NAME))
-        print("is_weight:{}".format(self.config.is_weight))
+        print("IS_WEIGHT:{}".format(self.config.IS_WEIGHT))
         print("max R: index ({:d}), value({:f})".format(max_R[0],max_R[1]))
         self.fig_maxR.scatter(ax,max_R)
 

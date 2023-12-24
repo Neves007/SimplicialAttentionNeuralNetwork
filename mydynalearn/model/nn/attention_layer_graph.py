@@ -33,9 +33,10 @@ class GATLayer_regular(nn.Module):
 
         # a_1 + a_2.T：e矩阵
         # v：e矩阵，有效e值
+        # todo: 将sigmoid改为relu
         attention_v = torch.sigmoid(a_1 + a_2.T)[indices[0, :], indices[1, :]]
         # e矩阵转为稀疏矩阵
-        attention = torch.sparse_coo_tensor(indices, attention_v,size=adj.shape)
+        attention = torch.sparse_coo_tensor(indices, attention_v, size=adj.shape)
 
         # 考虑attention权重的特征。
         output = torch.sparse.mm(attention, x0_j)
@@ -52,6 +53,6 @@ class GraphAttentionLayer(nn.Module):
 
     def forward(self, x0,network):
         inc_matrix_adj0 = network.inc_matrix_adj0
-        x0_1 = torch.stack([gat(x0,x0, inc_matrix_adj0) for gat in self.layer0_1])
+        x0_1 = torch.stack([gat(x0, x0, inc_matrix_adj0) for gat in self.layer0_1])
         x0_1 = torch.mean(x0_1,dim=0)
         return x0_1

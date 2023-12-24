@@ -4,8 +4,8 @@ import random
 from mydynalearn.dynamics.compartment_model_simplicial import *
 #  进行一步动力学
 class SCUAU(CompartmentModelSimplicial):
-    def __init__(self,config,network):
-        super().__init__(config,network)
+    def __init__(self,config):
+        super().__init__(config)
         self.EFF_AWARE = self.dynamics_config.EFF_AWARE
         self.RECOVERY = self.dynamics_config.RECOVERY
         self.STATES_MAP = {"U": 0, "A": 1}
@@ -13,7 +13,7 @@ class SCUAU(CompartmentModelSimplicial):
         assert len(self.STATES_MAP.keys())==self.NUM_STATES
 
     def _init_x0(self):
-        x0 = torch.zeros(self.NUM_NODES).to(self.device,torch.long)
+        x0 = torch.zeros(self.NUM_NODES).to(self.DEVICE,torch.long)
         x0 = self.NODE_FEATURE_MAP[x0]
 
         NUM_SEED_NODES = int(self.NUM_NODES * self.SEED_FREC)
@@ -57,12 +57,12 @@ class SCUAU(CompartmentModelSimplicial):
         old_x0 = copy.deepcopy(self.x0)
         old_x1 = copy.deepcopy(self.x1)
         old_x2 = copy.deepcopy(self.x2)
-        true_tp = torch.zeros(self.x0.shape).to(self.device)
+        true_tp = torch.zeros(self.x0.shape).to(self.DEVICE)
         return old_x0, old_x1, old_x2, true_tp, adj_act_edges, adj_act_triangles
 
     def _get_nodeid_for_each_state(self):
-        U_index = torch.where(self.x0[:, self.STATES_MAP["U"]] == 1)[0].to(self.device, dtype=torch.long)
-        A_index = torch.where(self.x0[:, self.STATES_MAP["A"]] == 1)[0].to(self.device, dtype=torch.long)
+        U_index = torch.where(self.x0[:, self.STATES_MAP["U"]] == 1)[0].to(self.DEVICE, dtype=torch.long)
+        A_index = torch.where(self.x0[:, self.STATES_MAP["A"]] == 1)[0].to(self.DEVICE, dtype=torch.long)
         return U_index, A_index
 
     def _get_new_feature(self, x0, inf_U_index, recover_A_index):
@@ -70,13 +70,13 @@ class SCUAU(CompartmentModelSimplicial):
             x0[inf_U_index, :] = self.NODE_FEATURE_MAP[1]  # S->I
         if recover_A_index.shape[0] > 0:
             x0[recover_A_index, :] = self.NODE_FEATURE_MAP[0]  # I->S
-        x1 = self.get_x1_from_x0(x0)
-        x2 = self.get_x2_from_x0(x0)
+        x1 = self.get_x1_from_x0(x0, self.network)
+        x2 = self.get_x2_from_x0(x0, self.network)
         return x0, x1, x2
 
     def _dynamic_for_node_A(self, A_index, true_tp):
-        recover_prob = self.RECOVERY * torch.ones(self.NUM_NODES).to(self.device)
-        random_p = torch.rand(self.NUM_NODES).to(self.device)
+        recover_prob = self.RECOVERY * torch.ones(self.NUM_NODES).to(self.DEVICE)
+        random_p = torch.rand(self.NUM_NODES).to(self.DEVICE)
         recover_A_index = torch.where((random_p <= recover_prob) & (self.x0[:, self.STATES_MAP["A"]] == 1))[0]
         true_tp[A_index, self.STATES_MAP["U"]] = self.RECOVERY
         true_tp[A_index, self.STATES_MAP["A"]] = 1 - self.RECOVERY
@@ -91,7 +91,7 @@ class SCUAU(CompartmentModelSimplicial):
         not_aware_prob = torch.prod(not_aware_prob_matrix,dim=0)
         # 感染的概率 aware_prob (infected probability)
         aware_prob = 1 - not_aware_prob
-        random_p = torch.rand(self.NUM_NODES).to(self.device)
+        random_p = torch.rand(self.NUM_NODES).to(self.DEVICE)
         # 找出被感染的S态节点
         inf_U_index = torch.where((random_p <= aware_prob) & (self.x0[:, self.STATES_MAP["U"]] == 1))[0]
         # 修改实际迁移概率
@@ -106,7 +106,7 @@ class SCUAU(CompartmentModelSimplicial):
         recover_A_index = self._dynamic_for_node_A(A_index, true_tp)
         new_x0 , new_x1, new_x2 = self._get_new_feature(self.x0, inf_U_index, recover_A_index)
         weight_args = {
-            "device":self.device,
+            "DEVICE":self.DEVICE,
             "old_x0":old_x0,
             "adj_act_edges":adj_act_edges,
             "adj_act_triangles":adj_act_triangles,
@@ -128,12 +128,5 @@ class SCUAU(CompartmentModelSimplicial):
         self.set_spread_result(spread_result)
 
     def _run_onestep(self):
-        self.BETA_LIST = (self.EFF_AWARE * self.RECOVERY / self.network.AVG_K).to(self.device)
+        self.BETA_LIST = (self.EFF_AWARE * self.RECOVERY / self.network.AVG_K).to(self.DEVICE)
         self._spread()
-
-    def get_x1_from_x0(self,x0):
-        x1 = torch.sum(x0[self.network.edges], dim=-2)
-        return x1
-    def get_x2_from_x0(self,x0):
-        x2 = torch.sum(x0[self.network.triangles], dim=-2)
-        return x2

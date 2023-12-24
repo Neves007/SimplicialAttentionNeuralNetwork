@@ -11,7 +11,7 @@ class Realnet():
     def __init__(self, net_config):
         self.net_config = net_config
         self.NAME = net_config.NAME
-        self.device = net_config.device
+        self.DEVICE = net_config.DEVICE
         self.REALNET_DATA_PATH = net_config.REALNET_DATA_PATH
         self.REALNET_SOURCEDATA_FILENAME = net_config.REALNET_SOURCEDATA_FILENAME
         self.REALNET_NETDATA_FILENAME = net_config.REALNET_NETDATA_FILENAME
@@ -23,7 +23,7 @@ class Realnet():
         self._set_net_info()
         self.inc_matrix_adj_info = self._get_adj()  # 关联矩阵
         self.set_inc_matrix_adj_info()
-        self._to_device()
+        self._to_DEVICE()
     def set_inc_matrix_adj_info(self):
         self.inc_matrix_adj0 = self.inc_matrix_adj_info["inc_matrix_adj0"]
         self.inc_matrix_adj1 = self.inc_matrix_adj_info["inc_matrix_adj1"]
@@ -72,6 +72,7 @@ class Realnet():
         # 先对边进行预处理，无相边会有问题。
         inverse_matrix=torch.tensor([[0, 1], [1, 0]],dtype=torch.long)
         edges_inverse = torch.mm(self.edges,inverse_matrix) # 对调两行
+        # inc_matrix_0：节点和节点的关联矩阵，即邻接矩阵
         inc_matrix_adj0 = torch.sparse_coo_tensor(indices=torch.cat([self.edges.T,edges_inverse.T],dim=1),
                                               values=torch.ones(2*self.NUM_EDGES),
                                               size=(self.NUM_NODES,self.NUM_NODES))
@@ -79,6 +80,7 @@ class Realnet():
         inc_matrix_adj1 = nodeToEdge_matrix(self.nodes, self.edges)
         inc_matrix_adj1 = inc_matrix_adj1.to_sparse()
 
+        # inc_matrix_2：节点和高阶边的关联矩阵
         inc_matrix_adj2 = nodeToTriangle_matrix(self.nodes, self.triangles)
         inc_matrix_adj2 = inc_matrix_adj2.to_sparse()
         # 随机断边
@@ -88,18 +90,18 @@ class Realnet():
             "inc_matrix_adj2":inc_matrix_adj2
         }
         return inc_matrix_adj_info
-    def _to_device(self):
-        self.nodes = self.nodes.to(self.device)
-        self.edges = self.edges.to(self.device)
-        self.triangles = self.triangles.to(self.device)
+    def _to_DEVICE(self):
+        self.nodes = self.nodes.to(self.DEVICE)
+        self.edges = self.edges.to(self.DEVICE)
+        self.triangles = self.triangles.to(self.DEVICE)
         self.NUM_NODES = self.NUM_NODES
         self.NUM_EDGES = self.NUM_EDGES
         self.NUM_TRIANGLES = self.NUM_TRIANGLES
         self.AVG_K = self.AVG_K
 
-        self.inc_matrix_adj0 = self.inc_matrix_adj0.to(self.device)
-        self.inc_matrix_adj1 = self.inc_matrix_adj1.to(self.device)
-        self.inc_matrix_adj2 = self.inc_matrix_adj2.to(self.device)
+        self.inc_matrix_adj0 = self.inc_matrix_adj0.to(self.DEVICE)
+        self.inc_matrix_adj1 = self.inc_matrix_adj1.to(self.DEVICE)
+        self.inc_matrix_adj2 = self.inc_matrix_adj2.to(self.DEVICE)
     def _unpack_net_info(self):
         return self.nodes, self.edges, self.triangles, self.NUM_NODES, self.NUM_EDGES, self.NUM_TRIANGLES, self.AVG_K,
     def _unpack_inc_matrix_adj_info(self):

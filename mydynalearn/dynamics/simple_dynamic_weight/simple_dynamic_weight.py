@@ -10,9 +10,9 @@ import numpy as np
 import torch
 
 class SimpleDynamicWeight():
-    def __init__(self,device,old_x0,new_x0,network,dynamics,**kwargs):
+    def __init__(self,DEVICE,old_x0,new_x0,network,dynamics,**kwargs):
         assert len(kwargs) == 0
-        self.device = device
+        self.DEVICE = DEVICE
         self.dynamics = dynamics
         self.network = network
         self.old_x0 = old_x0

@@ -23,12 +23,8 @@ dynamics_config = {
     "SCCompUAU": DynamicConfig().sc_comp_UAU(),
     "ToySCCompUAU": DynamicConfig().toy_sc_comp_UAU(),
 }
-nn_config = {
-    "GAT": TrainableConfig().graph_attention_model,
-    "SAT": TrainableConfig().simplicial_attention_model,
-    "DiffSAT": TrainableConfig().simplicial_diff_attention_model
-}
-dataset_config = DatasetConfig().graph_DynamicDataset()
+
+dataset_config = DatasetConfig().dataset()
 
 
 class ExperimentRealConfig(Config):

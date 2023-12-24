@@ -26,37 +26,44 @@
                 - 【训练模型测试集效果图片】：output\fig\model_performance
                 - 【真实模型测试集效果图片】：output\fig\realnet_performance
 '''
-from mydynalearn.experiments import ExperimentManagerRealnet,ExperimentManagerTrain
+from mydynalearn.experiments import *
 from mydynalearn.analyze import *
 from mydynalearn.drawer import MatplotController
 
-num_samples = 10000
-testset_timestep = 10
-epochs = 30  # 10
+NUM_SAMPLES = 10000
+TESTSET_TIMESTEP = 10
+EPOCHS = 30  # 10
 
-
-'''
-network = ["ER","SCER","CONFERENCE","HIGHSCHOOL","HOSPITAL","WORKPLACE"]
-dynamics = ["UAU","CompUAU","SCUAU","SCCompUAU"]
-dataset = ["GAT","SAT","DiffSAT"]
-'''
-
-params = {
-    # "grpah_network" : ["ER"],
-    # "grpah_dynamics" : ["UAU","CompUAU"],
+''' 所有参数
+    "grpah_network" : ["ER"],
+    "grpah_dynamics" : ["UAU","CompUAU"],
 
     "simplicial_network" : ["SCER"],
-    "simplicial_dynamics" : ["SCCompUAU"],
+    "real_network" : ["CONFERENCE","HIGHSCHOOL","HOSPITAL","WORKPLACE"],
+    "simplicial_dynamics" : ["SCUAU", "SCCompUAU"],
 
-    "real_network" : ["CONFERENCE"],
-    "model" : ["DiffSAT"],
-    "is_weight" : [False]
+    
+    "model" : ["GAT","SAT","DiffSAT"],  # 至少选一个
+    "IS_WEIGHT" : [False]
+'''
+params = {
+    "grpah_network": ["ER"],
+    "grpah_dynamics": ["UAU", "CompUAU"],
+
+    "simplicial_network": ["SCER"],
+    "real_network": ["CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
+    "simplicial_dynamics": ["SCUAU", "SCCompUAU"],
+
+    "model": ["GAT", "SAT", "DiffSAT"],  # 至少选一个
+    "IS_WEIGHT": [False]
 }
 
 
+
 if __name__ == '__main__':
-    experiment_manager_train = ExperimentManagerTrain(num_samples, testset_timestep, epochs, params)
-    experiment_manager_realnet = ExperimentManagerRealnet(num_samples, testset_timestep, epochs, params)
+    # todo: 合并ExperimentManagerTrain和ExperimentManagerRealnet
+    experiment_manager_train = ExperimentManagerTrain(NUM_SAMPLES, TESTSET_TIMESTEP, EPOCHS, params)
+    experiment_manager_realnet = ExperimentManagerRealnet(NUM_SAMPLES, TESTSET_TIMESTEP, EPOCHS, params)
     analyze_trained_model = AnalyzeTrainedModel(experiment_manager_train)
     analyze_trained_model_to_realnet = AnalyzeTrainedModelToRealnet(experiment_manager_train,
                                                                experiment_manager_realnet)
@@ -66,7 +73,6 @@ if __name__ == '__main__':
     experiment_manager_train.run()
     # 跑真实网络的测试数据
     experiment_manager_realnet.run()
-    #
     # 分析：测试集分析训练模型
     analyze_trained_model.run()
     # 分析：训练模型应用在真实网络.
@@ -77,8 +83,3 @@ if __name__ == '__main__':
     # 画图：
     matplot_drawer = MatplotController(analyze_trained_model,analyze_trained_model_to_realnet)
     matplot_drawer.run()
-
-
-
-
-

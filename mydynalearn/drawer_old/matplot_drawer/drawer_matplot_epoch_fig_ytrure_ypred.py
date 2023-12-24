@@ -13,7 +13,7 @@ class DrawerMatplotEpochFigYtrureYpred(MatplotDrawer):
     def __init__(self,config,dynamics):
         super().__init__(config)
         self.dynamics = dynamics
-        self.epochs = config.dataset.epochs
+        self.EPOCHS = config.dataset.EPOCHS
         self.figName = "/epoch_performance_fig_ytrure_ypred.png"
         self.zoomtimes = 0.8 # 图片大小
         self.Fig_ytrure_ypred = fig_ytrure_ypred_getter(config)

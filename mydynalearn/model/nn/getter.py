@@ -2,9 +2,9 @@ import loguru
 
 from mydynalearn.model.nn import *
 __gnn__ = {
-    "GraphAttentionModel": GraphAttentionLayer,
-    "SimplicialAttentionModel": SimplexAttentionLayer,
-    "SimplicialDiffAttentionModel": SimplexDiffAttentionLayer,
+    "GAT": GraphAttentionLayer,
+    "SAT": SimplexAttentionLayer,
+    "DiffSAT": SimplexDiffAttentionLayer,
 }
 
 

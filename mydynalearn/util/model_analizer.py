@@ -9,7 +9,7 @@ class ModelAnalizer():
         self.gnn_Model = exp.model
         self.gnn_Model.load_state_dict(
             torch.load(exp.gnnExpeiment_Config.datapath_to_model + "BestEpoch.pkl"))
-        self.device = exp.gnnExpeiment_Config.torch_device
+        self.DEVICE = exp.gnnExpeiment_Config.torch_DEVICE
         self.test_set = test_set
         # S_true_TP_degree, S_predict_TP_degree, I_true_TP_degree, I_predict_TP_degree = self.analyze_dgree_TP()
         # S_true_TP, S_predict_TP, I_true_TP_alltime, I_predict_TP_alltime = self.analyze_pre_target_y()

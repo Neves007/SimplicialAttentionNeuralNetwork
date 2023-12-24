@@ -7,6 +7,20 @@ class ER(Network):
         super().__init__(net_config)
         pass
 
+    def get_net_info(self,AVG_K,**kwargs):
+        NUM_NODES = self.net_config.NUM_NODES
+        nodes = torch.arange(NUM_NODES)
+        NUM_EDGES = int(AVG_K * NUM_NODES / 2)
+        NUM_EDGES = NUM_EDGES
+        edges = self._create_edges(NUM_NODES, NUM_EDGES)
+        AVG_K = torch.asarray([2 * len(edges) / NUM_NODES])
+
+        net_info = {"nodes": nodes,
+                    "edges": edges,
+                    "NUM_NODES": NUM_NODES,
+                    "NUM_EDGES": NUM_EDGES,
+                    "AVG_K": AVG_K}
+        return net_info
     def _set_net_info(self):
         self.nodes = self.net_info["nodes"]
         self.edges = self.net_info["edges"]
@@ -27,28 +41,12 @@ class ER(Network):
             edges.add(tuple(edge))
         return torch.asarray(list(edges))
 
-    def get_net_info(self):
-        NUM_NODES = self.net_config.NUM_NODES
-        AVG_K = self.net_config.AVG_K
-        assert len(AVG_K) == self.MAX_DIMENSION
-        k = AVG_K[0]
-        nodes = torch.arange(NUM_NODES)
-        NUM_EDGES = int(k * NUM_NODES / 2)
-        NUM_EDGES = NUM_EDGES
-        edges = self._create_edges(NUM_NODES, NUM_EDGES)
-        AVG_K = torch.asarray([2 * len(edges) / NUM_NODES])
 
-        net_info = {"nodes": nodes,
-                    "edges": edges,
-                    "NUM_NODES": NUM_NODES,
-                    "NUM_EDGES": NUM_EDGES,
-                    "AVG_K": AVG_K}
-        return net_info
 
     def _get_adj(self):
         nodes, edges, NUM_NODES, NUM_EDGES, AVG_K = self._unpack_net_info()
         # inc_matrix_0：节点和节点的关联矩阵
-        # 先对边进行预处理，无相边会有问题。
+        # networkx的边先对边进行预处理，无相边会有问题。
         inverse_matrix = torch.asarray([[0, 1], [1, 0]])
         edges_inverse = torch.mm(edges, inverse_matrix)  # 对调两行
         inc_matrix_adj0 = torch.sparse_coo_tensor(indices=torch.cat([edges.T, edges_inverse.T], dim=1),
@@ -64,15 +62,15 @@ class ER(Network):
         # 随机断边
         return inc_matrix_adj_info
 
-    def _to_device(self):
-        self.nodes = self.nodes.to(self.device)
-        self.edges = self.edges.to(self.device)
+    def _to_DEVICE(self):
+        self.nodes = self.nodes.to(self.DEVICE)
+        self.edges = self.edges.to(self.DEVICE)
         self.NUM_NODES = self.NUM_NODES
         self.NUM_EDGES = self.NUM_EDGES
         self.AVG_K = self.AVG_K
 
-        self.inc_matrix_adj0 = self.inc_matrix_adj0.to(self.device)
-        self.inc_matrix_adj1 = self.inc_matrix_adj1.to(self.device)
+        self.inc_matrix_adj0 = self.inc_matrix_adj0.to(self.DEVICE)
+        self.inc_matrix_adj1 = self.inc_matrix_adj1.to(self.DEVICE)
     def _unpack_net_info(self):
         return self.nodes, self.edges, self.NUM_NODES, self.NUM_EDGES, self.AVG_K
     def _unpack_inc_matrix_adj_info(self):

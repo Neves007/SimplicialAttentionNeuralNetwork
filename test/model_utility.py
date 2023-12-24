@@ -7,9 +7,9 @@ import itertools
 from mydynalearn.experiments import ExperimentManagerRealnet,ExperimentManagerTrain
 from mydynalearn.analyze import AnalyzeTrainedModelToRealnet
 
-num_samples = 10000
-testset_timestep = 50
-epochs = 30  # 10
+NUM_SAMPLES = 10000
+TESTSET_TIMESTEP = 50
+EPOCHS = 30  # 10
 
 
 '''
@@ -25,13 +25,13 @@ params = {
     "real_network" : ["CONFERENCE"],
     "simplicial_dynamics" : ["SCUAU"],
     "model" : ["GAT","SAT","DiffSAT"],
-    "is_weight" : [False]
+    "IS_WEIGHT" : [False]
 }
 
 if __name__ == '__main__':
     # 训练模型
-    experiment_manager_train = ExperimentManagerTrain(num_samples, testset_timestep, epochs, params)
-    experiment_manager_realnet = ExperimentManagerRealnet(num_samples, testset_timestep, epochs, params)
+    experiment_manager_train = ExperimentManagerTrain(NUM_SAMPLES, TESTSET_TIMESTEP, EPOCHS, params)
+    experiment_manager_realnet = ExperimentManagerRealnet(NUM_SAMPLES, TESTSET_TIMESTEP, EPOCHS, params)
     analyze_trained_model_to_realnet = AnalyzeTrainedModelToRealnet(experiment_manager_train, experiment_manager_realnet)
 
     experiment_manager_train.run()

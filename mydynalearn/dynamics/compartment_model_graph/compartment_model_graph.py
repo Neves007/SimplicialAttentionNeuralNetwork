@@ -8,15 +8,15 @@ import random
 from mydynalearn.dynamics.simple_dynamic_weight.getter import get as weight_getter
 #  进行一步动力学
 class CompartmentModelGraph():
-    def __init__(self, config,network):
+    def __init__(self, config):
         self.config = config
         self.dynamics_config = config.dynamics
-        self.device = self.config.device
+        self.DEVICE = self.config.DEVICE
         self.NAME = self.dynamics_config.NAME
 
         self.MAX_DIMENSION = self.dynamics_config.MAX_DIMENSION
         self.NUM_STATES = self.dynamics_config.NUM_STATES
-        self.NODE_FEATURE_MAP = torch.eye(self.NUM_STATES).to(self.device, dtype = torch.long)
+        self.NODE_FEATURE_MAP = torch.eye(self.NUM_STATES).to(self.DEVICE, dtype = torch.long)
         self.SimpleDynamicWeight = weight_getter(self.NAME)
 
 
@@ -26,7 +26,12 @@ class CompartmentModelGraph():
     def set_x1_from_x0(self):
         self.x1 = torch.sum(self.x0[self.network.edges], dim=-2)
 
-    def init_net_features(self,network):
+    def get_x1_from_x0(self, x0, network)->'x1':
+        x1 = torch.sum(x0[network.edges], dim=-2)
+        return x1
+
+
+    def preparation_before_dynamics(self,network):
         '''
         初始化更新节点状态
         '''
@@ -58,9 +63,6 @@ class CompartmentModelGraph():
     def set_features(self,new_x0, new_x1, **kwargs):
         self.x0 = new_x0
         self.x1 = new_x1
-    def get_x1_from_x0(self,x0):
-        x1 = torch.sum(x0[self.network.edges], dim=-2)
-        return x1
     def get_weight(self,**weight_args):
         simple_dynamic_weight = self.SimpleDynamicWeight(**weight_args)
         weight = simple_dynamic_weight.get_weight()

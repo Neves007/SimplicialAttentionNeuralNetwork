@@ -13,9 +13,9 @@ from mydynalearn.drawer_old.matplot_drawer.drawer_matplot_maxR import DrawerMatp
 
 def fix_config(config):
     # T总时间步
-    config.dataset.num_samples = num_samples
-    config.dataset.num_test = testset_timestep
-    config.dataset.epochs = epochs  # 10
+    config.dataset.NUM_SAMPLES = NUM_SAMPLES
+    config.dataset.NUM_TEST = TESTSET_TIMESTEP
+    config.dataset.EPOCHS = EPOCHS  # 10
     # 检查点
     config.dataset.check_first_epoch = check_first_epoch  # 10
     config.dataset.check_first_epoch_maxtime = check_first_epoch_maxtime
@@ -30,9 +30,9 @@ def get_experiment(**kwargs):
     return exp
 
 
-num_samples = 10000
-testset_timestep = 10
-epochs = 30  # 10
+NUM_SAMPLES = 10000
+TESTSET_TIMESTEP = 10
+EPOCHS = 30  # 10
 check_first_epoch = False  # 10
 check_first_epoch_maxtime = 1000
 check_first_epoch_timestep = 100
@@ -48,22 +48,22 @@ grpah_dynamics = ["UAU","CompUAU"]
 simplicial_network = ["SCER"]
 simplicial_dynamics = ["SCUAU","SCCompUAU"]
 model = ["GAT","SAT","DiffSAT"]
-is_weight = [True,False]
+IS_WEIGHT = [True,False]
 
-graph_network_dynamics_dataset_config_list = list(itertools.product(grpah_network,grpah_dynamics, model,is_weight))
-simplicial_network_dynamics_dataset_config_list = list(itertools.product(simplicial_network,simplicial_dynamics, model,is_weight))
+graph_network_dynamics_dataset_config_list = list(itertools.product(grpah_network,grpah_dynamics, model,IS_WEIGHT))
+simplicial_network_dynamics_dataset_config_list = list(itertools.product(simplicial_network,simplicial_dynamics, model,IS_WEIGHT))
 network_dynamics_dataset_config_list = graph_network_dynamics_dataset_config_list + simplicial_network_dynamics_dataset_config_list
 
 DrawerMatplotMaxR.create_fig()
 for network_dynamics_dataset_config in network_dynamics_dataset_config_list:
-    network,dynamics,model,is_weight = network_dynamics_dataset_config
+    network,dynamics,model,IS_WEIGHT = network_dynamics_dataset_config
     exp_name = "dynamicLearning-" + network + "-" + dynamics + "-"+ model
     kwargs = {
         "NAME": exp_name,
         "network": network,
         "dynamics": dynamics,
-        "nn_type": model,
-        "is_weight": is_weight,
+        "MODEL_NAME": model,
+        "IS_WEIGHT": IS_WEIGHT,
         "seed": 0,
         "rootpath": rootpath
     }

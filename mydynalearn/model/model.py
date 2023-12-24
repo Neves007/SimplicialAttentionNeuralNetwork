@@ -13,23 +13,25 @@ from tqdm import tqdm
 from mydynalearn.dataset.getter import get as dataset_getter
 
 class Model(nn.Module):
-    def __init__(self, config,network,dynamics):
+    def __init__(self, config, dataset):
         """Dense version of GAT."""
         super(Model, self).__init__()
-        self.model_config = config.model
-        self.dataset_config = config.dataset
+        # config
         self.config = config
-        self.network = network
-        self.dynamics = dynamics
-        self.device = config.device
-        self.path_to_model_params = config.datapath_to_model
-        self.out_layers = get_out_layers(self.model_config)
-        self.is_weight = config.is_weight
+        self.model_config = config.model
+        self.DEVICE = config.DEVICE
+        # dataset
+        self.dynamics = dataset.dynamics
+        self.networks = dataset.networks
+        # model params
+        self.IS_WEIGHT = config.IS_WEIGHT
         self.criterion = nn.MSELoss()
-        self.epochs = self.dataset_config.epochs
-        self.get_optimizer = get_optimizer(self.model_config.optimizer)
-        self.optimizer = self.get_optimizer(self.parameters())
+        self.EPOCHS = self.model_config.EPOCHS
 
+    def set_networks(self,networks):
+        self.networks = networks
+    def set_dynamics(self,dynamics):
+        self.dynamics = dynamics
 
     def weighted_cross_entropy(self,y_true, y_pred, weights=None):
         y_pred = torch.clamp(y_pred, 1e-15, 1 - 1e-15)
@@ -73,6 +75,8 @@ class Model(nn.Module):
         '''
         fileName_model_state_dict = self.get_fileName_model_state_dict(epoch_index)
         checkpoint = torch.load(fileName_model_state_dict)
+        self.get_optimizer = get_optimizer(self.model_config.optimizer)
+        self.optimizer = self.get_optimizer(list(self.parameters()))
         self.load_state_dict(checkpoint['model_state_dict'])
         self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 
@@ -85,12 +89,14 @@ class Model(nn.Module):
             val_loader=None,
             test_loader=None,
     ):
+        self.get_optimizer = get_optimizer(self.model_config.optimizer)
+        self.optimizer = self.get_optimizer(list(self.parameters()))
         self.train_loader = train_loader
         self.val_loader = val_loader
         self.test_loader = test_loader
         self.train()
         log_training()
-        for epoch_index in range(self.epochs):
+        for epoch_index in range(self.EPOCHS):
             is_need_to_trian = self.is_need_to_trian(epoch_index)
             if is_need_to_trian:
                 self.VisdomDrawer = VisdomController(self.config, self.dynamics)
@@ -122,7 +128,7 @@ class Model(nn.Module):
             maxinterval=10,
             mininterval=2,
             bar_format='{l_bar}|{bar}| {n_fmt}/{total_fmt} [{rate_fmt}{postfix}|{elapsed}',
-            total=test_loader.data_set['x0_T'].shape[0],
+            total=len(test_loader),
         )
         test_result_curepoch = []
         for time_idx,test_dataset_per_time in process_bar:
@@ -139,7 +145,7 @@ class Model(nn.Module):
             maxinterval=10,
             mininterval=2,
             bar_format='{l_bar}|{bar}| {n_fmt}/{total_fmt} [{rate_fmt}{postfix}|{elapsed}',
-            total=self.train_loader.data_set['x0_T'].shape[0],
+            total=len(self.train_loader)
         )
         for time_idx, (train_dataset_per_time,val_dataset_per_time) in process_bar:
             self.train()
@@ -171,13 +177,22 @@ class Model(nn.Module):
         self.eval()
 
     def _do_batch_(self, train_dataset_per_time):
-        x,y_pred,y_true,y_ob, w = self.prepare_output(train_dataset_per_time)
-        # todo: y_true
-        loss = self.weighted_cross_entropy(y_ob, y_pred, w)
-        return loss,x,y_pred,y_true,y_ob, w
+        '''
+        :param train_dataset_per_time:
+            - x0, y_ob, y_true, weight, networkid
+            - 来自DynamicDataset.__getitem__
+        :return:
+        '''
+
+        x0, y_pred, y_true, y_ob, w = self.forward(*train_dataset_per_time)
+        if self.IS_WEIGHT==False:
+            w = torch.ones(x0.shape[0]).to(self.DEVICE)
+        # todo: 试试换成y_true会不会好些
+        loss = self.weighted_cross_entropy(y_true, y_pred, w)
+        return loss,x0,y_pred,y_true,y_ob, w
     # save
     def prepare_output(self, data):
-        x0,y_pred,y_true,y_ob, weight = self.forward(**data)
-        if self.is_weight==False:
-            weight = torch.ones(x0.shape[0]).to(self.device)
+        x0, y_pred, y_true, y_ob, weight = self.forward(*data)
+        if self.IS_WEIGHT==False:
+            weight = torch.ones(x0.shape[0]).to(self.DEVICE)
         return x0,y_pred,y_true,y_ob, weight

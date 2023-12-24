@@ -4,7 +4,7 @@ from .radam import *
 
 __optimizers__ = {
     "Adam": lambda config: lambda p: torch.optim.Adam(
-        p,
+        params=p,
         lr=config.lr,
         betas=config.betas,
         eps=config.eps,
@@ -12,7 +12,7 @@ __optimizers__ = {
         amsgrad=config.amsgrad,
     ),
     "RAdam": lambda config: lambda p: torch.optim.RAdam(
-        p,
+        params=p,
         lr=config.lr,
         betas=config.betas,
         eps=config.eps,

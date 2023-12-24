@@ -53,7 +53,7 @@ class AnalyzeTrainedModel():
         result = {
             "model_name": model_exp.NAME,
             "epoch_index": epoch_index,
-            "dynamics": model_exp.dynamics,
+            "dynamics": model_exp.dataset.dynamics,
             "performance_index": performance_index,
             "performance_data": performance_data,
             "w_T": kwargs['w_T'],
@@ -89,12 +89,13 @@ class AnalyzeTrainedModel():
 
     def analyze_trained_model(self):
         print("*"*10+" ANALYZE TRAINED MODEL "+"*"*10)
-        train_params = self.experiment_manager_train.set_train_params()
+        train_params = self.experiment_manager_train.get_train_params()
         for train_param in train_params:
             log_analyze_trained_model(train_param)
             train_param_keys = ["ModelNet","ModelDynamics","ModelGnn","ModelIsWeight"]
             train_param_dict = {k:v for k,v in zip(train_param_keys,train_param)}
-            for epoch_index in range(self.experiment_manager_train.epochs):
+            for epoch_index in range(self.experiment_manager_train.EPOCHS):
+                # 获取模型路径，查看模型保存文件是否存在
                 model_exp = self.experiment_manager_train.get_train_exp(*train_param)
                 file_path = self.get_test_result_filepath(model_exp, epoch_index)
                 if not os.path.exists(file_path):
@@ -106,11 +107,11 @@ class AnalyzeTrainedModel():
 
     def analyze_maxR(self):
         print("*"*10+" ANALYZE MAX R "+"*"*10)
-        train_params = self.experiment_manager_train.set_train_params()
+        train_params = self.experiment_manager_train.get_train_params()
         maxR_DF = self.init_maxR_DF()
         for train_param in train_params:
-            R_list = torch.zeros(self.experiment_manager_train.epochs,dtype=torch.float)
-            for epoch_index in range(self.experiment_manager_train.epochs):
+            R_list = torch.zeros(self.experiment_manager_train.EPOCHS,dtype=torch.float)
+            for epoch_index in range(self.experiment_manager_train.EPOCHS):
                 model_exp = self.experiment_manager_train.get_loaded_model_exp(train_param, epoch_index)
                 test_result = self.load_test_result(model_exp,epoch_index)
                 R = test_result['R']

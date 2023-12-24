@@ -3,5 +3,5 @@ import torch
 
 class Config():
     def __init__(self):
-        self.device = torch.device('cuda')
-        # self.device = torch.device('cpu')
+        self.DEVICE = torch.device('cuda')
+        # self.DEVICE = torch.device('cpu')

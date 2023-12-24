@@ -23,12 +23,8 @@ dynamics_config = {
     "SCCompUAU": DynamicConfig().sc_comp_UAU(),
     "ToySCCompUAU": DynamicConfig().toy_sc_comp_UAU(),
 }
-nn_config = {
-    "GAT": TrainableConfig().graph_attention_model,
-    "SAT": TrainableConfig().simplicial_attention_model,
-    "DiffSAT": TrainableConfig().simplicial_diff_attention_model
-}
-dataset_config = DatasetConfig().graph_DynamicDataset()
+
+dataset_config = DatasetConfig().dataset()
 
 
 class ExperimentTrainConfig(Config):
@@ -42,8 +38,8 @@ class ExperimentTrainConfig(Config):
     def set_path(self, rootpath="./output"):
         # path
         self.data_path_1 = os.path.join(rootpath, self.NAME)
-        if self.is_weight:
-            self.data_path_2 = os.path.join(self.data_path_1, 'is_weight')
+        if self.IS_WEIGHT:
+            self.data_path_2 = os.path.join(self.data_path_1, 'IS_WEIGHT')
         else:
             self.data_path_2 = os.path.join(self.data_path_1, 'not_weight')
 
@@ -64,8 +60,8 @@ class ExperimentTrainConfig(Config):
         # # 图片文件
         # ## epoch_performance_fig_ytrure_ypred
         # self.figpath_to_epoch_performance_fig_ytrure_ypred_1 = os.path.join(self.rootpath_to_fig, "epoch_performance_fig_ytrure_ypred",self.NAME)
-        # if self.is_weight:
-        #     self.figpath_to_epoch_performance_fig_ytrure_ypred_2 = os.path.join(self.figpath_to_epoch_performance_fig_ytrure_ypred_1, 'is_weight')
+        # if self.IS_WEIGHT:
+        #     self.figpath_to_epoch_performance_fig_ytrure_ypred_2 = os.path.join(self.figpath_to_epoch_performance_fig_ytrure_ypred_1, 'IS_WEIGHT')
         # else:
         #     self.figpath_to_epoch_performance_fig_ytrure_ypred_2 = os.path.join(self.figpath_to_epoch_performance_fig_ytrure_ypred_1, 'not_weight')
         #
@@ -81,16 +77,16 @@ class ExperimentTrainConfig(Config):
             NAME,
             network,
             dynamics,
-            nn_type,
+            MODEL_NAME,
             rootpath,
             path_to_best="./",
             path_to_summary="./",
             weight_type="state",
-            is_weight=False,
+            IS_WEIGHT=False,
             seed=None,
     ):
         self.NAME = NAME
-        self.is_weight = is_weight
+        self.IS_WEIGHT = IS_WEIGHT
         self.seed = seed
         torch.manual_seed(seed)
         random.seed(seed)
@@ -105,13 +101,9 @@ class ExperimentTrainConfig(Config):
             raise ValueError(
                 f"{network} is invalid, valid entries are {list(network_config.keys())}"
             )
-        if nn_type not in nn_config:
-            raise ValueError(
-                f"{nn_type} is invalid, valid entries are {list(nn_config.keys())}"
-            )
         self.set_path(rootpath)
         self.network = network_config[network]
         self.dynamics = dynamics_config[dynamics]
         self.dataset = dataset_config
-        self.model = nn_config[nn_type](self.dynamics.NUM_STATES)
+        self.model = ModelConfig(MODEL_NAME, self.dynamics.NUM_STATES)
         return self

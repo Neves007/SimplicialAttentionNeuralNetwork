@@ -9,10 +9,10 @@ from mydynalearn.logger.logger import *
 
 
 class ExperimentManagerRealnet():
-    def __init__(self, num_samples, testset_timestep, epochs, params):
-        self.num_samples = num_samples
-        self.testset_timestep = testset_timestep
-        self.epochs = epochs
+    def __init__(self, NUM_SAMPLES, TESTSET_TIMESTEP, EPOCHS, params):
+        self.NUM_SAMPLES = NUM_SAMPLES
+        self.TESTSET_TIMESTEP = TESTSET_TIMESTEP
+        self.EPOCHS = EPOCHS
         self.rootpath = r"./output/data/realnet"
         self.params = params
 
@@ -21,11 +21,12 @@ class ExperimentManagerRealnet():
         real_exp.generate_data()
         real_exp.partition_dataSet()
         return real_exp
+
     def fix_config(self, config):
         # T总时间步
-        config.dataset.num_samples = self.num_samples
-        config.dataset.num_test = self.testset_timestep
-        config.dataset.epochs = self.epochs  # 10
+        config.dataset.NUM_SAMPLES = self.NUM_SAMPLES
+        config.dataset.NUM_TEST = self.TESTSET_TIMESTEP
+        config.dataset.FOR_REALNET = True  # 用于区是否是真实网络
 
     def set_realnet_params(self,net_params =None ,dynamics_params=None):
         if net_params == None:

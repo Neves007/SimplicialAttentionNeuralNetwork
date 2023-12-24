@@ -9,10 +9,8 @@ class NetworkConfig(Config):
         super().__init__()
 
     def er(self, NUM_NODES=1000):
-        
         self.NAME = 'ER'
         self.NUM_NODES = NUM_NODES
-        self.AVG_K = torch.tensor([20])
         self.MAX_DIMENSION = 1
         return self
 
@@ -20,7 +18,6 @@ class NetworkConfig(Config):
         
         self.NAME = 'ba'
         self.NUM_NODES = NUM_NODES
-        self.AVG_K = torch.tensor([20])  # 每次加入2条边的无标度网络
         self.MAX_DIMENSION = 1
         self.__BE_eadge_mu = 0.8
         self.BE_eadge_p = 1 - log(1 - self.__BE_eadge_mu + exp(1) * self.__BE_eadge_mu) # 断边概率
@@ -30,7 +27,6 @@ class NetworkConfig(Config):
         
         self.NAME = 'SCER'
         self.NUM_NODES = NUM_NODES
-        self.AVG_K = torch.tensor([40, 15])
         self.MAX_DIMENSION = 2
         return self
 

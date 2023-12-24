@@ -1,7 +1,7 @@
 from mydynalearn.model import *
 from mydynalearn.networks.getter import get as get_network
 from mydynalearn.dynamics.getter import get as get_dynamics
-from mydynalearn.dataset.dynamic_dataset.getter import get as get_dataset
+from mydynalearn.dataset import DynamicDataset
 from mydynalearn.evaluator import *
 
 
@@ -13,7 +13,7 @@ class DynamicExperiment():
 
         self.network = get_network(config)
         self.dynamics = get_dynamics(config,self.network)
-        self.dataset = get_dataset(config,self.network,self.dynamics)
+        self.dataset = DynamicDataset(self.config)
     def run(self):
         eff_infectionList,stady_rho_list = self.generate_DanamicProcessData()
         self.dynamic_evaluation(eff_infectionList,stady_rho_list)

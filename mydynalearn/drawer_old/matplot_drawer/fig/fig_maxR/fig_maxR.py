@@ -45,7 +45,7 @@ class FigMaxR():
         exp_index = self.exp_NAME_list.index(exp_NAME)
         ax.scatter(x=max_R_index,
                    y=max_R_value,
-                   c=self.colors[self.config.is_weight],
+                   c=self.colors[self.config.IS_WEIGHT],
                    marker=self.markers[exp_index],
                    s=50,
                    alpha=0.8)

@@ -48,9 +48,9 @@ class MatplotController():
         return file_path
     def trained_model_draw(self):
         print("*"*10+"DRAW TRAIN PERFORMANCE"+"*"*10)
-        train_params = self.analyze_trained_model.experiment_manager_train.set_train_params()
+        train_params = self.analyze_trained_model.experiment_manager_train.get_train_params()
         for train_param in train_params:
-            epoch_index = self.analyze_trained_model.experiment_manager_train.epochs-1
+            epoch_index = self.analyze_trained_model.experiment_manager_train.EPOCHS-1
             model_exp = self.analyze_trained_model.experiment_manager_train.get_loaded_model_exp(train_param, epoch_index)
             result = self.analyze_trained_model.load_test_result(model_exp, epoch_index)
             fig_drawer = self.draw_performance(result)
@@ -61,9 +61,9 @@ class MatplotController():
 
     def realnet_draw(self):
         print("*"*10+" DRAW REALNET PERFORMANCE "+"*"*10)
-        train_params = self.analyze_trained_model.experiment_manager_train.set_train_params()
+        train_params = self.analyze_trained_model.experiment_manager_train.get_train_params(only_higher_order=True)
         for train_param in train_params:
-            epoch_index = self.analyze_trained_model.experiment_manager_train.epochs-1
+            epoch_index = self.analyze_trained_model.experiment_manager_train.EPOCHS-1
             train_param_keys = ["ModelNet", "ModelDynamics", "ModelGnn", "ModelIsWeight"]
             train_param_dict = {k: v for k, v in zip(train_param_keys, train_param)}
             dynamics_params = self.analyze_trained_model_to_realnet.experiment_manager_realnet.get_available_realnet_dynamics(train_param[1])

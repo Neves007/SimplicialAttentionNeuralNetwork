@@ -6,10 +6,10 @@ from mydynalearn.drawer_old.utils.performance_data.utils import _get_metrics
 class EpochDataHandler():
     def __init__(self,config,dynamics):
         self.config = config
-        self.epochs = config.dataset.epochs
+        self.EPOCHS = config.dataset.EPOCHS
         self.dynamics = dynamics
 
-    def epochdata_datacur_2_dataT(self, is_weight,dynamics,data_curEpoch):
+    def epochdata_datacur_2_dataT(self, IS_WEIGHT,dynamics,data_curEpoch):
         T = len(data_curEpoch)
         epoch_index = data_curEpoch[0]['epoch_index']
         x_T = torch.zeros([T] + list(data_curEpoch[0]['x'].shape))
@@ -28,7 +28,7 @@ class EpochDataHandler():
             y_ob_T[time] = y_ob
             y_true_T[time] = y_true
             w_T[time] = w
-        if ~is_weight:
+        if ~IS_WEIGHT:
             w_T = torch.ones(w_T.shape).to(w_T.device)
 
         dataT = {
