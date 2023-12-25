@@ -8,7 +8,7 @@ class inLinearLayers(nn.Module):
     def __init__(self,in_channels):
         super(inLinearLayers, self).__init__()
         self.in_channels = in_channels
-        self.activation = nn.ReLU()
+        self.activation = nn.GELU()
         self.template = lambda fin, fout: nn.Linear(fin, fout, bias=True)
         self.dropout_layer = torch.nn.Dropout(0.5)
         self.build()
@@ -29,7 +29,7 @@ class outLinearLayers(nn.Module):
         super(outLinearLayers, self).__init__()
         self.out_channels = out_channels
         self.heads = heads
-        self.activation = nn.ReLU()
+        self.activation = nn.GELU()
         self.softmax = nn.Softmax(dim=-1)
         self.template = lambda fin, fout: nn.Linear(fin, fout, bias=True)
         self.build()

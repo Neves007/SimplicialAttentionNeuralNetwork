@@ -68,6 +68,9 @@ class DynamicDataset(Dataset):
         for net_index,network in enumerate(self.networks):
             # 初始化动力学数据
             assert network.MAX_DIMENSION == self.dynamics.MAX_DIMENSION
+            print("start to create dynamic data...")
+            network.show_info()
+            self.dynamics.show_info()
             # 动力学初始化
             self.dynamics.preparation_before_dynamics(network)
             # 生成数据集
@@ -79,6 +82,7 @@ class DynamicDataset(Dataset):
                 result_dict = self.get_onesample_dataset()
                 self.save_onesample_dataset(t, net_index, **result_dict)
                 t += 1
+            print("Finish!\n")
 
     def get_onesample_dataset(self) -> 'result_dict for one sample of dataset':
         # 运行一步动力学

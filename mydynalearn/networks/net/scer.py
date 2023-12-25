@@ -8,6 +8,12 @@ class SCER(Network):
     def __init__(self, net_config):
         super().__init__(net_config)
         pass
+    def show_info(self):
+        print("network name: ",self.NAME)
+        print("network number of nodes: ",self.NUM_NODES)
+        print("network number of triagles: ",self.NUM_TRIANGLES)
+        print("network average degree: ",self.AVG_K)
+        print()
     def _set_net_info(self):
         self.nodes = self.net_info["nodes"]
         self.edges = self.net_info["edges"]

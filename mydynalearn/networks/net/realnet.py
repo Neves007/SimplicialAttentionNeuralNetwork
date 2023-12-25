@@ -17,7 +17,12 @@ class Realnet():
         self.REALNET_NETDATA_FILENAME = net_config.REALNET_NETDATA_FILENAME
         self.MAX_DIMENSION = self.net_config.MAX_DIMENSION
         pass
-
+    def show_info(self):
+        print("network name: ",self.NAME)
+        print("network number of nodes: ",self.NUM_NODES)
+        print("network number of triagles: ",self.NUM_TRIANGLES)
+        print("network average degree: ",self.AVG_K)
+        print()
     def create_net(self):
         self.net_info = self.get_net_info()  # 网络信息
         self._set_net_info()

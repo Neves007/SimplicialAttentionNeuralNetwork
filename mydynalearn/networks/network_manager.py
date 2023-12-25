@@ -49,28 +49,34 @@ class NetworkManager():
         network.create_net(AVG_K, AVG_K_DELTA)
         return network
 
-    def networks_generator(self):
+    def networks_generator(self,DIFF_AVG_NETWORKS = False):
         '''网络生成器
         根据度来生成网络
+        :param DIFF_AVG_NETWORKS: True/False 控制网络异质性
         '''
         # 低阶网络
-        if self.MAX_DIMENSION==1:
-            for AVG_K in self.AVG_K_LIST:
-                network = self.create_network(AVG_K,AVG_K_DELTA=0)
-                yield network
-        # 高阶网络
-        elif self.MAX_DIMENSION==2:
-            for AVG_K in self.AVG_K_LIST:
-                AVG_K_DELTA_MIN = 1
-                AVG_K_DELTA_MAX = AVG_K / 2  # 根据公式 最大二阶度是AVG_K/2
-                NUM_K_DELTA = self.NUM_K  # 网络的个数
-                # 每一个一阶平均度
-                AVG_K_DELTA_LIST = iter(torch.linspace(AVG_K_DELTA_MIN, AVG_K_DELTA_MAX, NUM_K_DELTA))
-                for AVG_K_DELTA in AVG_K_DELTA_LIST:
-                    # 通过一阶和二阶平均度生成网络
-                    network = self.create_network(AVG_K, AVG_K_DELTA)
+        if DIFF_AVG_NETWORKS ==True:
+
+            if self.MAX_DIMENSION==1:
+                for AVG_K in self.AVG_K_LIST:
+                    network = self.create_network(AVG_K,AVG_K_DELTA=0)
                     yield network
-
-
-
-
+            # 高阶网络
+            elif self.MAX_DIMENSION==2:
+                for AVG_K in self.AVG_K_LIST:
+                    AVG_K_DELTA_MIN = 1
+                    AVG_K_DELTA_MAX = AVG_K / 2  # 根据公式 最大二阶度是AVG_K/2
+                    NUM_K_DELTA = self.NUM_K  # 网络的个数
+                    # 每一个一阶平均度
+                    AVG_K_DELTA_LIST = iter(torch.linspace(AVG_K_DELTA_MIN, AVG_K_DELTA_MAX, NUM_K_DELTA))
+                    for AVG_K_DELTA in AVG_K_DELTA_LIST:
+                        # 通过一阶和二阶平均度生成网络
+                        network = self.create_network(AVG_K, AVG_K_DELTA)
+                        yield network
+        else:
+            if self.MAX_DIMENSION==1:
+                network = self.create_network(self.AVG_K_MAX, AVG_K_DELTA=0)
+                yield network
+            elif self.MAX_DIMENSION==2:
+                network = self.create_network(self.AVG_K_MAX, self.AVG_K_MAX/2)
+                yield network

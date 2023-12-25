@@ -3,7 +3,7 @@ import torch.nn as nn
 __activations__ = {
     "sigmoid": nn.Sigmoid(),
     "softmax": nn.Softmax(dim=-1),
-    "relu": nn.ReLU(),
+    "relu": nn.GELU(),
     "tanh": nn.Tanh(),
     "elu": nn.ELU(),
     "identity": nn.Identity(),

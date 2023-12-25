@@ -15,7 +15,7 @@ class GATLayer_regular(nn.Module):
         self.linear_layer1 = nn.Linear(input_size, output_size, bias=bias)
         self.linear_layer2 = nn.Linear(input_size, output_size, bias=bias)
         self.leakyrelu = nn.LeakyReLU(0.2)
-        self.relu = nn.ReLU()
+        self.relu = nn.GELU()
 
     def forward(self, x0, x1, adj):
         """
@@ -41,7 +41,7 @@ class GATLayer_regular(nn.Module):
         # 考虑attention权重的特征。
         output = torch.sparse.mm(attention, x0_j)
         # 加上自身嵌入
-        output += x0_i
+        output += x0
         return output
 
 class GraphAttentionLayer(nn.Module):

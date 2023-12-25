@@ -19,7 +19,8 @@ class CompartmentModelGraph():
         self.NODE_FEATURE_MAP = torch.eye(self.NUM_STATES).to(self.DEVICE, dtype = torch.long)
         self.SimpleDynamicWeight = weight_getter(self.NAME)
 
-
+    def show_info(self):
+        print("dynamic name: ", self.NAME)
     def set_network(self,network):
         self.network = network
         self.NUM_NODES = network.NUM_NODES

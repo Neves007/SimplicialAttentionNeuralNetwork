@@ -35,6 +35,7 @@ class Model(nn.Module):
 
     def weighted_cross_entropy(self,y_true, y_pred, weights=None):
         y_pred = torch.clamp(y_pred, 1e-15, 1 - 1e-15)
+
         loss = weights * (-y_true * torch.log(y_pred)).sum(-1)
         # loss = weights * self.criterion(y_true,y_pred)
         return loss.sum()

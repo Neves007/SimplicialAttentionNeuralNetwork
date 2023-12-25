@@ -47,14 +47,14 @@ EPOCHS = 30  # 10
     "IS_WEIGHT" : [False]
 '''
 params = {
-    "grpah_network": ["ER"],
-    "grpah_dynamics": ["UAU", "CompUAU"],
+    # "grpah_network": ["ER"],
+    # "grpah_dynamics": ["CompUAU"],
 
     "simplicial_network": ["SCER"],
-    "real_network": ["CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
-    "simplicial_dynamics": ["SCUAU", "SCCompUAU"],
+    "real_network": ["CONFERENCE"],
+    "simplicial_dynamics": ["SCCompUAU"],
 
-    "model": ["GAT", "SAT", "DiffSAT"],  # 至少选一个
+    "model": ["SAT"],  # 至少选一个
     "IS_WEIGHT": [False]
 }
 

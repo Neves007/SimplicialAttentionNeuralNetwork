@@ -6,7 +6,11 @@ class ER(Network):
     def __init__(self, net_config):
         super().__init__(net_config)
         pass
-
+    def show_info(self):
+        print("network name: ",self.NAME)
+        print("network number of nodes: ",self.NUM_NODES)
+        print("network average degree: ",self.AVG_K)
+        
     def get_net_info(self,AVG_K,**kwargs):
         NUM_NODES = self.net_config.NUM_NODES
         nodes = torch.arange(NUM_NODES)
