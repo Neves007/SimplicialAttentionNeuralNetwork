@@ -1,9 +1,9 @@
 import copy
 import torch
 import random
-from mydynalearn.dynamics.compartment_model_simplicial import *
+from mydynalearn.dynamics.compartment_model import CompartmentModel
 #  进行一步动力学
-class SCUAU(CompartmentModelSimplicial):
+class SCUAU(CompartmentModel):
     def __init__(self,config):
         super().__init__(config)
         self.EFF_AWARE = self.dynamics_config.EFF_AWARE
@@ -35,16 +35,15 @@ class SCUAU(CompartmentModelSimplicial):
                                                       target_state='A',
                                                       inc_matrix_adj=self.network.inc_matrix_adj2)
 
-        target_node = 4
-        act_tri_index = torch.where(inc_matrix_adj_act_triangle.to_dense()[target_node]==1)[0]
-        act_tri = self.network.triangles[act_tri_index]
-        act_tri_state = self.x2[act_tri_index]
-
-        act_edge_index = torch.where(inc_matrix_adj_act_edge.to_dense()[target_node]==1)[0]
-        act_edge = self.network.edges[act_edge_index]
-        act_edge_state = self.x1[act_edge_index]
-
-
+        # 检查4号节点的情况
+        # target_node = 4
+        # act_tri_index = torch.where(inc_matrix_adj_act_triangle.to_dense()[target_node]==1)[0]
+        # act_tri = self.network.triangles[act_tri_index]
+        # act_tri_state = self.x2[act_tri_index]
+        #
+        # act_edge_index = torch.where(inc_matrix_adj_act_edge.to_dense()[target_node]==1)[0]
+        # act_edge = self.network.edges[act_edge_index]
+        # act_edge_state = self.x1[act_edge_index]
 
         # adj_act_edges：（节点数）表示节点i相邻激活边数量
         adj_act_edges = torch.sparse.sum(inc_matrix_adj_act_edge,dim=1).to_dense()
@@ -125,8 +124,8 @@ class SCUAU(CompartmentModelSimplicial):
             "true_tp":true_tp,
             "weight": weight
         }
-        self.set_spread_result(spread_result)
-
+        return spread_result
     def _run_onestep(self):
         self.BETA_LIST = (self.EFF_AWARE * self.RECOVERY / self.network.AVG_K).to(self.DEVICE)
-        self._spread()
+        spread_result = self._spread()
+        return spread_result

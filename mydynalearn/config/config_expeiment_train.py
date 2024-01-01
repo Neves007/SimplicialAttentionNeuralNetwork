@@ -47,8 +47,8 @@ class ExperimentTrainConfig(Config):
         self.datapath_to_model = os.path.join(self.data_path_2, "modelResult")
         self.make_dir(self.datapath_to_model)
         # 数据集文件
-        self.datapath_to_datasets = os.path.join(self.data_path_1, "datasets")
-        self.make_dir(self.datapath_to_datasets)
+        self.path_to_datasets = os.path.join(self.data_path_1, "datasets")
+        self.make_dir(self.path_to_datasets)
         self.datapath_to_epochdata = os.path.join(self.datapath_to_model, "epoch_data")
         self.make_dir(self.datapath_to_epochdata)
         self.datapath_to_model_state_dict = os.path.join(self.datapath_to_model, "model_state_dict")

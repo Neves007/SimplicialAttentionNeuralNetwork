@@ -28,11 +28,10 @@
 '''
 from mydynalearn.experiments import *
 from mydynalearn.analyze import *
-from mydynalearn.drawer import MatplotController
 
-NUM_SAMPLES = 10000
+NUM_SAMPLES = 100
 TESTSET_TIMESTEP = 10
-EPOCHS = 30  # 10
+EPOCHS = 3  # 10
 
 ''' 所有参数
     "grpah_network" : ["ER"],
@@ -47,39 +46,38 @@ EPOCHS = 30  # 10
     "IS_WEIGHT" : [False]
 '''
 params = {
-    # "grpah_network": ["ER"],
-    # "grpah_dynamics": ["CompUAU"],
+    "grpah_network": ["ER"],
+    "grpah_dynamics": ["UAU", "CompUAU"],
 
-    "simplicial_network": ["SCER"],
-    "real_network": ["CONFERENCE"],
-    "simplicial_dynamics": ["SCCompUAU"],
+    # todo: 真实网络也拿去训练，核心是输入网络节点数据，推迁移概率。
+    "simplicial_network": ["SCER","CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
+    "real_network": ["CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
+    "simplicial_dynamics": ["SCUAU", "SCCompUAU"],
 
-    "model": ["SAT"],  # 至少选一个
+    "model": ["GAT", "SAT", "DiffSAT"],  # 至少选一个
     "IS_WEIGHT": [False]
 }
 
 
 
 if __name__ == '__main__':
-    # todo: 合并ExperimentManagerTrain和ExperimentManagerRealnet
     experiment_manager_train = ExperimentManagerTrain(NUM_SAMPLES, TESTSET_TIMESTEP, EPOCHS, params)
-    experiment_manager_realnet = ExperimentManagerRealnet(NUM_SAMPLES, TESTSET_TIMESTEP, EPOCHS, params)
-    analyze_trained_model = AnalyzeTrainedModel(experiment_manager_train)
-    analyze_trained_model_to_realnet = AnalyzeTrainedModelToRealnet(experiment_manager_train,
-                                                               experiment_manager_realnet)
 
+    # 修改这个
+    analyze_trained_model = AnalyzeTrainedModel(params)
+    # analyze_trained_model_to_realnet = AnalyzeTrainedModelToRealnet(experiment_manager_train,
+    #                                                            experiment_manager_realnet)
+    #
 
     # 训练
     experiment_manager_train.run()
-    # 跑真实网络的测试数据
-    experiment_manager_realnet.run()
     # 分析：测试集分析训练模型
     analyze_trained_model.run()
-    # 分析：训练模型应用在真实网络.
-    analyze_trained_model_to_realnet.run()
-
-
-
-    # 画图：
-    matplot_drawer = MatplotController(analyze_trained_model,analyze_trained_model_to_realnet)
-    matplot_drawer.run()
+    # # 分析：训练模型应用在真实网络.
+    # analyze_trained_model_to_realnet.run()
+    #
+    #
+    #
+    # # 画图：
+    # matplot_drawer = MatplotController(analyze_trained_model,analyze_trained_model_to_realnet)
+    # matplot_drawer.run()

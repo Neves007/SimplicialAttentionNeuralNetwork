@@ -48,8 +48,6 @@ def create_network(NETWORK_NAME,AVG_K,AVG_K_DELTA):
 
 
 # ER, SCER, ToySCER, CONFERENCE, HIGHSCHOOL, HOSPITAL, WORKPLACE
-
-# todo:这个循环可以做成生成器
 # 写在networkmanager里面
 
 network_manager = NetworkManager(config=DATASET_CONFIGER)

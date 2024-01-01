@@ -1,5 +1,4 @@
-from mydynalearn.dynamics.compartment_model_graph import *
-from mydynalearn.dynamics.compartment_model_simplicial import *
+from mydynalearn.dynamics.compartment_model import *
 
 __DYNAMICS__ = {
     "UAU": UAU,

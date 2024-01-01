@@ -7,13 +7,6 @@ class DatasetConfig(Config):
     def dataset(
         self,
     ):
-        # 数据集分配
-        self.FOR_REALNET = False
-        # 网络
-        self.AVG_K_MIN = 4
-        self.AVG_K_MAX = 40
-        self.NUM_K = 3
-        self.AVG_K_LIST = torch.linspace(self.AVG_K_MIN,self.AVG_K_MAX,self.NUM_K)
         # 数据集参数
         self.NUM_SAMPLES = 10000
         self.NUM_TEST = 100 # 测试集的时间步

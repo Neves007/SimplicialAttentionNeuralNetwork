@@ -12,6 +12,7 @@ class NetworkConfig(Config):
         self.NAME = 'ER'
         self.NUM_NODES = NUM_NODES
         self.MAX_DIMENSION = 1
+        self.AVG_K = 20
         return self
 
     def ba(self, NUM_NODES=1000):
@@ -28,6 +29,8 @@ class NetworkConfig(Config):
         self.NAME = 'SCER'
         self.NUM_NODES = NUM_NODES
         self.MAX_DIMENSION = 2
+        self.AVG_K = 20
+        self.AVG_K_DELTA = 10
         return self
 
     def toy_sc_er(self,NUM_NODES=8,):
@@ -35,15 +38,7 @@ class NetworkConfig(Config):
         self.NAME = 'ToySCER'
         self.NUM_NODES = NUM_NODES
         self.MAX_DIMENSION = 2
-        return self
 
-
-    def sc_ba(self,NUM_NODES=1000,):
-        
-        self.NAME = 'sc_ba'
-        self.NUM_NODES = NUM_NODES
-        self.AVG_K = torch.tensor([20, 6])
-        self.MAX_DIMENSION = 2
         return self
 
 

@@ -15,20 +15,28 @@ class SATLayer_regular(nn.Module):
 
     def __init__(self, input_size, output_size, bias=True):
         super().__init__()
+        # input
+        self.input_linear_layer1 = nn.Linear(input_size, output_size, bias=bias)
+        self.input_linear_layer2 = nn.Linear(input_size, output_size, bias=bias)
+        self.input_linear_layer3 = nn.Linear(input_size, output_size, bias=bias)
+        self.input_linear_layer4 = nn.Linear(input_size, output_size, bias=bias)
+        # attention
         self.a_1 = nn.Linear(output_size, 1, bias=bias)
         self.a_2 = nn.Linear(output_size, 1, bias=bias)
         self.a_3 = nn.Linear(output_size, 1, bias=bias)
         self.a_4 = nn.Linear(output_size, 1, bias=bias)
-        self.linear_layer1 = nn.Linear(input_size, output_size, bias=bias)
-        self.linear_layer2 = nn.Linear(input_size, output_size, bias=bias)
-        self.linear_layer3 = nn.Linear(input_size, output_size, bias=bias)
-        self.linear_layer4 = nn.Linear(input_size, output_size, bias=bias)
+
         self.layer_norm1 = nn.LayerNorm(output_size)
         self.layer_norm2 = nn.LayerNorm(output_size)
+
         self.agg_weight = nn.Parameter(torch.randn(3))
         self.LinearAgg = nn.Linear(2*output_size, output_size, bias=bias)
+        # output
+        self.output_linear_layer1 = nn.Linear(output_size, output_size, bias=bias)
+        # activation function
         self.leakyrelu = nn.LeakyReLU(0.2)
         self.relu = nn.GELU()
+
 
     def attention_agg(self, xj, a_i,a_j,inc_matrix_adj):
         indices = inc_matrix_adj.coalesce().indices()
@@ -51,8 +59,8 @@ class SATLayer_regular(nn.Module):
         """
         if x2==None:
             incMatrix_adj0, incMatrix_adj1 = network._unpack_inc_matrix_adj_info()
-            xi_0 = self.leakyrelu(self.linear_layer1(x0))
-            xj_0 = self.leakyrelu(self.linear_layer2(x0))
+            xi_0 = self.leakyrelu(self.input_linear_layer1(x0))
+            xj_0 = self.leakyrelu(self.input_linear_layer2(x0))
 
             ai_0 = self.a_1(xi_0)  # a_1：a*hi
             aj_0 = self.a_2(xj_0)  # a_2：a*hj
@@ -62,10 +70,10 @@ class SATLayer_regular(nn.Module):
             output = self.layer_norm1(self.agg_weight[0] * agg0 + x0)
         else:
             incMatrix_adj0, incMatrix_adj1, incMatrix_adj2 = network._unpack_inc_matrix_adj_info()
-            xi_0 = self.leakyrelu(self.linear_layer1(x0))
-            xj_0 = self.leakyrelu(self.linear_layer2(x0))
-            xj_1 = self.leakyrelu(self.linear_layer3(x1))
-            xj_2 = self.leakyrelu(self.linear_layer4(x2))
+            xi_0 = self.leakyrelu(self.input_linear_layer1(x0))
+            xj_0 = self.leakyrelu(self.input_linear_layer2(x0))
+            xj_1 = self.leakyrelu(self.input_linear_layer3(x1))
+            xj_2 = self.leakyrelu(self.input_linear_layer4(x2))
 
             ai_0 = self.a_1(xi_0)  # a_1：a*hi
             aj_0 = self.a_2(xj_0)  # a_2：a*hj
@@ -76,9 +84,8 @@ class SATLayer_regular(nn.Module):
             agg2 = self.attention_agg(xj_2, ai_0, aj_2, incMatrix_adj2)
 
             # x0 = xi_0 + self.agg_weight[0]*agg0 + self.agg_weight[1]*agg1 + self.agg_weight[2]*agg2
-            # todo: 不要一阶
             output = self.layer_norm1(self.agg_weight[0] * agg0 + self.agg_weight[2] * agg2 + x0)
-        output = self.layer_norm2(self.FC(output)+output)
+        output = self.layer_norm2(self.output_linear_layer1(output)+output)
         return output
 
 class SimplexDiffAttentionLayer(nn.Module):

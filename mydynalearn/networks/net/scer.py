@@ -8,12 +8,7 @@ class SCER(Network):
     def __init__(self, net_config):
         super().__init__(net_config)
         pass
-    def show_info(self):
-        print("network name: ",self.NAME)
-        print("network number of nodes: ",self.NUM_NODES)
-        print("network number of triagles: ",self.NUM_TRIANGLES)
-        print("network average degree: ",self.AVG_K)
-        print()
+
     def _set_net_info(self):
         self.nodes = self.net_info["nodes"]
         self.edges = self.net_info["edges"]
@@ -74,16 +69,20 @@ class SCER(Network):
         for edge in edges_in_triangles:
             edges.add(edge)
         return edges
-    def get_net_info(self,AVG_K,AVG_K_DELTA):
-        # todo：ER网络
+    def get_net_info(self):
+        # 所需参数
+        AVG_K = self.net_config.AVG_K
+        AVG_K_DELTA = self.net_config.AVG_K_DELTA
         NUM_NODES = self.net_config.NUM_NODES
+        # 根据平均度计算边和三角形的数量
         nodes = torch.arange(NUM_NODES)
         NUM_EDGES, NUM_TRIANGLES = self.get_createSimplex_num(NUM_NODES,AVG_K,AVG_K_DELTA)
-        edges = self._create_edges(NUM_NODES,NUM_EDGES)
-        triangles,edges_in_triangles = self._create_triangles(NUM_NODES,NUM_TRIANGLES)
-        edges = self._merge_edges(edges,edges_in_triangles)
-        edges = torch.asarray(list(edges))
-        triangles = torch.asarray(list(triangles))
+        # 生成网络
+        edges = self._create_edges(NUM_NODES,NUM_EDGES) # 生成边
+        triangles,edges_in_triangles = self._create_triangles(NUM_NODES,NUM_TRIANGLES) # 生成三角形
+        edges = self._merge_edges(edges,edges_in_triangles) # 将三角中包含的边的边加入边
+        edges = torch.asarray(list(edges)) # 最终的边
+        triangles = torch.asarray(list(triangles)) # 最终的三角
         AVG_K = torch.asarray([2*len(edges),3*len(triangles)])/NUM_NODES
         NUM_EDGES = edges.shape[0]
         NUM_TRIANGLES = triangles.shape[0]
@@ -94,7 +93,8 @@ class SCER(Network):
                     "NUM_NODES": NUM_NODES,
                     "NUM_EDGES": NUM_EDGES,
                     "NUM_TRIANGLES": NUM_TRIANGLES,
-                    "AVG_K": AVG_K}
+                    "AVG_K": AVG_K,
+                    }
         return net_info
     def _get_adj(self):
         # inc_matrix_0：节点和节点的关联矩阵
@@ -130,7 +130,6 @@ class SCER(Network):
         self.inc_matrix_adj0 = self.inc_matrix_adj0.to(self.DEVICE)
         self.inc_matrix_adj1 = self.inc_matrix_adj1.to(self.DEVICE)
         self.inc_matrix_adj2 = self.inc_matrix_adj2.to(self.DEVICE)
-    def _unpack_net_info(self):
-        return self.nodes, self.edges, self.triangles, self.NUM_NODES, self.NUM_EDGES, self.NUM_TRIANGLES, self.AVG_K,
+
     def _unpack_inc_matrix_adj_info(self):
         return self.inc_matrix_adj0, self.inc_matrix_adj1, self.inc_matrix_adj2

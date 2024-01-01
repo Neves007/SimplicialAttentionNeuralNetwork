@@ -10,10 +10,13 @@ class GATLayer_regular(nn.Module):
 
     def __init__(self, input_size, output_size, bias=True):
         super().__init__()
+        # input
+        self.input_linear_layer1 = nn.Linear(input_size, output_size, bias=bias)
+        self.input_linear_layer2 = nn.Linear(input_size, output_size, bias=bias)
+        # attention
         self.a_1 = nn.Linear(output_size, 1, bias=bias)
         self.a_2 = nn.Linear(output_size, 1, bias=bias)
-        self.linear_layer1 = nn.Linear(input_size, output_size, bias=bias)
-        self.linear_layer2 = nn.Linear(input_size, output_size, bias=bias)
+        # activation function
         self.leakyrelu = nn.LeakyReLU(0.2)
         self.relu = nn.GELU()
 
@@ -23,8 +26,8 @@ class GATLayer_regular(nn.Module):
         adj : n * n  sparse signed orientation matrix
         output : n * k dense matrix of new feature vectors
         """
-        x0_i = self.leakyrelu(self.linear_layer1(x0))
-        x0_j = self.leakyrelu(self.linear_layer2(x0))
+        x0_i = self.leakyrelu(self.input_linear_layer1(x0))
+        x0_j = self.leakyrelu(self.input_linear_layer2(x0))
 
         indices = adj.coalesce().indices()
 
@@ -33,7 +36,6 @@ class GATLayer_regular(nn.Module):
 
         # a_1 + a_2.T：e矩阵
         # v：e矩阵，有效e值
-        # todo: 将sigmoid改为relu
         attention_v = torch.sigmoid(a_1 + a_2.T)[indices[0, :], indices[1, :]]
         # e矩阵转为稀疏矩阵
         attention = torch.sparse_coo_tensor(indices, attention_v, size=adj.shape)

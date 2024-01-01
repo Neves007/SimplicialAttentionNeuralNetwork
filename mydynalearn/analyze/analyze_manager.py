@@ -9,20 +9,32 @@ from mydynalearn.analyze.utils.performance_data.getter import get as performance
 from mydynalearn.analyze.utils.data_handler import DynamicDataHandler
 from mydynalearn.analyze.utils.utils import epochdata_datacur_2_dataT
 from mydynalearn.logger.logger import *
-class AnalyzeTrainedModel():
+from mydynalearn.analyze import Analyze
+
+class AnalyzeManager():
     def __init__(self,experiment_manager_train):
         self.experiment_manager_train = experiment_manager_train
         self.config = AnalyzeConfig().analyze_trained_model()
+        self.TEST_RESULT_HOMEDIR = os.path.join(self.config.rootpath, self.config.test_result_dir)
+        self.MAXR_HOMEDIR = os.path.join(self.config.rootpath, self.config.test_maxR_dir)
 
     def init_maxR_DF(self):
-        df = pd.DataFrame(columns=["ModelName","maxR_epoch_index","maxR_value"])
+        df = pd.DataFrame(columns=["network",
+                                   "dynamic",
+                                   "model",
+                                   "maxR_epoch_index",
+                                   "maxR_value"])
         return df
 
     def buid_series(self,R_list,model_exp):
-        model_name = model_exp.NAME
+        network_name = model_exp.config.network.NAME
+        dynamic_name = model_exp.config.dynamics.NAME
+        model_name = model_exp.config.model.NAME
         maxR_index = R_list.argmax().item()
         maxR_value = R_list.max().item()
-        info = {"ModelName":model_name,
+        info = {"network": network_name,
+                "dynamic": dynamic_name,
+                "model": model_name,
                 "maxR_epoch_index":maxR_index,
                 "maxR_value":maxR_value,}
         return pd.Series(info)
@@ -31,12 +43,14 @@ class AnalyzeTrainedModel():
         max_R_filepath = self.get_max_R_filepath()
         maxR_DF.to_csv(max_R_filepath,index=False)
     def compute_R(self,test_result_curepoch):
+        # todo：R值
+
         y_pred = torch.cat([data["y_pred"] for data in test_result_curepoch],dim=0)
         y_true = torch.cat([data["y_true"] for data in test_result_curepoch],dim=0)
         y_ob = torch.cat([data["y_ob"] for data in test_result_curepoch],dim=0)
 
-        R_input_y_pred = y_pred[torch.where(y_ob==1)].detach().numpy()
-        R_input_y_true = y_true[torch.where(y_ob==1)].detach().numpy()
+        R_input_y_pred = y_pred[torch.where(y_ob==1)].detach().numpy(dtype=np.float16)
+        R_input_y_true = y_true[torch.where(y_ob==1)].detach().numpy(dtype=np.float16)
         R = np.corrcoef(R_input_y_pred,R_input_y_true)[0,1]
         return R
 
@@ -60,12 +74,16 @@ class AnalyzeTrainedModel():
             "R": R
         }
         return result
+
+
     def get_test_result_filepath(self,model_exp,epoch_index):
         test_result_path = os.path.join(self.config.rootpath, self.config.test_result_dir, model_exp.NAME)
         if not os.path.exists(test_result_path):
             os.makedirs(test_result_path)
         file_path = os.path.join(test_result_path, "epoch{:d}_test_result.pkl".format(epoch_index))
         return file_path
+
+
     def get_max_R_filepath(self):
         maxR_path = os.path.join(self.config.rootpath, self.config.test_maxR_dir)
         if not os.path.exists(maxR_path):
@@ -87,28 +105,40 @@ class AnalyzeTrainedModel():
         file.close()
         return result
 
-    def analyze_trained_model(self):
-        print("*"*10+" ANALYZE TRAINED MODEL "+"*"*10)
-        train_params = self.experiment_manager_train.get_train_params()
-        for train_param in train_params:
+    def get_unanalyzed_model(self):
+        exp_iter = self.experiment_manager_train.get_exp_iter()
+        for exp in exp_iter:
+            epoch_tasks_iter = exp.model.get_epoch_task_iter()
+            for epoch_task in epoch_tasks_iter:
+                analyze = Analyze(self.config, epoch_task)
+                attention_model = exp.model.attention_model
+                optimizer = exp.model.optimizer
+                epoch_task.load_model(attention_model, optimizer)
+
+
+        for train_param in self.experiment_manager_train.train_params:
             log_analyze_trained_model(train_param)
-            train_param_keys = ["ModelNet","ModelDynamics","ModelGnn","ModelIsWeight"]
-            train_param_dict = {k:v for k,v in zip(train_param_keys,train_param)}
             for epoch_index in range(self.experiment_manager_train.EPOCHS):
                 # 获取模型路径，查看模型保存文件是否存在
                 model_exp = self.experiment_manager_train.get_train_exp(*train_param)
                 file_path = self.get_test_result_filepath(model_exp, epoch_index)
                 if not os.path.exists(file_path):
                     model_exp = self.experiment_manager_train.get_loaded_model_exp(train_param, epoch_index)
-                    result = self.put_testdata_in_trained_model(model_exp, epoch_index)
-                    self.save_test_result(model_exp,epoch_index,result)
-                torch.cuda.empty_cache()
+                    yield model_exp, epoch_index
+
+    def analyze_trained_model(self):
+        print("*"*10+" ANALYZE TRAINED MODEL "+"*"*10)
+        unanalyzed_model_generator = self.get_unanalyzed_model()
+        for model_exp, epoch_index in unanalyzed_model_generator:
+            result = self.put_testdata_in_trained_model(model_exp, epoch_index)
+            self.save_test_result(model_exp, epoch_index, result)
         print("PROCESS COMPLETED!\n\n")
 
     def analyze_maxR(self):
         print("*"*10+" ANALYZE MAX R "+"*"*10)
         train_params = self.experiment_manager_train.get_train_params()
         maxR_DF = self.init_maxR_DF()
+        # todo: R值保留小数
         for train_param in train_params:
             R_list = torch.zeros(self.experiment_manager_train.EPOCHS,dtype=torch.float)
             for epoch_index in range(self.experiment_manager_train.EPOCHS):

@@ -17,12 +17,28 @@ class Realnet():
         self.REALNET_NETDATA_FILENAME = net_config.REALNET_NETDATA_FILENAME
         self.MAX_DIMENSION = self.net_config.MAX_DIMENSION
         pass
-    def show_info(self):
-        print("network name: ",self.NAME)
-        print("network number of nodes: ",self.NUM_NODES)
-        print("network number of triagles: ",self.NUM_TRIANGLES)
-        print("network average degree: ",self.AVG_K)
-        print()
+    def print_log(self,num_indentation=0):
+        ''' 对齐输出
+
+        :param num_indentation: 程度
+        :return:
+        '''
+        # 缩进
+        num_indentation += 1
+        indentation = num_indentation*"\t"
+        # 输出内容
+        log_items_list = (("network name:",self.NAME),
+                    ("network dimension:", self.MAX_DIMENSION),
+                    ("number of nodes:", self.NUM_NODES),
+                    ("average degree:", self.AVG_K),
+                    )
+
+        # 对齐字段宽度
+        field_width = int(max([len(log_items[0]) for log_items in log_items_list])) + 2
+        # 输出
+        for log_items in log_items_list:
+            print("{}{:<{}}{}".format(indentation,log_items[0],field_width,log_items[1]))
+
     def create_net(self):
         self.net_info = self.get_net_info()  # 网络信息
         self._set_net_info()
@@ -61,14 +77,16 @@ class Realnet():
             NUM_NODES = nodes.shape[0]
             NUM_EDGES = edges.shape[0]
             NUM_TRIANGLES = triangles.shape[0]
-            AVG_K = torch.asarray([2*NUM_EDGES,3*NUM_TRIANGLES])/NUM_NODES
+            # todo：这个avg_k好像不一样
+            AVG_K = torch.asarray([2 * len(edges), 3 * len(triangles)]) / NUM_NODES
             net_info = {"nodes": nodes,
                         "edges": edges,
                         "triangles": triangles,
                         "NUM_NODES": NUM_NODES,
                         "NUM_EDGES": NUM_EDGES,
                         "NUM_TRIANGLES": NUM_TRIANGLES,
-                        "AVG_K": AVG_K}
+                        "AVG_K": AVG_K,
+                        }
             self.save_realnet(netdata_file,net_info)
 
         return net_info
@@ -107,7 +125,7 @@ class Realnet():
         self.inc_matrix_adj0 = self.inc_matrix_adj0.to(self.DEVICE)
         self.inc_matrix_adj1 = self.inc_matrix_adj1.to(self.DEVICE)
         self.inc_matrix_adj2 = self.inc_matrix_adj2.to(self.DEVICE)
-    def _unpack_net_info(self):
-        return self.nodes, self.edges, self.triangles, self.NUM_NODES, self.NUM_EDGES, self.NUM_TRIANGLES, self.AVG_K,
+    # def _unpack_net_info(self):
+    #     return self.nodes, self.edges, self.triangles, self.NUM_NODES, self.NUM_EDGES, self.NUM_TRIANGLES, self.AVG_K,
     def _unpack_inc_matrix_adj_info(self):
         return self.inc_matrix_adj0, self.inc_matrix_adj1, self.inc_matrix_adj2

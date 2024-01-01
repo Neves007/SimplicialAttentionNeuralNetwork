@@ -1,9 +1,9 @@
 import copy
 import torch
 import random
-from mydynalearn.dynamics.compartment_model_graph.compartment_model_graph import CompartmentModelGraph
+from mydynalearn.dynamics.compartment_model import CompartmentModel
 #  进行一步动力学
-class CompUAU(CompartmentModelGraph):
+class CompUAU(CompartmentModel):
     def __init__(self, config):
         super().__init__(config)
         self.EFF_AWARE_A1 = self.dynamics_config.EFF_AWARE_A1
@@ -32,14 +32,21 @@ class CompUAU(CompartmentModelGraph):
         了解节点周围单纯形，【非激活态，激活态】数量
         '''
         # inc_matrix_adj_act_edge：（节点数，边数）表示节点i与边j，相邻且j是激活边
-        inc_matrix_adj_A1_act_edge = self.get_inc_matrix_adjacency_activation(inc_matrix_col_feature=self.x1, _threshold_scAct=1, target_state='A1')
+        inc_matrix_adj_A1_act_edge = self.get_inc_matrix_adjacency_activation(inc_matrix_col_feature=self.x1,
+                                                                              _threshold_scAct=1,
+                                                                              target_state='A1',
+                                                                              inc_matrix_adj=self.network.inc_matrix_adj1)
+        inc_matrix_adj_A2_act_edge = self.get_inc_matrix_adjacency_activation(inc_matrix_col_feature=self.x1,
+                                                                              _threshold_scAct=1,
+                                                                              target_state='A2',
+                                                                              inc_matrix_adj=self.network.inc_matrix_adj1)
         # adj_act_edges：（节点数）表示节点i相邻激活边数量
         adj_A1_act_edges = torch.sparse.sum(inc_matrix_adj_A1_act_edge,dim=1).to_dense()
-
-        inc_matrix_adj_A2_act_edge = self.get_inc_matrix_adjacency_activation(inc_matrix_col_feature=self.x1, _threshold_scAct=1, target_state='A2')
-        # adj_act_edges：（节点数）表示节点i相邻激活边数量
         adj_A2_act_edges = torch.sparse.sum(inc_matrix_adj_A2_act_edge,dim=1).to_dense()
         return adj_A1_act_edges,adj_A2_act_edges
+
+
+
     def _preparing_spreading_data(self):
         adj_A1_act_edges, adj_A2_act_edges = self._get_adj_activate_simplex()
         old_x0 = copy.deepcopy(self.x0)
@@ -141,9 +148,10 @@ class CompUAU(CompartmentModelGraph):
             "true_tp":true_tp,
             "weight":weight
         }
-        self.set_spread_result(spread_result)
+        return spread_result
 
     def _run_onestep(self):
         self.BETA_LIST_A1 = (self.EFF_AWARE_A1 * self.RECOVERY / self.network.AVG_K).to(self.DEVICE)
         self.BETA_LIST_A2 = (self.EFF_AWARE_A2 * self.RECOVERY / self.network.AVG_K).to(self.DEVICE)
-        self._spread()
+        spread_result = self._spread()
+        return spread_result

@@ -1,10 +1,9 @@
 import copy
 import torch
 import random
-from mydynalearn.dynamics.compartment_model_simplicial import *
-from mydynalearn.dynamics.compartment_model_graph import UAU
+from mydynalearn.dynamics.compartment_model import CompartmentModel
 #  进行一步动力学
-class ToySCCompUAU(CompartmentModelSimplicial):
+class SCCompUAU(CompartmentModel):
     def __init__(self,config):
         super().__init__(config)
         self.EFF_AWARE_A1 = self.dynamics_config.EFF_AWARE_A1
@@ -18,10 +17,13 @@ class ToySCCompUAU(CompartmentModelSimplicial):
     def _init_x0(self):
         x0 = torch.zeros(self.NUM_NODES).to(self.DEVICE,torch.long)
         x0 = self.NODE_FEATURE_MAP[x0]
-
-        x0[[0]] = self.NODE_FEATURE_MAP[self.STATES_MAP["U"]]
-        x0[[2,6,7]] = self.NODE_FEATURE_MAP[self.STATES_MAP["A2"]]
-        x0[[1,3,4,5]] = self.NODE_FEATURE_MAP[self.STATES_MAP["A1"]]
+        NUM_SEED_NODES_A1 = int(self.NUM_NODES * self.SEED_FREC_A1)
+        NUM_SEED_NODES_A2 = int(self.NUM_NODES * self.SEED_FREC_A2)
+        AWARE_SEED_INDEX_all = random.sample(range(self.NUM_NODES), NUM_SEED_NODES_A1+NUM_SEED_NODES_A2)
+        AWARE_SEED_INDEX_A1 = AWARE_SEED_INDEX_all[:NUM_SEED_NODES_A1]
+        AWARE_SEED_INDEX_A2 = AWARE_SEED_INDEX_all[NUM_SEED_NODES_A1:]
+        x0[AWARE_SEED_INDEX_A1] = self.NODE_FEATURE_MAP[self.STATES_MAP["A1"]]
+        x0[AWARE_SEED_INDEX_A2] = self.NODE_FEATURE_MAP[self.STATES_MAP["A2"]]
         self.x0=x0
 
     def _get_adj_activate_simplex(self):
@@ -46,6 +48,7 @@ class ToySCCompUAU(CompartmentModelSimplicial):
                                                       _threshold_scAct=2,
                                                       target_state='A2',
                                                       inc_matrix_adj=self.network.inc_matrix_adj2)
+
         # adj_act_edges：（节点数）表示节点i相邻激活边数量
         adj_A1_act_edge = torch.sparse.sum(inc_matrix_adj_A1_act_edge,dim=1).to_dense()
         adj_A2_act_edge = torch.sparse.sum(inc_matrix_adj_A2_act_edge,dim=1).to_dense()
@@ -80,13 +83,17 @@ class ToySCCompUAU(CompartmentModelSimplicial):
         x1 = self.get_x1_from_x0(x0,self.network)
         x2 = self.get_x2_from_x0(x0,self.network)
         return x0, x1, x2
-
+    def set_features(self,new_x0, new_x1,new_x2, **kwargs):
+        self.x0 = new_x0
+        self.x1 = new_x1
+        self.x2 = new_x2
     def _dynamic_for_node_A1(self, A1_index, true_tp):
         recover_prob = self.RECOVERY * torch.ones(A1_index.shape[0]).to(self.DEVICE)
         random_p = torch.rand(A1_index.shape[0]).to(self.DEVICE)
         recover_A1_index = A1_index[torch.where(random_p <= recover_prob)[0]]
         true_tp[A1_index, self.STATES_MAP["U"]] = self.RECOVERY
         true_tp[A1_index, self.STATES_MAP["A1"]] = 1 - self.RECOVERY
+        true_tp[A1_index, self.STATES_MAP["A2"]] = 0
         return recover_A1_index
     def _dynamic_for_node_A2(self, A2_index, true_tp):
         recover_prob = self.RECOVERY * torch.ones(A2_index.shape[0]).to(self.DEVICE)
@@ -94,6 +101,7 @@ class ToySCCompUAU(CompartmentModelSimplicial):
         recover_A2_index = A2_index[torch.where(random_p <= recover_prob)[0]]
         true_tp[A2_index, self.STATES_MAP["U"]] = self.RECOVERY
         true_tp[A2_index, self.STATES_MAP["A2"]] = 1 - self.RECOVERY
+        true_tp[A2_index, self.STATES_MAP["A1"]] = 0
         return recover_A2_index
 
     def _dynamic_for_node_U(self,U_index, adj_A1_act_edge, adj_A2_act_edge, adj_A1_act_triangle, adj_A2_act_triangle, true_tp):
@@ -134,47 +142,27 @@ class ToySCCompUAU(CompartmentModelSimplicial):
         true_tp[U_index, self.STATES_MAP["A2"]] = (aware_prob * f_A2)[U_index]
         return aware_A1_index, aware_A2_index
 
-    def get_weight(self,old_x0,
-                   adj_A1_act_edge,
-                   adj_A2_act_edge,
-                   adj_A1_act_triangle,
-                   adj_A2_act_triangle,
-                   new_x0):
-
-        simple_dynamic_weight = self.SimpleDynamicWeight(self.DEVICE,
-                                                         old_x0,
-                                                         new_x0,
-                                                         adj_A1_act_edge,
-                                                         adj_A2_act_edge,
-                                                         adj_A1_act_triangle,
-                                                         adj_A2_act_triangle,
-                                                         self.network,
-                                                         self)
-        weight = simple_dynamic_weight.get_weight()
-        return weight
-    def _spread(self,network):
-        self.set_network(network)
+    def _spread(self):
         old_x0, old_x1, old_x2, true_tp, adj_A1_act_edge, adj_A2_act_edge, adj_A1_act_triangle, adj_A2_act_triangle = self._preparing_spreading_data()
+
         U_index, A1_index, A2_index = self._get_nodeid_for_each_state()
         aware_A1_index, aware_A2_index = self._dynamic_for_node_U(U_index, adj_A1_act_edge, adj_A2_act_edge, adj_A1_act_triangle, adj_A2_act_triangle, true_tp)
         recover_A1_index = self._dynamic_for_node_A1(A1_index, true_tp)
         recover_A2_index = self._dynamic_for_node_A2(A2_index, true_tp)
-        new_x0, new_x1,new_x2 = self._get_new_feature(self.x0,
-                                                      aware_A1_index,
-                                                      aware_A2_index,
-                                                      recover_A1_index,
-                                                      recover_A2_index)
-        weight = self.get_weight(old_x0,
-                                 adj_A1_act_edge,
-                                 adj_A2_act_edge,
-                                 adj_A1_act_triangle,
-                                 adj_A2_act_triangle,
-                                 new_x0)
-
-        nan_indices = torch.nonzero(torch.isnan(true_tp))
-        if len(nan_indices) > 0:
-            print(nan_indices)
-            raise
+        new_x0, new_x1,new_x2 = self._get_new_feature(self.x0, aware_A1_index, aware_A2_index, recover_A1_index,
+                                               recover_A2_index)
+        weight_args = {
+            "DEVICE":self.DEVICE,
+            "old_x0":old_x0,
+            "adj_A1_act_edge":adj_A1_act_edge,
+            "adj_A2_act_edge":adj_A2_act_edge,
+            "adj_A1_act_triangle":adj_A1_act_triangle,
+            "adj_A2_act_triangle":adj_A2_act_triangle,
+            "new_x0":new_x0,
+            "network":self.network,
+            "dynamics":self
+        }
+        weight = self.get_weight(**weight_args)
         spread_result = {
             "old_x0":old_x0,
             "old_x1":old_x1,
@@ -185,12 +173,11 @@ class ToySCCompUAU(CompartmentModelSimplicial):
             "true_tp":true_tp,
             "weight": weight
         }
-        self.set_spread_result(spread_result)
+        return spread_result
 
     def _run_onestep(self):
         assert len(self.EFF_AWARE_A1)==len(self.EFF_AWARE_A2)==len(self.network.AVG_K)
         self.BETA_LIST_A1 = (self.EFF_AWARE_A1 * self.RECOVERY / self.network.AVG_K).to(self.DEVICE)
         self.BETA_LIST_A2 = (self.EFF_AWARE_A2 * self.RECOVERY / self.network.AVG_K).to(self.DEVICE)
-        self.BETA_LIST_A1 = torch.asarray([0.1,0.2]).to(self.DEVICE)
-        self.BETA_LIST_A2 = torch.asarray([0.1,0.2]).to(self.DEVICE)
-        self._spread()
+        spread_result = self._spread()
+        return spread_result
