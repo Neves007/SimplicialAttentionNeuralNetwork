@@ -6,6 +6,8 @@ import torch
 import matplotlib.pyplot as plt
 from torch.nn.functional import mse_loss
 from mydynalearn.drawer.utils.utils import _get_metrics
+
+
 class FigYtrureYpred():
     def __init__(self,dynamics):
         self.STATES_MAP = dynamics.STATES_MAP
@@ -41,7 +43,7 @@ class FigYtrureYpred():
     def save_fig(self,fig_file):
         self.fig.savefig(fig_file)
         plt.close(self.fig)
-    def scatterT(self, performance_index,performance_data,epoch_index,**kwargs):
+    def scatterT(self, performance_index,performance_data,model_exp_epoch_index,**kwargs):
         self.fig, self.ax = plt.subplots()
         marker_size = self.get_marker_size(max=700, min=50,**kwargs)
         for index in range(len(self.label)):
@@ -50,7 +52,7 @@ class FigYtrureYpred():
                             c=self.colors[index],
                             marker=self.markers[index],
                             s=marker_size[performance_index[index]], alpha=0.3)
-        self.editAix(epoch_index,performance_data)
+        self.editAix(model_exp_epoch_index,performance_data)
 
     def get_legend_elements(self):
         legend_elements = [plt.scatter([0],

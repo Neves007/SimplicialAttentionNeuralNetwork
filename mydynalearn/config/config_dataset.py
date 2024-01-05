@@ -10,6 +10,6 @@ class DatasetConfig(Config):
         # 数据集参数
         self.NUM_SAMPLES = 10000
         self.NUM_TEST = 100 # 测试集的时间步
-        self.T_INIT = 10 # 重新初始化的时间
+        self.T_INIT = 2 # 重新初始化的时间
         self.IS_WEIGHT = False
         return self

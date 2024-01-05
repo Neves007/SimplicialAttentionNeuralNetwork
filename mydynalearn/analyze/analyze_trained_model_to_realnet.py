@@ -4,14 +4,14 @@ import pandas as pd
 import torch
 import os
 from mydynalearn.config import AnalyzeConfig
-from mydynalearn.drawer_old.utils.data_handler import EpochDataHandler
-from mydynalearn.drawer_old.matplot_drawer import DrawerMatplotEpochFigYtrureYpred
+from mydynalearn.drawer.utils.data_handler import EpochDataHandler
+from mydynalearn.drawer.matplot_drawer import DrawerMatplotEpochFigYtrureYpred
 from mydynalearn.analyze.utils.performance_data.getter import get as performance_data_getter
 from mydynalearn.analyze.utils.data_handler import DynamicDataHandler
 from mydynalearn.analyze.utils.utils import epochdata_datacur_2_dataT
 class AnalyzeTrainedModelToRealnet():
-    def __init__(self,experiment_manager_train, experiment_manager_realnet):
-        self.experiment_manager_train = experiment_manager_train
+    def __init__(self,experiment_manager, experiment_manager_realnet):
+        self.experiment_manager = experiment_manager
         self.experiment_manager_realnet = experiment_manager_realnet
         self.config = AnalyzeConfig().analyze_trained_model_to_realnet()
 
@@ -19,14 +19,14 @@ class AnalyzeTrainedModelToRealnet():
         self.R_df = self.init_DF()
 
     def init_DF(self):
-        file_name = os.path.join(self.config.rootpath, self.df_file_name)
+        file_name = os.path.join(self.config.root_dir, self.df_file_name)
         if os.path.exists(file_name):
             os.remove(file_name)
         df = pd.DataFrame(columns=["RealNet","RealDynamics","ModelNet","ModelDynamics","ModelGnn","ModelIsWeight","EpochIndex","R"])
         return df
 
     def save_DF(self):
-        file_name = os.path.join(self.config.rootpath,self.df_file_name)
+        file_name = os.path.join(self.config.root_dir,self.df_file_name)
         self.R_df.to_csv(file_name,index=False)
     def compute_R(self,performance_data):
         R_input_y_pred = torch.cat(performance_data, dim=0).detach().numpy()[:, 0]
@@ -45,7 +45,7 @@ class AnalyzeTrainedModelToRealnet():
         series = self.buid_series(R,train_param_dict,realnet_param_dict,epoch_index)
         self.R_df = self.R_df.append(series,ignore_index=True)
 
-    def put_testdata_in_trained_model(self, model_exp,real_exp, epoch_index):
+    def test_with_test_set(self, model_exp,real_exp, epoch_index):
         '''将真实数据集作为测试集放入训练模型中返回结果
         :param model_exp: 训练实验对象
         :param real_exp: 真实实验对象
@@ -86,7 +86,7 @@ class AnalyzeTrainedModelToRealnet():
         file.close()
         return result
     def get_test_result_filepath(self,real_exp,train_param,epoch_index):
-        test_result_path = os.path.join(self.config.rootpath, self.config.test_result_dir, real_exp.NAME)
+        test_result_path = os.path.join(self.config.root_dir, self.config.analyze_result_dir_name, real_exp.NAME)
         merged_string = '_'.join((str(value) for value in train_param))
         if not os.path.exists(test_result_path):
             os.makedirs(test_result_path)
@@ -95,10 +95,10 @@ class AnalyzeTrainedModelToRealnet():
 
     def analyze_model_to_realnet(self):
         print("*"*10+" ANALYZE MODEL TO REALNET "+"*"*10)
-        train_params = self.experiment_manager_train.get_train_params(only_higher_order=True)
+        train_params = self.experiment_manager.get_train_params(only_higher_order=True)
         for train_param in train_params:
-            epoch_index = self.experiment_manager_train.EPOCHS-1
-            model_exp = self.experiment_manager_train.get_loaded_model_exp(train_param,epoch_index)
+            epoch_index = self.experiment_manager.EPOCHS-1
+            model_exp = self.experiment_manager.get_loaded_model_exp(train_param,epoch_index)
             dynamics_params = self.experiment_manager_realnet.get_available_realnet_dynamics(train_param[1])
             realnet_params = self.experiment_manager_realnet.set_realnet_params(dynamics_params=dynamics_params)
             for realnet_param in realnet_params:
@@ -106,7 +106,7 @@ class AnalyzeTrainedModelToRealnet():
                 file_path = self.get_test_result_filepath(real_exp,train_param,epoch_index)
                 if not os.path.exists(file_path):
                     # 核心代码
-                    result = self.put_testdata_in_trained_model(model_exp,
+                    result = self.test_with_test_set(model_exp,
                                                                 real_exp,
                                                                 epoch_index)
                     self.save_test_result(real_exp,train_param,epoch_index,result)
@@ -118,9 +118,9 @@ class AnalyzeTrainedModelToRealnet():
         io文件：analyze_trained_model_to_realnet.csv
         '''
         print("*"*10+"ANALYZE R "+"*"*10)
-        train_params = self.experiment_manager_train.get_train_params(only_higher_order=True)
+        train_params = self.experiment_manager.get_train_params(only_higher_order=True)
         for train_param in train_params:
-            epoch_index = self.experiment_manager_train.EPOCHS-1
+            epoch_index = self.experiment_manager.EPOCHS-1
             train_param_keys = ["ModelNet", "ModelDynamics", "ModelGnn", "ModelIsWeight"]
             train_param_dict = {k: v for k, v in zip(train_param_keys, train_param)}
             dynamics_params = self.experiment_manager_realnet.get_available_realnet_dynamics(train_param[1])

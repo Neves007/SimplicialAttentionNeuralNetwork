@@ -43,14 +43,12 @@ class CompartmentModel():
         self.network = network
         self.NUM_NODES = network.NUM_NODES
 
-    # todo: 改为set_x1
     def set_x0(self,x0):
         self.x1 = x0
 
     def set_x1(self,x1):
         self.x1 = x1
 
-    # todo: 改为set_x2
     def set_x2(self,x2):
         self.x2 = x2
 

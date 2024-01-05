@@ -9,15 +9,13 @@ from mydynalearn.analyze.utils.performance_data.getter import get as performance
 from mydynalearn.analyze.utils.data_handler import DynamicDataHandler
 from mydynalearn.analyze.utils.utils import epochdata_datacur_2_dataT
 from mydynalearn.logger.logger import *
-from mydynalearn.analyze import Analyze
+from mydynalearn.analyze.analyzer import *
 
 class AnalyzeManager():
-    def __init__(self,experiment_manager_train):
-        self.experiment_manager_train = experiment_manager_train
-        self.config = AnalyzeConfig().analyze_trained_model()
-        self.TEST_RESULT_HOMEDIR = os.path.join(self.config.rootpath, self.config.test_result_dir)
-        self.MAXR_HOMEDIR = os.path.join(self.config.rootpath, self.config.test_maxR_dir)
-
+    def __init__(self,experiment_manager):
+        self.config = AnalyzeConfig().analyze_model()
+        self.experiment_manager = experiment_manager
+        self.r_value_analyzer = RValueAnalyzer(self.config)
     def init_maxR_DF(self):
         df = pd.DataFrame(columns=["network",
                                    "dynamic",
@@ -42,115 +40,49 @@ class AnalyzeManager():
     def save_maxR_DF(self,maxR_DF):
         max_R_filepath = self.get_max_R_filepath()
         maxR_DF.to_csv(max_R_filepath,index=False)
-    def compute_R(self,test_result_curepoch):
-        # todo：R值
-
-        y_pred = torch.cat([data["y_pred"] for data in test_result_curepoch],dim=0)
-        y_true = torch.cat([data["y_true"] for data in test_result_curepoch],dim=0)
-        y_ob = torch.cat([data["y_ob"] for data in test_result_curepoch],dim=0)
-
-        R_input_y_pred = y_pred[torch.where(y_ob==1)].detach().numpy(dtype=np.float16)
-        R_input_y_true = y_true[torch.where(y_ob==1)].detach().numpy(dtype=np.float16)
-        R = np.corrcoef(R_input_y_pred,R_input_y_true)[0,1]
-        return R
-
-
-
-    def put_testdata_in_trained_model(self, model_exp, epoch_index):
-        test_result_curepoch = model_exp.model.get_test_result(epoch_index, model_exp.test_loader)
-        kwargs = epochdata_datacur_2_dataT(model_exp,test_result_curepoch)
-        dynamic_data_handler = DynamicDataHandler(**kwargs)
-        get_performance_index, get_performance_data = performance_data_getter(model_exp.config)
-        performance_index = get_performance_index(dynamic_data_handler)
-        performance_data = get_performance_data(dynamic_data_handler)
-        R = self.compute_R(test_result_curepoch)
-        result = {
-            "model_name": model_exp.NAME,
-            "epoch_index": epoch_index,
-            "dynamics": model_exp.dataset.dynamics,
-            "performance_index": performance_index,
-            "performance_data": performance_data,
-            "w_T": kwargs['w_T'],
-            "R": R
-        }
-        return result
-
-
-    def get_test_result_filepath(self,model_exp,epoch_index):
-        test_result_path = os.path.join(self.config.rootpath, self.config.test_result_dir, model_exp.NAME)
-        if not os.path.exists(test_result_path):
-            os.makedirs(test_result_path)
-        file_path = os.path.join(test_result_path, "epoch{:d}_test_result.pkl".format(epoch_index))
-        return file_path
-
 
     def get_max_R_filepath(self):
-        maxR_path = os.path.join(self.config.rootpath, self.config.test_maxR_dir)
+        maxR_path = os.path.join(self.config.root_dir, self.config.test_maxR_dir)
         if not os.path.exists(maxR_path):
             os.makedirs(maxR_path)
         file_path = os.path.join(maxR_path, "maxR.csv")
         return file_path
 
-    def save_test_result(self,model_exp,epoch_index,result):
-        file_path = self.get_test_result_filepath(model_exp,epoch_index)
-        with open(file_path,'wb') as file:
-            pickle.dump(result,file)
-        file.close()
-        torch.cuda.empty_cache()
-
-    def load_test_result(self,model_exp,epoch_index):
-        file_path = self.get_test_result_filepath(model_exp,epoch_index)
-        with open(file_path,'rb') as file:
-            result = pickle.load(file)
-        file.close()
-        return result
-
-    def get_unanalyzed_model(self):
-        exp_iter = self.experiment_manager_train.get_exp_iter()
-        for exp in exp_iter:
-            epoch_tasks_iter = exp.model.get_epoch_task_iter()
-            for epoch_task in epoch_tasks_iter:
-                analyze = Analyze(self.config, epoch_task)
-                attention_model = exp.model.attention_model
-                optimizer = exp.model.optimizer
-                epoch_task.load_model(attention_model, optimizer)
-
-
-        for train_param in self.experiment_manager_train.train_params:
-            log_analyze_trained_model(train_param)
-            for epoch_index in range(self.experiment_manager_train.EPOCHS):
-                # 获取模型路径，查看模型保存文件是否存在
-                model_exp = self.experiment_manager_train.get_train_exp(*train_param)
-                file_path = self.get_test_result_filepath(model_exp, epoch_index)
-                if not os.path.exists(file_path):
-                    model_exp = self.experiment_manager_train.get_loaded_model_exp(train_param, epoch_index)
-                    yield model_exp, epoch_index
-
     def analyze_trained_model(self):
+        '''
+        将所有实验的数据集引入到自己的模型中，输出analyze_result
+        '''
+        # 把这个testresult
         print("*"*10+" ANALYZE TRAINED MODEL "+"*"*10)
-        unanalyzed_model_generator = self.get_unanalyzed_model()
-        for model_exp, epoch_index in unanalyzed_model_generator:
-            result = self.put_testdata_in_trained_model(model_exp, epoch_index)
-            self.save_test_result(model_exp, epoch_index, result)
-        print("PROCESS COMPLETED!\n\n")
+        exp_iter = self.experiment_manager.get_exp_iter()
 
-    def analyze_maxR(self):
-        print("*"*10+" ANALYZE MAX R "+"*"*10)
-        train_params = self.experiment_manager_train.get_train_params()
-        maxR_DF = self.init_maxR_DF()
-        # todo: R值保留小数
-        for train_param in train_params:
-            R_list = torch.zeros(self.experiment_manager_train.EPOCHS,dtype=torch.float)
-            for epoch_index in range(self.experiment_manager_train.EPOCHS):
-                model_exp = self.experiment_manager_train.get_loaded_model_exp(train_param, epoch_index)
-                test_result = self.load_test_result(model_exp,epoch_index)
-                R = test_result['R']
-                R_list[epoch_index] = R
-            maxR_series = self.buid_series(R_list,model_exp)
-            maxR_DF = maxR_DF.append(maxR_series,ignore_index=True)
-        self.save_maxR_DF(maxR_DF)
-        print("table of max R saved!")
-        print("PROCESS COMPLETED!\n\n")
+        if not os.path.exists(self.r_value_analyzer.r_value_dataframe_file_path):
+            for exp in exp_iter:
+                network, dynamics, train_loader, val_loader, test_loader = exp.create_dataset()
+                epoch_tasks = exp.model.epoch_tasks
+                EPOCHS = epoch_tasks.EPOCHS
+                for model_exp_epoch_index in range(EPOCHS):
+                    # 将数据集带入模型执行结果
+                    model_executor = runModelOnTestData(self.config,
+                                                 network,
+                                                 dynamics,
+                                                 test_loader,
+                                                 model_exp_epoch_index,
+                                                 model_exp=exp,
+                                                 dataset_exp=exp,
+                                                 )
+                    analyze_result = model_executor.run()
+                    # 添加结果的r值
+                    self.r_value_analyzer.add_r_value(analyze_result)
+            # 保存结果
+            self.r_value_analyzer.save_r_value_dataframe()
+
+        else:
+            self.r_value_analyzer.load_r_value_dataframe()
+        if not os.path.exists(self.r_value_analyzer.stable_r_value_dataframe_file_path):
+            self.r_value_analyzer.analyze_stable_r_value()
+        else:
+            self.r_value_analyzer.load_stable_r_value_dataframe()
 
     def run(self):
         '''
@@ -158,7 +90,5 @@ class AnalyzeManager():
         输出：
         '''
         self.analyze_trained_model()
-        self.analyze_maxR()
-
 
 

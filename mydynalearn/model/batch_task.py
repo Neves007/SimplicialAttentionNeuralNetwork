@@ -35,8 +35,6 @@ class BatchTask():
         :return:
         '''
         x0, y_pred, y_true, y_ob, w = self.prepare_output(attention_model, network, dynamics, dataset_per_time)
-        if self.IS_WEIGHT == False:
-            w = torch.ones(x0.shape[0]).to(self.DEVICE)
         loss = self.weighted_cross_entropy(y_ob, y_pred, w)
         return loss, x0, y_pred, y_true, y_ob, w
 

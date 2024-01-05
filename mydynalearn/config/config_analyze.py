@@ -12,20 +12,13 @@ class AnalyzeConfig(Config):
     '''
 
 
-    def analyze_trained_model_to_realnet(
+    def analyze_model(
             self,
     ):
-        self.NAME = "AnalyzeTrainedModelToRealnet"
-        self.rootpath = r"./output/data/analyze/trained_model_to_realnet/"
-        self.test_result_dir = 'test_result'
-        return self
-
-
-    def analyze_trained_model(
-            self,
-    ):
-        self.NAME = "AnalyzeTrainedModel"
-        self.rootpath = r"./output/data/analyze/trained_model/"
-        self.test_result_dir = 'test_result'
-        self.test_maxR_dir = 'maxR'
+        self.NAME = "AnalyzeModel"
+        self.root_dir_path = r"./output/data/analyze/"
+        self.analyze_result_dir_name = 'analyze_result'
+        self.r_value_dir_name = 'r_value'
+        self.r_value_dataframe_file_name = "r_value_dataframe.csv"
+        self.stable_r_value_dataframe_file_name = "stable_r_value_dataframe.csv"
         return self

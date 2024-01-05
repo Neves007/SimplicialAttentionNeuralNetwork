@@ -8,6 +8,7 @@ from mydynalearn.networks import *
 from mydynalearn.networks.getter import get as get_network
 from mydynalearn.dynamics.getter import get as get_dynamics
 from torch.utils.data import Dataset
+from torch.utils.data import DataLoader
 class DynamicDataset(Dataset):
     '''数据集类
     通过网络network和dynamics来说生成动力学数据集
@@ -22,7 +23,8 @@ class DynamicDataset(Dataset):
         self.NUM_SAMPLES = self.dataset_config.NUM_SAMPLES
         self.T_INIT = self.dataset_config.T_INIT
         self.DEVICE = self.dataset_config.DEVICE
-        self.dataset_file = self.config.path_to_datasets + "/dataset.pkl"
+        self.dataset_file_path = self.config.path_to_datasets + "/dataset.pkl"
+        self.need_to_run = not os.path.exists(self.dataset_file_path)
     def __len__(self) -> int:
         return self.NUM_SAMPLES
     def __getitem__(self, index):
@@ -33,26 +35,20 @@ class DynamicDataset(Dataset):
         return x0, y_ob, y_true, weight
 
     def is_dataset_exist(self):
-        return os.path.exists(self.dataset_file)
+        return os.path.exists(self.dataset_file_path)
 
-    def save_dataset(self):
-        data = self
-        file_name = self.dataset_file
+    def save_dataset(self,*data):
+        file_name = self.dataset_file_path
         with open(file_name, "wb") as file:
             pickle.dump(data,file)
         file.close()
 
     def load_dataset(self):
-        file_name = self.dataset_file
+        file_name = self.dataset_file_path
         with open(file_name, "rb") as file:
-            info = pickle.load(file)
+            data = pickle.load(file)
         file.close()
-        self.network = info.network
-        self.dynamics = info.dynamics
-        self.x0_T = info.x0_T
-        self.y_ob_T = info.y_ob_T
-        self.y_true_T = info.y_true_T
-        self.weight_T = info.weight_T
+        return data
 
 
     def set_dataset_network(self):
@@ -116,21 +112,32 @@ class DynamicDataset(Dataset):
             self.dynamics.set_features(**result_dict)
             self.save_onesample_dataset(t, **result_dict)
 
-    def print_log(self,num_indentation=0):
-        num_indentation += 1
-        indentation = num_indentation*"\t"
-        print(indentation+"network info:")
-        self.network.print_log(num_indentation)
-        print(indentation+"dynamics info:")
-        self.dynamics.print_log(num_indentation)
+    def partition_dataSet(self):
+        test_size = self.config.dataset.NUM_TEST
+        val_size = int((len(self)-test_size)/2)
+        train_size = len(self)-test_size-val_size
+        train_set, val_set, test_set = torch.utils.data.random_split(self, [train_size, val_size,test_size])
+
+        train_loader = DataLoader(train_set,shuffle=True)
+        val_loader = DataLoader(val_set,shuffle=True)
+        test_loader = DataLoader(test_set,shuffle=True)
+        return train_loader, val_loader, test_loader
 
     def run(self):
         if self.is_dataset_exist():
             print("load dataset...")
-            self.load_dataset()
+            network, dynamics, train_loader, val_loader, test_loader = self.load_dataset()
         else:
             print("build dataset...")
             self.buid_dataset()
-            self.save_dataset()
-        self.print_log()
+            train_loader, val_loader, test_loader = self.partition_dataSet()
+            network = self.network
+            dynamics = self.dynamics
+            self.save_dataset(network,
+                              dynamics,
+                              train_loader,
+                              val_loader,
+                              test_loader)
+        print("output dataset_file: ",self.dataset_file_path)
         print("The data has been loaded completely!")
+        return network, dynamics, train_loader, val_loader, test_loader

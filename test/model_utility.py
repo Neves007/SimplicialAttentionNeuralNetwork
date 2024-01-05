@@ -30,11 +30,11 @@ params = {
 
 if __name__ == '__main__':
     # 训练模型
-    experiment_manager_train = ExperimentManagerTrain(NUM_SAMPLES, TESTSET_TIMESTEP, EPOCHS, params)
+    experiment_manager = ExperimentManagerTrain(NUM_SAMPLES, TESTSET_TIMESTEP, EPOCHS, params)
     experiment_manager_realnet = ExperimentManagerRealnet(NUM_SAMPLES, TESTSET_TIMESTEP, EPOCHS, params)
-    analyze_trained_model_to_realnet = AnalyzeTrainedModelToRealnet(experiment_manager_train, experiment_manager_realnet)
+    analyze_trained_model_to_realnet = AnalyzeTrainedModelToRealnet(experiment_manager, experiment_manager_realnet)
 
-    experiment_manager_train.run()
+    experiment_manager.run()
     experiment_manager_realnet.run()
 
     analyze_trained_model_to_realnet.run()

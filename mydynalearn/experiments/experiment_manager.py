@@ -8,12 +8,12 @@ import itertools
 from mydynalearn.logger.logger import *
 from mydynalearn.util.params_dealer import PasramsDealer
 
-class ExperimentManagerTrain():
+class ExperimentManager():
     def __init__(self,NUM_SAMPLES, TESTSET_TIMESTEP, EPOCHS,params):
         self.NUM_SAMPLES = NUM_SAMPLES
         self.TESTSET_TIMESTEP = TESTSET_TIMESTEP
         self.EPOCHS = EPOCHS
-        self.rootpath = r"./output/data/train_model"
+        self.root_dir = r"./output/data/train_model"
         self.train_params = PasramsDealer.assemble_train_params(params)
 
     def fix_config(self,config):
@@ -54,7 +54,7 @@ class ExperimentManagerTrain():
             "MODEL_NAME": model,
             "IS_WEIGHT": IS_WEIGHT,
             "seed": 0,
-            "rootpath": self.rootpath
+            "root_dir": self.root_dir
         }
         config = ExperimentTrainConfig().default(**kwargs)
         self.fix_config(config)

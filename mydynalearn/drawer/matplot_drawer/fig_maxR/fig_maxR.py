@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import matplotlib.pyplot as plt
 from torch.nn.functional import mse_loss
-from mydynalearn.drawer_old.utils.performance_data.utils import _get_metrics
+from mydynalearn.analyze.utils.performance_data.utils import _get_metrics
 
 class FigMaxR():
     def __init__(self,config,dynamics):
@@ -40,11 +40,11 @@ class FigMaxR():
         self.ax.grid(True)
 
     def scatter(self, ax,max_R):
-        max_R_index,max_R_value = max_R
+        max_R_index,stable_r_value = max_R
         exp_NAME = self.config.NAME
         exp_index = self.exp_NAME_list.index(exp_NAME)
         ax.scatter(x=max_R_index,
-                   y=max_R_value,
+                   y=stable_r_value,
                    c=self.colors[self.config.IS_WEIGHT],
                    marker=self.markers[exp_index],
                    s=50,

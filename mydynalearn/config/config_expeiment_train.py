@@ -35,9 +35,9 @@ class ExperimentTrainConfig(Config):
     def make_dir(self, dir):
         if not os.path.exists(dir):
             os.makedirs(dir)
-    def set_path(self, rootpath="./output"):
+    def set_path(self, root_dir="./output"):
         # path
-        self.data_path_1 = os.path.join(rootpath, self.NAME)
+        self.data_path_1 = os.path.join(root_dir, self.NAME)
         if self.IS_WEIGHT:
             self.data_path_2 = os.path.join(self.data_path_1, 'IS_WEIGHT')
         else:
@@ -56,7 +56,7 @@ class ExperimentTrainConfig(Config):
 
 
         # # root path
-        # self.rootpath_to_fig = os.path.join(rootpath, "fig")
+        # self.rootpath_to_fig = os.path.join(root_dir, "fig")
         # # 图片文件
         # ## epoch_performance_fig_ytrure_ypred
         # self.figpath_to_epoch_performance_fig_ytrure_ypred_1 = os.path.join(self.rootpath_to_fig, "epoch_performance_fig_ytrure_ypred",self.NAME)
@@ -78,7 +78,7 @@ class ExperimentTrainConfig(Config):
             network,
             dynamics,
             MODEL_NAME,
-            rootpath,
+            root_dir,
             path_to_best="./",
             path_to_summary="./",
             weight_type="state",
@@ -101,7 +101,7 @@ class ExperimentTrainConfig(Config):
             raise ValueError(
                 f"{network} is invalid, valid entries are {list(network_config.keys())}"
             )
-        self.set_path(rootpath)
+        self.set_path(root_dir)
         self.network = network_config[network]
         self.dynamics = dynamics_config[dynamics]
         self.dataset = dataset_config

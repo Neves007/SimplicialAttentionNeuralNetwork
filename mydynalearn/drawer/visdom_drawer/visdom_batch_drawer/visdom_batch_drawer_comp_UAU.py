@@ -1,8 +1,8 @@
 from visdom import Visdom
 import torch
 import numpy as np
-from mydynalearn.drawer_old.utils import *
-from mydynalearn.drawer_old.visdom_drawer.visdom_batch_drawer.visdom_batch_drawer import VisdomBatchDrawer
+from mydynalearn.drawer.utils import *
+from mydynalearn.drawer.visdom_drawer.visdom_batch_drawer.visdom_batch_drawer import VisdomBatchDrawer
 class VisdomBatchDrawerCompUAU(VisdomBatchDrawer):
     def __init__(self,dynamics) -> None:
         super().__init__()

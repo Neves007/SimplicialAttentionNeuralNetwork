@@ -16,9 +16,9 @@ class DrawerConfig(Config):
             self,
     ):
         self.NAME = "Drawer"
-        self.rootpath = r"./output/fig/"
-        self.model_performance_figdir = os.path.join(self.rootpath,"model_performance")
-        self.realnet_performance_figdir = os.path.join(self.rootpath,"realnet_performance")
+        self.root_dir = r"./output/fig/"
+        self.model_performance_figdir = os.path.join(self.root_dir,"model_performance")
+        self.realnet_performance_figdir = os.path.join(self.root_dir,"realnet_performance")
         if not os.path.exists(self.model_performance_figdir):
             os.makedirs(self.model_performance_figdir)
         if not os.path.exists(self.realnet_performance_figdir):

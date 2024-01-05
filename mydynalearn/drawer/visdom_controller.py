@@ -1,7 +1,7 @@
 
-from mydynalearn.drawer_old.visdom_drawer.visdom_batch_drawer.getter import get as visdom_batch_drawer_getter
-from mydynalearn.drawer_old.visdom_drawer.visdom_epoch_drawer.getter import get as visdom_eopoch_drawer_getter
-from mydynalearn.drawer_old.utils import *
+from mydynalearn.drawer.visdom_drawer.visdom_batch_drawer.getter import get as visdom_batch_drawer_getter
+from mydynalearn.drawer.visdom_drawer.visdom_epoch_drawer.getter import get as visdom_eopoch_drawer_getter
+from mydynalearn.drawer.utils import *
 class VisdomController():
     def __init__(self,config,dynamics):
 

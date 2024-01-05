@@ -1,4 +1,4 @@
-from mydynalearn.drawer_old.visdom_drawer.visdom_batch_drawer import *
+from mydynalearn.drawer.visdom_drawer.visdom_batch_drawer import *
 
 __DYNAMICS__ = {
     "UAU": VisdomBatchDrawerUAU,

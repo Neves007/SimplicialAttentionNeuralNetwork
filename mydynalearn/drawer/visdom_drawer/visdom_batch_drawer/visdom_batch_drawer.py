@@ -1,7 +1,7 @@
 from visdom import Visdom
 import torch
 import numpy as np
-from mydynalearn.drawer_old.utils import *
+from mydynalearn.drawer.utils import *
 class VisdomBatchDrawer:
     def __init__(self) -> None:
         self.wind = Visdom()

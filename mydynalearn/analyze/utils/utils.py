@@ -32,9 +32,7 @@ def compute_test_result_curepoch_loss_acc(test_result_curepoch):
     loss_all,acc_all = _unpacktest_result_curepochResult(test_result_curepoch)
     return loss_all.mean(),acc_all.mean()
 
-def epochdata_datacur_2_dataT(exp, data_curEpoch):
-    IS_WEIGHT = exp.config.IS_WEIGHT
-    dynamics = exp.dataset.dynamics
+def epochdata_datacur_2_dataT(dynamics, IS_WEIGHT, data_curEpoch):
     T = len(data_curEpoch)
     epoch_index = data_curEpoch[0]['epoch_index']
     x_T = torch.zeros([T] + list(data_curEpoch[0]['x'].shape))

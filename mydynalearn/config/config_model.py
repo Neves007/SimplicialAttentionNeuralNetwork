@@ -10,10 +10,6 @@ class ModelConfig(Config):
         self.EPOCHS = 30
         self.batch_size = 1
         self.optimizer = OptimizerConfig().default()
-        # 激活函数
-        self.in_activation = "relu"
-        self.gnn_activation = "relu"
-        self.out_activation = "relu"
         # 神经网络
         self.heads = 2
         self.in_channels = [self.NUM_STATES, 32, 32]

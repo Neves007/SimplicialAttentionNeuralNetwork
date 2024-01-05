@@ -1,4 +1,4 @@
-from mydynalearn.drawer_old.visdom_drawer.visdom_epoch_drawer import *
+from mydynalearn.drawer.visdom_drawer.visdom_epoch_drawer import *
 
 __DYNAMICS__ = {
     "UAU": VisdomEpochDrawer,

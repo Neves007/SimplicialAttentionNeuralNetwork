@@ -1,4 +1,5 @@
 from mydynalearn.drawer.matplot_drawer.fig_ytrure_ypred import FigYtrureYpred
+
 class FigYtrureYpredUAU(FigYtrureYpred):
     def __init__(self,dynamics):
         super().__init__(dynamics)

@@ -8,7 +8,7 @@ import pickle
 from mydynalearn.config import ExperimentTrainConfig
 from mydynalearn.experiments import ExperimentTrain
 import itertools
-from mydynalearn.drawer_old.matplot_drawer.drawer_matplot_maxR import DrawerMatplotMaxR
+from mydynalearn.drawer.matplot_drawer.drawer_matplot_maxR import DrawerMatplotMaxR
 
 
 def fix_config(config):
@@ -65,7 +65,7 @@ for network_dynamics_dataset_config in network_dynamics_dataset_config_list:
         "MODEL_NAME": model,
         "IS_WEIGHT": IS_WEIGHT,
         "seed": 0,
-        "rootpath": rootpath
+        "root_dir": root_dir
     }
     exp = get_experiment(**kwargs)
     drawer_matplot_maxR = DrawerMatplotMaxR(exp.config, exp.dynamics)
