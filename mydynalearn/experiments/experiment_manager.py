@@ -30,7 +30,6 @@ class ExperimentManager():
         :param epoch_index: int
         :return: model_exp
         '''
-        # todo：这个函数不应该在这里
         model_exp = self.get_train_exp(*train_args)
         model_exp.model.load_model(epoch_index)
         model_exp.create_dataset()
