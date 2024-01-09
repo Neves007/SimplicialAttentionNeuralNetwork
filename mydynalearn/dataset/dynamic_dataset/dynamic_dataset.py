@@ -73,7 +73,7 @@ class DynamicDataset(Dataset):
         self.y_true_T = torch.zeros(NUM_SAMPLES, NUM_NODES, NUM_STATES).to(self.config.DEVICE, dtype=torch.float)
         self.weight_T = torch.zeros(NUM_SAMPLES, NUM_NODES).to(self.config.DEVICE, dtype=torch.float)
 
-    def save_onesample_dataset(self, t, old_x0, old_x1, new_x0, true_tp, weight, **kwargs):
+    def save_onesample_dataset(self, t, old_x0, new_x0, true_tp, weight, **kwargs):
         self.x0_T[t] = old_x0
         self.y_ob_T[t] = new_x0
         self.y_true_T[t] = true_tp
@@ -94,6 +94,7 @@ class DynamicDataset(Dataset):
                 self.dynamics.init_stateof_network()  # 在T_INIT时间后重置网络状态
             # 生成并存储一个样本数据集
             onestep_spread_result = self.dynamics._run_onestep()
+            self.dynamics.set_features(**onestep_spread_result)
             self.save_onesample_dataset(t, **onestep_spread_result)
             t += 1
 
@@ -117,27 +118,23 @@ class DynamicDataset(Dataset):
         val_size = int((len(self)-test_size)/2)
         train_size = len(self)-test_size-val_size
         train_set, val_set, test_set = torch.utils.data.random_split(self, [train_size, val_size,test_size])
-
-        train_loader = DataLoader(train_set,shuffle=True)
-        val_loader = DataLoader(val_set,shuffle=True)
-        test_loader = DataLoader(test_set,shuffle=True)
-        return train_loader, val_loader, test_loader
+        return train_set, val_set, test_set
 
     def run(self):
         if self.is_dataset_exist():
             print("load dataset...")
-            network, dynamics, train_loader, val_loader, test_loader = self.load_dataset()
+            network, dynamics, train_set, val_set, test_set = self.load_dataset()
         else:
             print("build dataset...")
             self.buid_dataset()
-            train_loader, val_loader, test_loader = self.partition_dataSet()
+            train_set, val_set, test_set = self.partition_dataSet()
             network = self.network
             dynamics = self.dynamics
             self.save_dataset(network,
                               dynamics,
-                              train_loader,
-                              val_loader,
-                              test_loader)
+                              train_set,
+                              val_set,
+                              test_set)
         print("output dataset_file: ",self.dataset_file_path)
         print("The data has been loaded completely!")
-        return network, dynamics, train_loader, val_loader, test_loader
+        return network, dynamics, train_set, val_set, test_set

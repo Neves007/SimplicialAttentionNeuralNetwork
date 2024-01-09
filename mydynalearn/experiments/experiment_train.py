@@ -17,21 +17,21 @@ class ExperimentTrain():
         ]
 
     def create_dataset(self):
-        network, dynamics, train_loader, val_loader, test_loader = self.dataset.run()
-        return network, dynamics, train_loader, val_loader, test_loader
+        network, dynamics, train_set, val_set, test_set = self.dataset.run()
+        return network, dynamics, train_set, val_set, test_set
 
 
     def train_model(self):
         print("model name: ",self.NAME)
         if self.model.need_to_train:
-            network, dynamics, train_loader, val_loader, test_loader = self.create_dataset()
+            network, dynamics, train_set, val_set, test_set = self.create_dataset()
             print("begin to train model")
             self.model.run(
                 network=network,
                 dynamics=dynamics,
-                train_loader = train_loader,
-                val_loader = val_loader,
-                test_loader = test_loader,
+                train_set = train_set,
+                val_set = val_set,
+                test_set = test_set,
             )
             print("The model has been trained completely!")
         else:

@@ -45,11 +45,11 @@ EPOCHS = 3  # 10
     "IS_WEIGHT": [False]
 '''
 params = {
-    "grpah_network": ["ER"],
-    "grpah_dynamics": ["UAU", "CompUAU"],
+    # "grpah_network": ["ER"],
+    # "grpah_dynamics": ["UAU", "CompUAU"],
 
-    # "simplicial_network": ["SCER"],
-    # "simplicial_dynamics": ["SCUAU"],
+    "simplicial_network": ["SCER"],
+    "simplicial_dynamics": ["SCUAU"],
 
     "model": ["GAT", "SAT", "DiffSAT"],  # 至少选一个
     "IS_WEIGHT": [False]

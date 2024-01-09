@@ -51,6 +51,14 @@ class CompartmentModel():
 
     def set_x2(self,x2):
         self.x2 = x2
+    def set_features(self,new_x0, **kwargs):
+        self.x0 = new_x0
+        x1 = self.get_x1_from_x0(self.x0, self.network)
+        self.set_x1(x1)
+
+        if self.network.MAX_DIMENSION==2:
+            x2 = self.get_x2_from_x0(self.x0,self.network)
+            self.set_x2(x2)
 
     def get_x1_from_x0(self, x0, network)->'x1':
         x1 = torch.sum(x0[network.edges], dim=-2)
@@ -67,7 +75,7 @@ class CompartmentModel():
         if hasattr(self, 'network')==False:
             raise AttributeError("network attribute does not exist.")
         self._init_x0()
-        x1 = self.get_x1_from_x0(self.x0,self.network)
+        x1 = self.get_x1_from_x0(self.x0, self.network)
         self.set_x1(x1)
 
         if self.network.MAX_DIMENSION==2:

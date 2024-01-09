@@ -31,9 +31,9 @@ class UAU(CompartmentModel):
                                                                            _threshold_scAct=1,
                                                                            target_state='A',
                                                                            inc_matrix_adj = self.network.inc_matrix_adj1)
+
         # adj_act_edges：（节点数）表示节点i相邻激活边数量
         adj_act_edges = torch.sparse.sum(inc_matrix_adj_act_edge,dim=1).to_dense()
-
         return adj_act_edges
     def _preparing_spreading_data(self):
         adj_act_edges = self._get_adj_activate_simplex()

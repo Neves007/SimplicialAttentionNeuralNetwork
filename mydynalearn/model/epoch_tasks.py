@@ -96,13 +96,13 @@ class EpochTasks():
                 tag =  True
         return tag
 
-    def train_epoch(self,train_loader, val_loader, network, dynamics, epoch_index,visdom_drawer):
+    def train_epoch(self,train_set, val_set, network, dynamics, epoch_index,visdom_drawer):
         process_bar = tqdm(
-            enumerate(zip(train_loader, val_loader)),
+            enumerate(zip(train_set, val_set)),
             maxinterval=10,
             mininterval=2,
             bar_format='{l_bar}|{bar}| {n_fmt}/{total_fmt} [{rate_fmt}{postfix}|{elapsed}',
-            total=len(train_loader)
+            total=len(train_set)
         )
         for time_idx, (train_dataset_per_time, val_dataset_per_time) in process_bar:
             item_info = 'Epoch:{:d} LR:{:f} '.format(epoch_index, self.optimizer.param_groups[0]['lr'])
@@ -130,11 +130,11 @@ class EpochTasks():
                                             val_w)
             visdom_drawer.visdomDrawBatch(val_data)
 
-    def run_all(self, network, dynamics, train_loader, val_loader, test_loader):
+    def run_all(self,network, dynamics, train_set, val_set, test_set):
         visdom_drawer = VisdomController(self.config, dynamics)
         for epoch_index in range(self.EPOCHS):
-            self.train_epoch(train_loader,
-                             val_loader,
+            self.train_epoch(train_set,
+                             val_set,
                              network,
                              dynamics,
                              epoch_index,

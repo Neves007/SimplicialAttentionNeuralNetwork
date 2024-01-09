@@ -6,7 +6,9 @@ class SimplicialAttentionModel(nn.Module):
         """Dense version of GAT."""
         super(SimplicialAttentionModel,self).__init__()
         self.config = config
-        self.in_layer = get_node_in_layers(self.config.model)
+        self.in_layer0 = get_node_in_layers(self.config.model)
+        self.in_layer1 = get_node_in_layers(self.config.model)
+        self.in_layer2 = get_node_in_layers(self.config.model)
         self.sat_layers = get_gnn_layer(self.config.model)
         self.out_layers = get_out_layers(self.config.model)
 
@@ -19,11 +21,11 @@ class SimplicialAttentionModel(nn.Module):
         # 高阶信息
         x1 =dynamics.get_x1_from_x0(x0, network)
         # 只考虑edge_index
-        x0_in = self.in_layer(x0)
-        x1_in = self.in_layer(x1)
+        x0_in = self.in_layer0(x0)
+        x1_in = self.in_layer1(x1)
         if network.MAX_DIMENSION ==2:
             x2 =dynamics.get_x2_from_x0(x0, network)
-            x2_in = self.in_layer(x2)
+            x2_in = self.in_layer2(x2)
             sat_args = {
                 "network":network,
                 "x0":x0_in,

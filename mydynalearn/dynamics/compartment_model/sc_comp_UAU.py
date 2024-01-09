@@ -83,10 +83,7 @@ class SCCompUAU(CompartmentModel):
         x1 = self.get_x1_from_x0(x0,self.network)
         x2 = self.get_x2_from_x0(x0,self.network)
         return x0, x1, x2
-    def set_features(self,new_x0, new_x1,new_x2, **kwargs):
-        self.x0 = new_x0
-        self.x1 = new_x1
-        self.x2 = new_x2
+
     def _dynamic_for_node_A1(self, A1_index, true_tp):
         recover_prob = self.RECOVERY * torch.ones(A1_index.shape[0]).to(self.DEVICE)
         random_p = torch.rand(A1_index.shape[0]).to(self.DEVICE)
