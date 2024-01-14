@@ -64,6 +64,7 @@ class ModelAnalizer():
                     I_predict_TP_pernode = I_predict_TP[i].cpu().numpy()
                     I_true_TP_degree[int(I_num_ac_1simplex_pernode.data.item())].append(I_true_TP_pernode)
                     I_predict_TP_degree[int(I_num_ac_1simplex_pernode.data.item())].append(I_predict_TP_pernode)
+        process_bar.close()
         return S_true_TP_degree, S_predict_TP_degree, I_true_TP_degree, I_predict_TP_degree
 
     def analyze_pre_target_y(self):

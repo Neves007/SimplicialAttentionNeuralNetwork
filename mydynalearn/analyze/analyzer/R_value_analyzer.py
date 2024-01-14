@@ -84,7 +84,7 @@ class RValueAnalyzer():
 
 
     # 定义一个函数来判断R值是否稳定
-    def find_first_stable_epoch(self, r_values, threshold=0.0001, window_size=5):
+    def find_best_epoch(self, r_values, threshold=0.0001, window_size=10):
         '''寻找使 R 值首次稳定的 model_exp_epoch_index
 
         :param r_values: 按照epoch排序的R值
@@ -93,19 +93,17 @@ class RValueAnalyzer():
         :return: 使 R 值首次稳定的 epoch，始终不稳定返回-1
         '''
         # 计算每个窗口的标准差
-        std_values = []
-        for i in range(len(r_values) - window_size + 1):
-            window = r_values[i: i + window_size]
-            std = np.std(window)
-            std_values.append(std)
-        std_values = np.array(std_values)
+        if window_size > len(r_values):
+            raise ValueError("Window size cannot be larger than the list of r_values")
 
-        # 找到首次小于 threshold 的索引
-        epoch_index = np.where(std_values < threshold)[0]
-        if len(epoch_index) > 0:
-            return epoch_index[0]
-        else:
-            return -1
+        # 遍历r_values找到符合条件的epoch
+        for i in range(len(r_values) - window_size):
+            current_r = r_values[i]
+            # 检查窗口中的R值是否都满足稳定性条件
+            window_stable = all(abs(current_r - r) < threshold for r in r_values[i+1:i+window_size])
+            if window_stable:
+                return i  # 返回第一个稳定的epoch索引
+        return -1  # 如果没有找到符合条件的epoch，则返回None
 
     def analyze_stable_r_value(self):
         self.load_r_value_dataframe()
@@ -122,7 +120,7 @@ class RValueAnalyzer():
                 sorted_group_data = group_data.sort_values(by='model_exp_epoch_index')
                 r_values = sorted_group_data['R'].values
                 # 遍历R值和epoch列表，找到最初进入稳定状态的epoch值
-                first_stable_epoch = self.find_first_stable_epoch(r_values)
+                first_stable_epoch = self.find_best_epoch(r_values)
                 properties = self.extract_group_properties(group_data.iloc[0])
 
                 properties["stable_R_value"] = r_values[first_stable_epoch]

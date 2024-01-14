@@ -60,7 +60,13 @@ class VisdomBatchDrawerCompUAU(VisdomBatchDrawer):
             "A2 to U"]
         return performance_data,performance_data_type,legend
 
-    def draw_performance(self,val_data):
+    def draw_performance(self,val_data,update = 'append'):
+        '''
+
+        :param val_data:
+        :param update: 'append' to append data, 'replace' to use new data,
+        :return:
+        '''
         data = val_data
         performance_data,performance_data_type,legend = self.get_performance_data(data)
         X = np.concatenate(performance_data)

@@ -30,9 +30,9 @@ from mydynalearn.experiments import *
 from mydynalearn.analyze import *
 from mydynalearn.drawer import MatplotController
 
-NUM_SAMPLES = 5000
-TESTSET_TIMESTEP = 10
-EPOCHS = 3  # 10
+NUM_SAMPLES = 10000
+TESTSET_TIMESTEP = 1000
+EPOCHS = 30  # 10
 
 ''' 所有参数
     "grpah_network": ["ER"],
@@ -41,17 +41,17 @@ EPOCHS = 3  # 10
     "simplicial_network": ["SCER","CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
     "simplicial_dynamics": ["SCUAU", "SCCompUAU"],
 
-    "model": ["GAT", "SAT", "DiffSAT"],  # 至少选一个
+    "model": ["GAT", "SAT", "DiffSAT", "DualSAT"],  # 至少选一个
     "IS_WEIGHT": [False]
 '''
 params = {
-    # "grpah_network": ["ER"],
-    # "grpah_dynamics": ["UAU", "CompUAU"],
+    "grpah_network": ["ER"],
+    "grpah_dynamics": ["UAU", "CompUAU"],
 
-    "simplicial_network": ["SCER"],
-    "simplicial_dynamics": ["SCUAU"],
+    "simplicial_network": ["SCER","CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
+    "simplicial_dynamics": ["SCUAU", "SCCompUAU"],
 
-    "model": ["GAT", "SAT", "DiffSAT"],  # 至少选一个
+    "model": ["GAT", "SAT", "DiffSAT", "DualSAT"],  # 至少选一个
     "IS_WEIGHT": [False]
 }
 
@@ -62,17 +62,10 @@ if __name__ == '__main__':
 
     # 修改这个
     analyze_manager = AnalyzeManager(experiment_manager)
-    # # analyze_trained_model_to_realnet = AnalyzeTrainedModelToRealnet(experiment_manager,
-    # #                                                            experiment_manager_realnet)
-    # #
-    #
     # # 训练
     experiment_manager.run()
     # 分析：测试集分析训练模型
     analyze_manager.run()
-    #
-    #
-    #
     # # 画图：
     matplot_drawer = MatplotController(analyze_manager)
     matplot_drawer.run()

@@ -1,16 +1,17 @@
 from mydynalearn.model.nn.nnlayers import *
+from time import sleep
 import os
 import pickle
 import torch.nn as nn
 import torch
+from torch.optim.lr_scheduler import ReduceLROnPlateau
+
 from mydynalearn.model.optimizer import get as get_optimizer
-from mydynalearn.dataset import graphDataSetLoader
 from mydynalearn.drawer import VisdomController
 from mydynalearn.model.util import *
 import copy
 from mydynalearn.logger.logger import *
 from tqdm import tqdm
-from mydynalearn.dataset.getter import get as dataset_getter
 from mydynalearn.model.getter import get as get_attmodel
 from mydynalearn.model.batch_task import BatchTask
 
@@ -24,21 +25,22 @@ class EpochTasks():
         self.attention_model = get_attmodel(self.config)
         self.get_optimizer = get_optimizer(config.model.optimizer)
         self.optimizer = self.get_optimizer(self.attention_model.parameters())
+        self.scheduler = ReduceLROnPlateau(self.optimizer, mode='min', factor=0.1, patience=4, eps = 1e-8, threshold =0.1, verbose=True)
 
     def get_fileName_model_state_dict(self,epoch_index):
-        fileName_model_state_dict = self.config.datapath_to_model_state_dict + "/epoch{:d}_model_state_dict.pth".format(
+        fileName_model_state_dict = self.config.modelparams_dir_path + "/epoch{:d}_model_state_dict.pth".format(
             epoch_index)
         return fileName_model_state_dict
 
     def save(self, attention_model, optimizer, epoch_index):
         # todo: 修改 save_model_state_dict 需要在哪里加载
         model_state_dict_file_path = self.get_fileName_model_state_dict(epoch_index)
+        print("\ntraining.epochtask. output dataset_file: ", model_state_dict_file_path)
         torch.save({
             # 存储 batch的state_dict
             'model_state_dict': attention_model.state_dict(),
             'optimizer_state_dict': optimizer.state_dict()
         }, model_state_dict_file_path)
-        print("\noutput dataset_file: ", model_state_dict_file_path)
 
     def load(self, epoch_index):
         '''
@@ -63,10 +65,9 @@ class EpochTasks():
         return is_need_to_trian
 
     # todo：这个应该是在batch里面
-    def low_the_lr(self, optimizer ,epoch_index):
+    def low_the_lr(self ,epoch_index):
         if (epoch_index>0) and (epoch_index % 5 == 0):
-            lr = optimizer.param_groups[0]['lr'] * 0.5
-            optimizer.param_groups[0]['lr'] = lr
+            self.optimizer.param_groups[0]['lr'] *= 0.5
 
 
     def pack_batch_data(self, epoch_index, time_idx, loss, x, y_pred, y_true, y_ob, w):
@@ -96,6 +97,7 @@ class EpochTasks():
                 tag =  True
         return tag
 
+
     def train_epoch(self,train_set, val_set, network, dynamics, epoch_index,visdom_drawer):
         process_bar = tqdm(
             enumerate(zip(train_set, val_set)),
@@ -104,9 +106,8 @@ class EpochTasks():
             bar_format='{l_bar}|{bar}| {n_fmt}/{total_fmt} [{rate_fmt}{postfix}|{elapsed}',
             total=len(train_set)
         )
+        R_stack = []
         for time_idx, (train_dataset_per_time, val_dataset_per_time) in process_bar:
-            item_info = 'Epoch:{:d} LR:{:f} '.format(epoch_index, self.optimizer.param_groups[0]['lr'])
-            process_bar.set_postfix(custom_info=item_info)
             self.attention_model.train()
             self.optimizer.zero_grad()
             train_loss, train_x, train_y_pred, train_y_true, train_y_ob, train_w = self.batch_task._do_batch_(self.attention_model,
@@ -128,8 +129,15 @@ class EpochTasks():
                                             val_y_true,
                                             val_y_ob,
                                             val_w)
+            y_true_flat = val_y_true.flatten()
+            y_pred_flat = val_y_pred.flatten()
+            R = torch.corrcoef(torch.stack([y_true_flat, y_pred_flat]))[0, 1]
+            item_info = 'Epoch:{:d} LR:{:f} R:{:f}'.format(epoch_index,
+                                                           self.optimizer.param_groups[0]['lr'],
+                                                           R)
+            process_bar.set_postfix(custom_info=item_info)
             visdom_drawer.visdomDrawBatch(val_data)
-
+        process_bar.close()
     def run_all(self,network, dynamics, train_set, val_set, test_set):
         visdom_drawer = VisdomController(self.config, dynamics)
         for epoch_index in range(self.EPOCHS):
@@ -140,7 +148,7 @@ class EpochTasks():
                              epoch_index,
                              visdom_drawer)
             self.save(self.attention_model, self.optimizer, epoch_index)
-            self.low_the_lr(self.optimizer,epoch_index)
+            self.low_the_lr(epoch_index)
 
     def run_test_epoch(self, network, dynamics, test_loader, epoch_index):
         self.load(epoch_index)
@@ -161,5 +169,6 @@ class EpochTasks():
             test_data = self.pack_batch_data(epoch_index, time_idx, test_loss, test_x, test_y_pred, test_y_true, test_y_ob,
                                              test_w)
             test_result_curepoch.append(test_data)
+        process_bar.close()
         return test_result_curepoch
 

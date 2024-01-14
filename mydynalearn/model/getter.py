@@ -4,7 +4,8 @@ from mydynalearn.model.attention_model import GraphAttentionModel,SimplicialAtte
 __Model__ = {
     "GAT": GraphAttentionModel,
     "SAT": SimplicialAttentionModel,
-    "DiffSAT": SimplicialAttentionModel
+    "DiffSAT": SimplicialAttentionModel,
+    "DualSAT": SimplicialAttentionModel,
 }
 
 

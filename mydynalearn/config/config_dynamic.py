@@ -31,7 +31,7 @@ class DynamicConfig(Config):
         self.NAME = "SCUAU"
         self.NUM_STATES = 2
         self.SEED_FREC = 0.1
-        self.EFF_AWARE = torch.tensor([8., 4])
+        self.EFF_AWARE = torch.tensor([8., 8])
         self.MAX_DIMENSION = 2
         self.RECOVERY = 0.2
         return self
@@ -43,8 +43,8 @@ class DynamicConfig(Config):
         self.NUM_STATES = 3
         self.SEED_FREC_A1 = 0.1
         self.SEED_FREC_A2 = 0.1
-        self.EFF_AWARE_A1 = torch.tensor([8., 4])
-        self.EFF_AWARE_A2 = torch.tensor([8., 4])
+        self.EFF_AWARE_A1 = torch.tensor([8., 8])
+        self.EFF_AWARE_A2 = torch.tensor([8., 8])
         self.MAX_DIMENSION = 2
         self.RECOVERY = 0.2
         return self
@@ -55,8 +55,8 @@ class DynamicConfig(Config):
         self.NUM_STATES = 3
         self.SEED_FREC_A1 = 0.1
         self.SEED_FREC_A2 = 0.1
-        self.EFF_AWARE_A1 = torch.tensor([8., 4])
-        self.EFF_AWARE_A2 = torch.tensor([8., 4])
+        self.EFF_AWARE_A1 = torch.tensor([8., 8])
+        self.EFF_AWARE_A2 = torch.tensor([8., 8])
         self.MAX_DIMENSION = 2
         self.RECOVERY = 0.2
         return self

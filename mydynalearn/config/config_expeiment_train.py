@@ -36,39 +36,12 @@ class ExperimentTrainConfig(Config):
         if not os.path.exists(dir):
             os.makedirs(dir)
     def set_path(self, root_dir="./output"):
-        # path
-        self.data_path_1 = os.path.join(root_dir, self.NAME)
-        if self.IS_WEIGHT:
-            self.data_path_2 = os.path.join(self.data_path_1, 'IS_WEIGHT')
-        else:
-            self.data_path_2 = os.path.join(self.data_path_1, 'not_weight')
+        dataset_dir_path = os.path.join(root_dir, "dataset")
+        self.modelparams_dir_path = os.path.join(root_dir, "modelparams", self.NAME)
+        self.dataset_dir_path = os.path.join(dataset_dir_path, self.NAME)
 
-        # 模型文件
-        self.datapath_to_model = os.path.join(self.data_path_2, "modelResult")
-        self.make_dir(self.datapath_to_model)
-        # 数据集文件
-        self.path_to_datasets = os.path.join(self.data_path_1, "datasets")
-        self.make_dir(self.path_to_datasets)
-        self.datapath_to_epochdata = os.path.join(self.datapath_to_model, "epoch_data")
-        self.make_dir(self.datapath_to_epochdata)
-        self.datapath_to_model_state_dict = os.path.join(self.datapath_to_model, "model_state_dict")
-        self.make_dir(self.datapath_to_model_state_dict)
-
-
-        # # root path
-        # self.rootpath_to_fig = os.path.join(root_dir, "fig")
-        # # 图片文件
-        # ## epoch_performance_fig_ytrure_ypred
-        # self.figpath_to_epoch_performance_fig_ytrure_ypred_1 = os.path.join(self.rootpath_to_fig, "epoch_performance_fig_ytrure_ypred",self.NAME)
-        # if self.IS_WEIGHT:
-        #     self.figpath_to_epoch_performance_fig_ytrure_ypred_2 = os.path.join(self.figpath_to_epoch_performance_fig_ytrure_ypred_1, 'IS_WEIGHT')
-        # else:
-        #     self.figpath_to_epoch_performance_fig_ytrure_ypred_2 = os.path.join(self.figpath_to_epoch_performance_fig_ytrure_ypred_1, 'not_weight')
-        #
-        # self.make_dir(self.figpath_to_epoch_performance_fig_ytrure_ypred_2)
-        # ## maxR
-        # self.figpath_to_max_R = os.path.join(self.rootpath_to_fig, "maxR")
-        # self.make_dir(self.figpath_to_max_R)
+        self.make_dir(self.dataset_dir_path)
+        self.make_dir(self.modelparams_dir_path)
 
 
 

@@ -16,7 +16,7 @@ class AnalyzeConfig(Config):
             self,
     ):
         self.NAME = "AnalyzeModel"
-        self.root_dir_path = r"./output/data/analyze/"
+        self.root_dir_path = r"./output/analyze/"
         self.analyze_result_dir_name = 'analyze_result'
         self.r_value_dir_name = 'r_value'
         self.r_value_dataframe_file_name = "r_value_dataframe.csv"

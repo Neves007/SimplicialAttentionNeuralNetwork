@@ -10,7 +10,7 @@ from mydynalearn.model.util.multi_head_linear import MultiHeadLinear
 from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.nn.inits import glorot, zeros
 
-
+# 重新命名
 class SATLayer_regular(nn.Module):
 
     def __init__(self, input_size, output_size, bias=True):
@@ -40,7 +40,7 @@ class SATLayer_regular(nn.Module):
         # output attention
         self.wq = nn.Linear(output_size, 1, bias=bias)
         self.wk = nn.Linear(output_size, 1, bias=bias)
-        self.wv = nn.Linear(output_size, 1, bias=bias)
+        self.wv = nn.Linear(output_size, output_size, bias=bias)
     def attention_agg(self, xj, a_i,a_j,inc_matrix_adj):
         '''图注意力机制
 
@@ -61,7 +61,8 @@ class SATLayer_regular(nn.Module):
         # 考虑attention权重的特征。
         output = torch.sparse.mm(attention, xj)
         return output
-    def attention_output(self,x0,agg0,agg1,agg2):
+
+    def dual_att_high(self,x0,agg0,agg1,agg2):
         q_x0 = self.wq(x0)
 
 
@@ -76,8 +77,15 @@ class SATLayer_regular(nn.Module):
         v_agg1 = self.wv(agg1)
         v_agg2 = self.wv(agg2)
 
-        alpha_x0_x0 = q_x0 * k_x0 + q_x0 * k_agg0 + q_x0 * k_agg1 + q_x0 * k_agg2
-        torch.mul()
+        alpha_x0_x0 = torch.sigmoid(q_x0 * k_x0)
+        alpha_x0_agg0 = torch.sigmoid(q_x0 * k_agg0)
+        alpha_x0_agg1 = torch.sigmoid(q_x0 * k_agg1)
+        alpha_x0_agg2 = torch.sigmoid(q_x0 * k_agg2)
+
+        output = (alpha_x0_x0 * v_x0 + alpha_x0_agg0 * v_agg0 + alpha_x0_agg1 * v_agg1 + alpha_x0_agg2 * v_agg2)/4
+
+        return output
+
     def forward(self,network, x0, x1, x2=None):
         """
         features : n * m dense matrix of feature vectors
@@ -99,21 +107,23 @@ class SATLayer_regular(nn.Module):
             incMatrix_adj0, incMatrix_adj1, incMatrix_adj2 = network._unpack_inc_matrix_adj_info()
             xi_0 = self.leakyrelu(self.input_linear_layer1(x0))
             xj_0 = self.leakyrelu(self.input_linear_layer2(x0))
+            xj_1 = self.leakyrelu(self.input_linear_layer3(x1))
             xj_2 = self.leakyrelu(self.input_linear_layer4(x2))
 
             ai_0 = self.a_1(xi_0)  # a_1：a*hi
             aj_0 = self.a_2(xj_0)  # a_2：a*hj
+            aj_1 = self.a_3(xj_1)  # a_2：a*hj
             aj_2 = self.a_4(xj_2)  # a_2：a*hj
             agg0 = self.attention_agg(xj_0, ai_0, aj_0, incMatrix_adj0)
+            agg1 = self.attention_agg(xj_1, ai_0, aj_1, incMatrix_adj1)
             agg2 = self.attention_agg(xj_2, ai_0, aj_2, incMatrix_adj2)
 
             # todo: 看能不能改成双重注意力
-            # x0 = xi_0 + self.agg_weight[0]*agg0 + self.agg_weight[1]*agg1 + self.agg_weight[2]*agg2
-            output = self.layer_norm1(self.agg_weight[0] * agg0 + self.agg_weight[2] * agg2 + x0)
+            output = self.layer_norm1(self.dual_att_high(x0,agg0,agg1,agg2))
         output = self.layer_norm2(self.output_linear_layer1(output)+output)
         return output
 
-class SimplexDiffAttentionLayer(nn.Module):
+class SimplexDualAttentionLayer(nn.Module):
     def __init__(self, input_size, output_size, heads, concat, bias=True):
         super().__init__()
         self.layer0_1 = torch.nn.ModuleList([SATLayer_regular(input_size, output_size, bias) for _ in range(heads)])

@@ -13,7 +13,7 @@ class ExperimentManager():
         self.NUM_SAMPLES = NUM_SAMPLES
         self.TESTSET_TIMESTEP = TESTSET_TIMESTEP
         self.EPOCHS = EPOCHS
-        self.root_dir = r"./output/data/train_model"
+        self.root_dir = r"./output/"
         self.train_params = PasramsDealer.assemble_train_params(params)
 
     def fix_config(self,config):

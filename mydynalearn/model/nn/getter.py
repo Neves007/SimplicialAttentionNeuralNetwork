@@ -5,6 +5,7 @@ __gnn__ = {
     "GAT": GraphAttentionLayer,
     "SAT": SimplexAttentionLayer,
     "DiffSAT": SimplexDiffAttentionLayer,
+    "DualSAT": SimplexDualAttentionLayer,
 }
 
 

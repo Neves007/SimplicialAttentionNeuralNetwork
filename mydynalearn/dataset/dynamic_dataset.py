@@ -23,7 +23,7 @@ class DynamicDataset(Dataset):
         self.NUM_SAMPLES = self.dataset_config.NUM_SAMPLES
         self.T_INIT = self.dataset_config.T_INIT
         self.DEVICE = self.dataset_config.DEVICE
-        self.dataset_file_path = self.config.path_to_datasets + "/dataset.pkl"
+        self.dataset_file_path = self.config.dataset_dir_path + "/dataset.pkl"
         self.need_to_run = not os.path.exists(self.dataset_file_path)
     def __len__(self) -> int:
         return self.NUM_SAMPLES
@@ -85,10 +85,9 @@ class DynamicDataset(Dataset):
                 - 在T_INIT时间后重置初始节点，从而增加传播动力学异质性。
         '''
         # 获取动力学数据
-        t = 0
         self.init_dataset()
         # 生成数据集
-        for sample in range(self.NUM_SAMPLES):
+        for t in tqdm(range(self.NUM_SAMPLES)):
             # 动力学初始化
             if t % self.T_INIT == 0:
                 self.dynamics.init_stateof_network()  # 在T_INIT时间后重置网络状态
@@ -96,7 +95,6 @@ class DynamicDataset(Dataset):
             onestep_spread_result = self.dynamics._run_onestep()
             self.dynamics.set_features(**onestep_spread_result)
             self.save_onesample_dataset(t, **onestep_spread_result)
-            t += 1
 
     def run_dynamic_process(self):
         '''动力学实验
@@ -135,6 +133,6 @@ class DynamicDataset(Dataset):
                               train_set,
                               val_set,
                               test_set)
-        print("output dataset_file: ",self.dataset_file_path)
+        print("dynamics_dataset.output dataset_file: ",self.dataset_file_path)
         print("The data has been loaded completely!")
         return network, dynamics, train_set, val_set, test_set

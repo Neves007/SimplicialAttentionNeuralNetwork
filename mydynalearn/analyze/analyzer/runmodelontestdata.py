@@ -108,6 +108,7 @@ class runModelOnTestData():
     def run(self):
         model_info = self.get_model_info()
         testdata_info = self.get_testdata_info()
+        print("testing:")
         print("model: {}\ntest data:{}".format(model_info,testdata_info))
         if self.need_to_run:
             print("analyze epoch: ",self.model_exp_epoch_index)

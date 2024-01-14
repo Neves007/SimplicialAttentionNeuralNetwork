@@ -4,13 +4,11 @@ import pickle
 import torch.nn as nn
 import torch
 from mydynalearn.model.optimizer import get as get_optimizer
-from mydynalearn.dataset import graphDataSetLoader
 from mydynalearn.drawer import VisdomController
 from mydynalearn.model.util import *
 import copy
 from mydynalearn.logger.logger import *
 from tqdm import tqdm
-from mydynalearn.dataset.getter import get as dataset_getter
 
 
 class BatchTask():

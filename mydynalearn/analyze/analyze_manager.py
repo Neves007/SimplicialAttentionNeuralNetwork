@@ -16,37 +16,7 @@ class AnalyzeManager():
         self.config = AnalyzeConfig().analyze_model()
         self.experiment_manager = experiment_manager
         self.r_value_analyzer = RValueAnalyzer(self.config)
-    def init_maxR_DF(self):
-        df = pd.DataFrame(columns=["network",
-                                   "dynamic",
-                                   "model",
-                                   "maxR_epoch_index",
-                                   "maxR_value"])
-        return df
 
-    def buid_series(self,R_list,model_exp):
-        network_name = model_exp.config.network.NAME
-        dynamic_name = model_exp.config.dynamics.NAME
-        model_name = model_exp.config.model.NAME
-        maxR_index = R_list.argmax().item()
-        maxR_value = R_list.max().item()
-        info = {"network": network_name,
-                "dynamic": dynamic_name,
-                "model": model_name,
-                "maxR_epoch_index":maxR_index,
-                "maxR_value":maxR_value,}
-        return pd.Series(info)
-
-    def save_maxR_DF(self,maxR_DF):
-        max_R_filepath = self.get_max_R_filepath()
-        maxR_DF.to_csv(max_R_filepath,index=False)
-
-    def get_max_R_filepath(self):
-        maxR_path = os.path.join(self.config.root_dir, self.config.test_maxR_dir)
-        if not os.path.exists(maxR_path):
-            os.makedirs(maxR_path)
-        file_path = os.path.join(maxR_path, "maxR.csv")
-        return file_path
 
     def analyze_trained_model(self):
         '''
@@ -79,10 +49,18 @@ class AnalyzeManager():
 
         else:
             self.r_value_analyzer.load_r_value_dataframe()
+
+
+    def analyze_stable_r_value(self):
+        '''分析R值的稳定点
+
+        io:  stable_r_value_dataframe.csv
+        '''
         if not os.path.exists(self.r_value_analyzer.stable_r_value_dataframe_file_path):
             self.r_value_analyzer.analyze_stable_r_value()
         else:
             self.r_value_analyzer.load_stable_r_value_dataframe()
+
 
     def run(self):
         '''
@@ -90,5 +68,6 @@ class AnalyzeManager():
         输出：
         '''
         self.analyze_trained_model()
+        self.analyze_stable_r_value()
 
 
