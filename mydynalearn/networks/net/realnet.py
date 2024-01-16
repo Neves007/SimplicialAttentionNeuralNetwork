@@ -8,13 +8,14 @@ from mydynalearn.networks.util.real_network import generate_real_network
 import os
 import pickle
 class Realnet():
-    def __init__(self, net_config):
-        self.net_config = net_config
-        self.NAME = net_config.NAME
-        self.DEVICE = net_config.DEVICE
-        self.REALNET_DATA_PATH = net_config.REALNET_DATA_PATH
-        self.REALNET_SOURCEDATA_FILENAME = net_config.REALNET_SOURCEDATA_FILENAME
-        self.REALNET_NETDATA_FILENAME = net_config.REALNET_NETDATA_FILENAME
+    def __init__(self, config):
+        self.config = config
+        self.DEVICE = self.config.DEVICE
+        self.net_config = config.network
+        self.NAME = self.net_config.NAME
+        self.REALNET_DATA_PATH = self.net_config.REALNET_DATA_PATH
+        self.REALNET_SOURCEDATA_FILENAME = self.net_config.REALNET_SOURCEDATA_FILENAME
+        self.REALNET_NETDATA_FILENAME = self.net_config.REALNET_NETDATA_FILENAME
         self.MAX_DIMENSION = self.net_config.MAX_DIMENSION
         pass
     def print_log(self,num_indentation=0):

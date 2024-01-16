@@ -36,7 +36,7 @@ class SCER(Network):
         k_prime = np.dot(C_matrix_inv, k_matrix)  # 需要生成的单纯形平均度
         # 转换为需要生成的单纯形总个数，乘以N除以单纯形中的节点数(重复的单纯形不算)。
         Num_create_simplices = k_prime * NUM_NODES / np.array([i + 2 for i in range(self.MAX_DIMENSION)])
-        return Num_create_simplices.astype(np.int)
+        return Num_create_simplices.astype(np.int16)
     def _create_edges(self, NUM_NODES, NUM_EDGES):
         edges = set()
         while len(edges) < NUM_EDGES:

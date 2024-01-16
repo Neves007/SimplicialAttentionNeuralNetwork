@@ -15,7 +15,7 @@ __networks__ = {
 def get(config):
     NAME = config.network.NAME
     if NAME in __networks__:
-        net = __networks__[NAME](config.network)
+        net = __networks__[NAME](config)
         return net
     else:
         loguru.logger.error("there is no network named {}",NAME)

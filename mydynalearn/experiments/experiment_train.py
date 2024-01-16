@@ -8,7 +8,6 @@ from mydynalearn.evaluator import *
 class ExperimentTrain():
     def __init__(self,config):
         self.config = config
-        self.toyExp = True
         self.NAME = config.NAME
         self.dataset = DynamicDataset(self.config)
         self.model = Model(config)

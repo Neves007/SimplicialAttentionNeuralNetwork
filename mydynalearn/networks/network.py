@@ -10,11 +10,12 @@ from easydict import EasyDict as edict
 from mydynalearn.networks.util.util import nodeToEdge_matrix
 
 class Network():
-    def __init__(self, net_config):
+    def __init__(self, config):
         # toy_network = True
-        self.net_config = net_config
+        self.config = config
+        self.net_config = config.network
         self.NAME = self.net_config.NAME
-        self.DEVICE = self.net_config.DEVICE
+        self.DEVICE = self.config.DEVICE
         self.MAX_DIMENSION = self.net_config.MAX_DIMENSION
         pass
 

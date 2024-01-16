@@ -5,15 +5,15 @@ from mydynalearn.drawer.utils import *
 class VisdomBatchDrawer:
     def __init__(self) -> None:
         self.wind = Visdom()
-        red = np.array([ 242,0,0]).reshape(1,3).astype(np.int)
-        orange = np.array([ 242,157,0]).reshape(1,3).astype(np.int)
-        yellow = np.array([ 255,255,51]).reshape(1,3).astype(np.int)
-        green = np.array([ 146,195,47]).reshape(1,3).astype(np.int)
-        cyan = np.array([ 51,255,153]).reshape(1,3).astype(np.int)
-        blue = np.array([ 51,153,255]).reshape(1,3).astype(np.int)
-        purple = np.array([ 153,51,255]).reshape(1,3).astype(np.int)
-        gray = np.array([128, 128, 128]).reshape(1,3).astype(np.int)
-        brown = np.array([165, 42, 42]).reshape(1,3).astype(np.int)
+        red = np.array([ 242,0,0]).reshape(1,3).astype(np.int16)
+        orange = np.array([ 242,157,0]).reshape(1,3).astype(np.int16)
+        yellow = np.array([ 255,255,51]).reshape(1,3).astype(np.int16)
+        green = np.array([ 146,195,47]).reshape(1,3).astype(np.int16)
+        cyan = np.array([ 51,255,153]).reshape(1,3).astype(np.int16)
+        blue = np.array([ 51,153,255]).reshape(1,3).astype(np.int16)
+        purple = np.array([ 153,51,255]).reshape(1,3).astype(np.int16)
+        gray = np.array([128, 128, 128]).reshape(1,3).astype(np.int16)
+        brown = np.array([165, 42, 42]).reshape(1,3).astype(np.int16)
         self.COLORS = {
             "red":red,
             "orange":orange,

@@ -25,10 +25,9 @@ class inLinearLayers(nn.Module):
         self.layers = Sequential(*layers)
 
 class outLinearLayers(nn.Module):
-    def __init__(self,out_channels,heads):
+    def __init__(self,out_channels):
         super(outLinearLayers, self).__init__()
         self.out_channels = out_channels
-        self.heads = heads
         self.activation = nn.GELU()
         self.softmax = nn.Softmax(dim=-1)
         self.template = lambda fin, fout: nn.Linear(fin, fout, bias=True)

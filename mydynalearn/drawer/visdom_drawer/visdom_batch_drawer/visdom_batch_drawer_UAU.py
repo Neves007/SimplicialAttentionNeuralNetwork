@@ -33,7 +33,7 @@ class VisdomBatchDrawerUAU(VisdomBatchDrawer):
                             A_U_true_pred,
                             A_A_true_pred]
         self.performance_data_null_filtering(performance_data)
-        performance_data_type = [((index+1)*np.ones(data.shape[0])).astype(np.int)
+        performance_data_type = [((index+1)*np.ones(data.shape[0])).astype(np.int16)
                                  for index,data in enumerate(performance_data)]
         legend = ["U to U",
                   "U to A",

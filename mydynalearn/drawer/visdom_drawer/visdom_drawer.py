@@ -78,12 +78,12 @@ class VisdomDrawer:
         green =np.array([ 146,195,47]).reshape(1,3)
         orange =np.array([ 242,157,0]).reshape(1,3)
         b =np.array([ 66,123,171]).reshape(1,3)
-        colors = np.concatenate((red, green, orange, b), axis=0).astype(np.int)
+        colors = np.concatenate((red, green, orange, b), axis=0).astype(np.int16)
 
-        S_S_draw_data = {"X":S_S_fun_pre,"Y":(1*np.ones(S_S_fun_pre.shape[0])).astype(np.int),"color":red,"mark":'cross'}
-        S_I_draw_data = {"X":S_I_fun_pre,"Y":(2*np.ones(S_I_fun_pre.shape[0])).astype(np.int),"color":green,"mark":"star"}
-        I_S_draw_data = {"X":I_S_fun_pre,"Y":(3*np.ones(I_S_fun_pre.shape[0])).astype(np.int),"color":orange,"mark":"triangle-left"}
-        I_I_draw_data = {"X":I_I_fun_pre,"Y":(4*np.ones(I_I_fun_pre.shape[0])).astype(np.int),"color":b,"mark":"x"}
+        S_S_draw_data = {"X":S_S_fun_pre,"Y":(1*np.ones(S_S_fun_pre.shape[0])).astype(np.int16),"color":red,"mark":'cross'}
+        S_I_draw_data = {"X":S_I_fun_pre,"Y":(2*np.ones(S_I_fun_pre.shape[0])).astype(np.int16),"color":green,"mark":"star"}
+        I_S_draw_data = {"X":I_S_fun_pre,"Y":(3*np.ones(I_S_fun_pre.shape[0])).astype(np.int16),"color":orange,"mark":"triangle-left"}
+        I_I_draw_data = {"X":I_I_fun_pre,"Y":(4*np.ones(I_I_fun_pre.shape[0])).astype(np.int16),"color":b,"mark":"x"}
 
         X = np.concatenate((S_S_draw_data['X'],S_I_draw_data['X'],I_S_draw_data['X'],I_I_draw_data['X']))
         Y = np.concatenate((S_S_draw_data['Y'],S_I_draw_data['Y'],I_S_draw_data['Y'],I_I_draw_data['Y']))

@@ -22,7 +22,7 @@ class DynamicDataset(Dataset):
         self.dataset_config = config.dataset
         self.NUM_SAMPLES = self.dataset_config.NUM_SAMPLES
         self.T_INIT = self.dataset_config.T_INIT
-        self.DEVICE = self.dataset_config.DEVICE
+        self.DEVICE = self.config.DEVICE
         self.dataset_file_path = self.config.dataset_dir_path + "/dataset.pkl"
         self.need_to_run = not os.path.exists(self.dataset_file_path)
     def __len__(self) -> int:

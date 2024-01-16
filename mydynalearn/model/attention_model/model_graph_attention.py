@@ -6,9 +6,10 @@ class GraphAttentionModel(nn.Module):
         """Dense version of GAT."""
         super(GraphAttentionModel,self).__init__()
         self.config = config
-        self.in_layer = get_node_in_layers(self.config.model)
-        self.gat_layer_1 = get_gnn_layer(self.config.model)
-        self.out_layers = get_out_layers(self.config.model)
+        self._nnlayer = nnLayer(config)
+        self.in_layer = self._nnlayer.get_in_layers()
+        self.gat_layer_1 = self._nnlayer.get_gnn_layer()
+        self.out_layers = self._nnlayer.get_out_layers()
 
     def forward(self, network, dynamics, x0, y_ob, y_true, weight):
         # 数据预处理

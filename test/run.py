@@ -30,9 +30,9 @@ from mydynalearn.experiments import *
 from mydynalearn.analyze import *
 from mydynalearn.drawer import MatplotController
 
-NUM_SAMPLES = 10000
-TESTSET_TIMESTEP = 1000
-EPOCHS = 30  # 10
+NUM_SAMPLES = 10
+TESTSET_TIMESTEP = 1
+EPOCHS = 3  # 10
 
 ''' 所有参数
     "grpah_network": ["ER"],

@@ -23,7 +23,7 @@ class EpochTasks():
         self.batch_task = BatchTask(config)
         #
         self.attention_model = get_attmodel(self.config)
-        self.get_optimizer = get_optimizer(config.model.optimizer)
+        self.get_optimizer = get_optimizer(config.optimizer)
         self.optimizer = self.get_optimizer(self.attention_model.parameters())
         self.scheduler = ReduceLROnPlateau(self.optimizer, mode='min', factor=0.1, patience=4, eps = 1e-8, threshold =0.1, verbose=True)
 

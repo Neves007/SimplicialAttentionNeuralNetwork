@@ -10,7 +10,7 @@ __gnn__ = {
 
 
 def get(config):
-    NAME = config.NAME
+    NAME = config.model.NAME
     if NAME in __gnn__:
         gnn = __gnn__[NAME]
         return gnn

@@ -6,7 +6,7 @@ from mydynalearn.dynamics.compartment_model import CompartmentModel
 class UAU(CompartmentModel):
     def __init__(self, config):
         super().__init__(config)
-        self.EFF_AWARE = self.dynamics_config.EFF_AWARE
+        self.EFF_AWARE = torch.tensor(self.dynamics_config.EFF_AWARE)
         self.RECOVERY = self.dynamics_config.RECOVERY
         self.SEED_FREC = self.dynamics_config.SEED_FREC
         self.STATES_MAP = {"U": 0, "A": 1}

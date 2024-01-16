@@ -6,8 +6,8 @@ from mydynalearn.dynamics.compartment_model import CompartmentModel
 class SCCompUAU(CompartmentModel):
     def __init__(self,config):
         super().__init__(config)
-        self.EFF_AWARE_A1 = self.dynamics_config.EFF_AWARE_A1
-        self.EFF_AWARE_A2 = self.dynamics_config.EFF_AWARE_A2
+        self.EFF_AWARE_A1 = torch.tensor(self.dynamics_config.EFF_AWARE_A1)
+        self.EFF_AWARE_A2 = torch.tensor(self.dynamics_config.EFF_AWARE_A2)
         self.RECOVERY = self.dynamics_config.RECOVERY
         self.SEED_FREC_A1 = self.dynamics_config.SEED_FREC_A1
         self.SEED_FREC_A2 = self.dynamics_config.SEED_FREC_A2

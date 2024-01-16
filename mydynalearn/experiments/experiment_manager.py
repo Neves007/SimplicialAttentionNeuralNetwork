@@ -1,11 +1,9 @@
 import os
 
 # 获取配置
-from mydynalearn.config import ExperimentTrainConfig
+from mydynalearn.config.yaml_config.config_training_exp import ConfigTrainingExp
 from mydynalearn.experiments import ExperimentTrain
-import torch
-import itertools
-from mydynalearn.logger.logger import *
+
 from mydynalearn.util.params_dealer import PasramsDealer
 
 class ExperimentManager():
@@ -16,13 +14,16 @@ class ExperimentManager():
         self.root_dir = r"./output/"
         self.train_params = PasramsDealer.assemble_train_params(params)
 
-    def fix_config(self,config):
+    def fix_config(self,config,model_name):
         '''调整配置
         '''
         # T总时间步
         config.dataset.NUM_SAMPLES = self.NUM_SAMPLES
         config.dataset.NUM_TEST = self.TESTSET_TIMESTEP
         config.model.EPOCHS = self.EPOCHS  # 10
+        config.model.NAME = model_name
+        config.model.in_channels[0] = config.dynamics.NUM_STATES
+        config.model.out_channels[-1] = config.dynamics.NUM_STATES
 
     def get_loaded_model_exp(self, train_args, epoch_index):
         '''加载指定模型指定epoch_index的训练模型
@@ -50,13 +51,12 @@ class ExperimentManager():
             "NAME": exp_name,
             "network": network,
             "dynamics": dynamics,
-            "MODEL_NAME": model,
             "IS_WEIGHT": IS_WEIGHT,
             "seed": 0,
             "root_dir": self.root_dir
         }
-        config = ExperimentTrainConfig().default(**kwargs)
-        self.fix_config(config)
+        config = ConfigTrainingExp(**kwargs)
+        self.fix_config(config,model)
         exp = ExperimentTrain(config)
         return exp
 
