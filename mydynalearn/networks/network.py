@@ -8,7 +8,6 @@ from itertools import combinations
 from scipy.special import comb
 from easydict import EasyDict as edict
 from mydynalearn.networks.util.util import nodeToEdge_matrix
-from prettytable import PrettyTable
 
 class Network():
     def __init__(self, net_config):

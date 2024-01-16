@@ -1,0 +1,5 @@
+default:
+  NAME: "Drawer"
+  root_dir: "./output/fig/"
+  model_performance_figdir: "./output/fig/model_performance"
+  realnet_performance_figdir: "./output/fig/realnet_performance"

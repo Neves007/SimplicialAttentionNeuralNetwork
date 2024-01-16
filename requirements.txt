@@ -1,0 +1,8 @@
+torch
+numpy
+matplotlib
+pandas
+easydict
+tqdm
+scipy
+visdom

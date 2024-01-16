@@ -1,0 +1,5 @@
+default:
+    NUM_SAMPLES: 10000
+    NUM_TEST: 100
+    T_INIT: 10
+    IS_WEIGHT: false

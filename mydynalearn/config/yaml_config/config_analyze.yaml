@@ -1,0 +1,7 @@
+default:
+    NAME: "AnalyzeModel"
+    root_dir_path: "./output/analyze/"
+    analyze_result_dir_name: "analyze_result"
+    r_value_dir_name: "r_value"
+    r_value_dataframe_file_name: "r_value_dataframe.csv"
+    stable_r_value_dataframe_file_name: "stable_r_value_dataframe.csv"
