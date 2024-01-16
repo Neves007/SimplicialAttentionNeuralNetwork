@@ -95,6 +95,12 @@ class DynamicDataset(Dataset):
             onestep_spread_result = self.dynamics._run_onestep()
             self.dynamics.set_features(**onestep_spread_result)
             self.save_onesample_dataset(t, **onestep_spread_result)
+    def partition_dataSet(self):
+        test_size = self.config.dataset.NUM_TEST
+        val_size = int((len(self)-test_size)/2)
+        train_size = len(self)-test_size-val_size
+        train_set, val_set, test_set = torch.utils.data.random_split(self, [train_size, val_size,test_size])
+        return train_set, val_set, test_set
 
     def run_dynamic_process(self):
         '''动力学实验
@@ -106,17 +112,11 @@ class DynamicDataset(Dataset):
         self.dynamics.init_stateof_network()
         print("create dynamics")
         for t in tqdm(range(self.NUM_SAMPLES)):
-            self.dynamics._run_onestep()
-            result_dict = self.dynamics.get_spread_result()
-            self.dynamics.set_features(**result_dict)
-            self.save_onesample_dataset(t, **result_dict)
+            onestep_spread_result = self.dynamics._run_onestep()
+            self.dynamics.set_features(**onestep_spread_result)
+            self.save_onesample_dataset(t, **onestep_spread_result)
 
-    def partition_dataSet(self):
-        test_size = self.config.dataset.NUM_TEST
-        val_size = int((len(self)-test_size)/2)
-        train_size = len(self)-test_size-val_size
-        train_set, val_set, test_set = torch.utils.data.random_split(self, [train_size, val_size,test_size])
-        return train_set, val_set, test_set
+
 
     def run(self):
         if self.is_dataset_exist():

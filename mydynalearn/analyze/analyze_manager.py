@@ -1,20 +1,10 @@
-import pickle
-
-import numpy as np
-import pandas as pd
-import torch
-import os
-from mydynalearn.config import AnalyzeConfig
-from mydynalearn.analyze.utils.performance_data.getter import get as performance_data_getter
-from mydynalearn.analyze.utils.data_handler import DynamicDataHandler
-from mydynalearn.analyze.utils.utils import epochdata_datacur_2_dataT
-from mydynalearn.logger.logger import *
 from mydynalearn.analyze.analyzer import *
 
 class AnalyzeManager():
-    def __init__(self,experiment_manager):
-        self.config = AnalyzeConfig().analyze_model()
-        self.experiment_manager = experiment_manager
+    def __init__(self,train_experiment_manager):
+
+        self.config = train_experiment_manager.config
+        self.train_experiment_manager = train_experiment_manager
         self.r_value_analyzer = RValueAnalyzer(self.config)
 
 
@@ -24,7 +14,7 @@ class AnalyzeManager():
         '''
         # 把这个testresult
         print("*"*10+" ANALYZE TRAINED MODEL "+"*"*10)
-        exp_iter = self.experiment_manager.get_exp_iter()
+        exp_iter = self.train_experiment_manager.get_exp_iter()
 
         if not os.path.exists(self.r_value_analyzer.r_value_dataframe_file_path):
             for exp in exp_iter:

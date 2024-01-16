@@ -1,12 +1,10 @@
-import os
-
 # 获取配置
-from mydynalearn.config.yaml_config.config_training_exp import ConfigTrainingExp
+from mydynalearn.config.config_training_exp import ConfigTrainingExp
 from mydynalearn.experiments import ExperimentTrain
 
 from mydynalearn.util.params_dealer import PasramsDealer
 
-class ExperimentManager():
+class TrainExperimentManager():
     def __init__(self,NUM_SAMPLES, TESTSET_TIMESTEP, EPOCHS,params):
         self.NUM_SAMPLES = NUM_SAMPLES
         self.TESTSET_TIMESTEP = TESTSET_TIMESTEP

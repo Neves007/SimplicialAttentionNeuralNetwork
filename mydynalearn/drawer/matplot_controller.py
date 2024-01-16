@@ -1,5 +1,4 @@
 import torch
-from mydynalearn.config.config_drawer import DrawerConfig
 from mydynalearn.drawer.matplot_drawer.fig_ytrure_ypred.getter import get as performance_drawer_getter
 from mydynalearn.analyze.analyzer import *
 import os
@@ -61,7 +60,7 @@ class MatplotController():
         stable_r_value_dataframe = self.analyze_manager.r_value_analyzer.stable_r_value_dataframe
         for index, row in stable_r_value_dataframe.iterrows():
             param = (row['model_network'],row['model_dynamics'],row['model'],False)
-            exp = self.analyze_manager.experiment_manager.get_train_exp(*param)
+            exp = self.analyze_manager.train_experiment_manager.get_train_exp(*param)
             model_exp = exp
             dataset_exp = exp
             network, dynamics, train_loader, val_loader, test_loader = exp.create_dataset()

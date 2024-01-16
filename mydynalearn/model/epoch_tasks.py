@@ -33,7 +33,6 @@ class EpochTasks():
         return fileName_model_state_dict
 
     def save(self, attention_model, optimizer, epoch_index):
-        # todo: 修改 save_model_state_dict 需要在哪里加载
         model_state_dict_file_path = self.get_fileName_model_state_dict(epoch_index)
         print("\ntraining.epochtask. output dataset_file: ", model_state_dict_file_path)
         torch.save({
@@ -48,7 +47,6 @@ class EpochTasks():
         规则：加载模型参数
         输出：
         '''
-        # todo: 修改 load_model 需要在哪里加载
         checkpoint = torch.load(self.get_fileName_model_state_dict(epoch_index))
         self.attention_model.load_state_dict(checkpoint['model_state_dict'])
         self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
@@ -64,7 +62,6 @@ class EpochTasks():
         is_need_to_trian = not os.path.exists(fileName_model_state_dict)
         return is_need_to_trian
 
-    # todo：这个应该是在batch里面
     def low_the_lr(self ,epoch_index):
         if (epoch_index>0) and (epoch_index % 5 == 0):
             self.optimizer.param_groups[0]['lr'] *= 0.5

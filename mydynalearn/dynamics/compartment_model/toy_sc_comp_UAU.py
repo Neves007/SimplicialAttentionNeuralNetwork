@@ -6,7 +6,6 @@ from mydynalearn.dynamics.compartment_model import CompartmentModel
 class ToySCCompUAU(CompartmentModel):
     def __init__(self,config):
         super().__init__(config)
-        # todo: 修改 torch.tensor
         self.EFF_AWARE_A1 = torch.tensor(self.dynamics_config.EFF_AWARE_A1)
         self.EFF_AWARE_A2 = torch.tensor(self.dynamics_config.EFF_AWARE_A2)
         self.RECOVERY = self.dynamics_config.RECOVERY

@@ -32,7 +32,7 @@ from mydynalearn.drawer import MatplotController
 
 NUM_SAMPLES = 10
 TESTSET_TIMESTEP = 1
-EPOCHS = 3  # 10
+EPOCHS = 10  # 10
 
 ''' 所有参数
     "grpah_network": ["ER"],
@@ -58,12 +58,12 @@ params = {
 
 
 if __name__ == '__main__':
-    experiment_manager = ExperimentManager(NUM_SAMPLES, TESTSET_TIMESTEP, EPOCHS, params)
+    train_experiment_manager = TrainExperimentManager(NUM_SAMPLES, TESTSET_TIMESTEP, EPOCHS, params)
 
     # 修改这个
-    analyze_manager = AnalyzeManager(experiment_manager)
+    analyze_manager = AnalyzeManager(train_experiment_manager)
     # # 训练
-    experiment_manager.run()
+    train_experiment_manager.run()
     # 分析：测试集分析训练模型
     analyze_manager.run()
     # # 画图：

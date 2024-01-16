@@ -20,5 +20,4 @@ class Model():
 
     # 定义模型
     def run(self,network, dynamics, train_set, val_set, test_set):
-        # todo: 修改epoch_tasks
         self.epoch_tasks.run_all(network, dynamics, train_set, val_set, test_set)
