@@ -5,16 +5,19 @@ from mydynalearn.experiments import ExperimentTestDynamic
 from mydynalearn.util.params_dealer import PasramsDealer
 
 class TestDynamicExperimentManager():
-    def __init__(self,NUM_SAMPLES, params):
-        self.NUM_SAMPLES = NUM_SAMPLES
-        self.params = params
+    def __init__(self, fix_config_dict, params_dict):
+        self.fix_config_dict = fix_config_dict
+        self.params_dict = params_dict
         self.root_dir = r"./output/"
 
     def fix_config(self,config):
         '''调整配置
         '''
         # T总时间步
-        config.dataset.NUM_SAMPLES = self.NUM_SAMPLES
+        config.dataset.NUM_SAMPLES = self.fix_config_dict['NUM_SAMPLES']
+        config.DEVICE = self.fix_config_dict['DEVICE']
+        config.EFF_BETA_LIST = self.fix_config_dict['EFF_BETA_LIST']
+
 
 
     def get_test_dynamic_exp(self):
@@ -24,8 +27,8 @@ class TestDynamicExperimentManager():
         :param dynamics:
         :return: exp
         '''
-        network = self.params['network']
-        dynamics = self.params['dynamics']
+        network = self.params_dict['network']
+        dynamics = self.params_dict['dynamics']
         exp_name = "testDynamic-" + network + "-" + dynamics
         kwargs = {
             "NAME": exp_name,
@@ -35,7 +38,7 @@ class TestDynamicExperimentManager():
             "root_dir": self.root_dir
         }
         config = ConfigDynamicTestingExp(**kwargs)
-        self.fix_config(config)
+        self.fix_config_dict(config)
         exp = ExperimentTestDynamic(config)
         return exp
 

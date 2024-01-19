@@ -24,7 +24,7 @@ class Network():
         self._set_net_info()
         self.inc_matrix_adj_info = self._get_adj()  # 关联矩阵
         self.set_inc_matrix_adj_info()
-        self._to_DEVICE()
+        self.to_device(self.DEVICE)
 
     def print_log(self,num_indentation=0):
         ''' 对齐输出
@@ -66,7 +66,7 @@ class Network():
         pass
 
     @abstractmethod
-    def _to_DEVICE(self):
+    def to_device(self,device):
         pass
 
     @abstractmethod

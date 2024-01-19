@@ -53,7 +53,7 @@ class RAdam(Optimizer):
             loss = closure()
         for group in self.param_groups:
 
-            for p in group["params"]:
+            for p in group["params_dict"]:
                 if p.grad is None:
                     continue
                 grad = p.grad.data.float()

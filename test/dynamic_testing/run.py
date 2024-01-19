@@ -6,11 +6,13 @@
                 - SCUAU
                 - SCCompUAU
 '''
+import torch
+
 from mydynalearn.experiments import *
 from mydynalearn.analyze import *
 from mydynalearn.drawer import MatplotController
 
-NUM_SAMPLES = 10
+
 
 ''' 所有参数
     "grpah_network": ["ER"],
@@ -19,15 +21,21 @@ NUM_SAMPLES = 10
     "simplicial_network": ["SCER","CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
     "simplicial_dynamics": ["SCUAU", "SCCompUAU"],
 '''
-params = {
+params_dict = {
     "network": "ER",
     "dynamics": "UAU",
+}
+
+fix_config_dict = {
+    'NUM_SAMPLES' : 10,
+    'EFF_BETA_LIST': torch.linspace(0,1,11),
+    'DEVICE' : torch.device('cuda'),
 }
 
 
 
 if __name__ == '__main__':
-    test_dynamic_experiment_manager = TestDynamicExperimentManager(NUM_SAMPLES, params)
+    test_dynamic_experiment_manager = TestDynamicExperimentManager(fix_config_dict, params_dict)
 
     # # 训练
     test_dynamic_experiment_manager.run()

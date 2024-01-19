@@ -1,5 +1,5 @@
 from mydynalearn.model import *
-from mydynalearn.dataset import DynamicDataset
+from mydynalearn.dataset import TestDynamicDataset
 from mydynalearn.model import Model
 from mydynalearn.evaluator import *
 
@@ -9,32 +9,20 @@ class ExperimentTestDynamic():
     def __init__(self,config):
         self.config = config
         self.NAME = config.NAME
-        self.dataset = DynamicDataset(self.config)
+        self.dataset = TestDynamicDataset(self.config)
         self.TASKS = [
-            "create_dataset",
+            "run_dynamic_process",
+            "draw"
         ]
 
-    def create_dataset(self):
-        self.dataset.run_dynamic_process()
+    def run_dynamic_process(self):
+        self.dataset.run()
 
-
-
-    def train_model(self):
-        print("model name: ",self.NAME)
-        if self.model.need_to_train:
-            network, dynamics, train_set, val_set, test_set = self.create_dataset()
-            print("begin to train model")
-            self.model.run(
-                network=network,
-                dynamics=dynamics,
-                train_set = train_set,
-                val_set = val_set,
-                test_set = test_set,
-            )
-            print("The model has been trained completely!")
-        else:
-            print("The model has already been trained!")
-        print()
+    def draw(self):
+        stady_rho_list = self.dataset.stady_rho_list
+        EFF_BETA_LIST = self.dataset.EFF_BETA_LIST
+        dynamicEvaluator = DynamicEvaluator(self.config,self.dynamics)
+        dynamicEvaluator.evaluate(EFF_BETA_LIST, stady_rho_list)
 
 
     def run(self):

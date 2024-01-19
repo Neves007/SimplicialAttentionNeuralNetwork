@@ -30,9 +30,11 @@ from mydynalearn.experiments import *
 from mydynalearn.analyze import *
 from mydynalearn.drawer import MatplotController
 
-NUM_SAMPLES = 10
-TESTSET_TIMESTEP = 1
-EPOCHS = 10  # 10
+NUM_SAMPLES = 10000
+TESTSET_TIMESTEP = 1000
+EPOCHS = 30  # 10
+device = torch.device('cuda')
+# device = torch.device('cpu')
 
 ''' 所有参数
     "grpah_network": ["ER"],
@@ -51,14 +53,20 @@ params = {
     "simplicial_network": ["SCER","CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
     "simplicial_dynamics": ["SCUAU", "SCCompUAU"],
 
-    "model": ["GAT", "SAT", "DiffSAT", "DualSAT"],  # 至少选一个
+    "model": ["GAT", "SAT", "DiffSAT"],  # 至少选一个
     "IS_WEIGHT": [False]
+}
+fix_config = {
+    "NUM_SAMPLES": 10000,
+    "TESTSET_TIMESTEP": 100,
+    "EPOCHS": 30,
+    "DEVICE": torch.device('cuda'),
+    # "DEVICE": torch.device('cpu')
 }
 
 
-
 if __name__ == '__main__':
-    train_experiment_manager = TrainExperimentManager(NUM_SAMPLES, TESTSET_TIMESTEP, EPOCHS, params)
+    train_experiment_manager = TrainExperimentManager(fix_config, params)
 
     # 修改这个
     analyze_manager = AnalyzeManager(train_experiment_manager)

@@ -15,7 +15,7 @@ class ToySCER():
         self._set_net_info()
         self.inc_matrix_adj_info = self._get_adj()  # 关联矩阵
         self.set_inc_matrix_adj_info()
-        self._to_DEVICE()
+        self.to_device()
         pass
     def set_inc_matrix_adj_info(self):
         self.inc_matrix_adj0 = self.inc_matrix_adj_info["inc_matrix_adj0"]
@@ -71,15 +71,15 @@ class ToySCER():
             "inc_matrix_adj2":inc_matrix_adj2
         }
         return inc_matrix_adj_info
-    def _to_DEVICE(self):
-        self.nodes = self.nodes.to(self.DEVICE)
-        self.edges = self.edges.to(self.DEVICE)
-        self.triangles = self.triangles.to(self.DEVICE)
+    def to_device(self,device):
+        self.nodes = self.nodes.to(device)
+        self.edges = self.edges.to(device)
+        self.triangles = self.triangles.to(device)
         self.NUM_NODES = self.NUM_NODES
         self.NUM_EDGES = self.NUM_EDGES
         self.NUM_TRIANGLES = self.NUM_TRIANGLES
         self.AVG_K = self.AVG_K
 
-        self.inc_matrix_adj0 = self.inc_matrix_adj0.to(self.DEVICE)
-        self.inc_matrix_adj1 = self.inc_matrix_adj1.to(self.DEVICE)
-        self.inc_matrix_adj2 = self.inc_matrix_adj2.to(self.DEVICE)
+        self.inc_matrix_adj0 = self.inc_matrix_adj0.to(device)
+        self.inc_matrix_adj1 = self.inc_matrix_adj1.to(device)
+        self.inc_matrix_adj2 = self.inc_matrix_adj2.to(device)

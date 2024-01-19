@@ -86,11 +86,6 @@ class runModelOnTestData():
     def get_analyze_result(self):
         test_result = self.model_exp.model.epoch_tasks.run_test_epoch(self.network, self.dynamics, self.test_loader,
                                                                       self.model_exp_epoch_index)
-        kwargs = epochdata_datacur_2_dataT(self.dynamics, self.IS_WEIGHT, test_result)
-        dynamic_data_handler = DynamicDataHandler(**kwargs)
-        get_performance_index, get_performance_data = performance_data_getter(self.model_exp.config)
-        performance_index = get_performance_index(dynamic_data_handler)
-        performance_data = get_performance_data(dynamic_data_handler)
         R = self.compute_R(test_result)
         analyze_result = {
             "model_network": self.model_exp.config.network.NAME,
@@ -99,9 +94,7 @@ class runModelOnTestData():
             "dataset_dynamics": self.testdata_exp.config.dynamics.NAME,
             "model": self.model_exp.config.model.NAME,
             "model_exp_epoch_index": self.model_exp_epoch_index,
-            "performance_index": performance_index,
-            "performance_data": performance_data,
-            "w_T": kwargs['w_T'],
+            "test_result": test_result,
             "R": R
         }
         return analyze_result

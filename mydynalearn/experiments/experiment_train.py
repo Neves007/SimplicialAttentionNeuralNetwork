@@ -20,6 +20,7 @@ class ExperimentTrain():
         return network, dynamics, train_set, val_set, test_set
 
 
+
     def train_model(self):
         print("model name: ",self.NAME)
         if self.model.need_to_train:

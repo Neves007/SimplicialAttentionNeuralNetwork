@@ -76,11 +76,11 @@ class RValueAnalyzer():
         return {col: row[col] for col in columns}
     def add_r_value(self,analyze_result):
         analyze_result_series = self.analyze_result_to_pdseries(analyze_result)
-        self.r_value_dataframe = self.r_value_dataframe._append(analyze_result_series, ignore_index=True)
+        self.r_value_dataframe = self.r_value_dataframe.append(analyze_result_series, ignore_index=True)
 
     def add_first_stable_r_value(self,analyze_result):
         analyze_result_series = self.analyze_result_to_pdseries(analyze_result)
-        self.r_value_dataframe = self.r_value_dataframe._append(analyze_result_series, ignore_index=True)
+        self.r_value_dataframe = self.r_value_dataframe.append(analyze_result_series, ignore_index=True)
 
 
     # 定义一个函数来判断R值是否稳定

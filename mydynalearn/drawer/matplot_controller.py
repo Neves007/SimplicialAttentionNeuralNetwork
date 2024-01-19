@@ -1,10 +1,12 @@
 import torch
 from mydynalearn.drawer.matplot_drawer.fig_ytrure_ypred.getter import get as performance_drawer_getter
 from mydynalearn.analyze.analyzer import *
+from mydynalearn.config import *
 import os
 class MatplotController():
     def __init__(self,analyze_manager):
-        self.config = DrawerConfig().default()
+        config_drawer = Config.get_config_drawer()
+        self.config = config_drawer['default']
         self.analyze_manager = analyze_manager
         self.TASKS = [
             "trained_model_draw",

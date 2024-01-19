@@ -12,13 +12,15 @@ class SimplicialAttentionModel(nn.Module):
         self.in_layer2 = self._nnlayer.get_in_layers()
         self.sat_layers = self._nnlayer.get_gnn_layer()
         self.out_layers = self._nnlayer.get_out_layers()
+        self.DEVICE = config.DEVICE
 
     def forward(self,network, dynamics, x0, y_ob, y_true, weight):
         # 数据预处理
-        x0 = x0.squeeze()
-        y_ob = y_ob.squeeze()
-        y_true = y_true.squeeze()
-        weight = weight.squeeze()
+        x0 = x0.squeeze().to(self.DEVICE)
+        y_ob = y_ob.squeeze().to(self.DEVICE)
+        y_true = y_true.squeeze().to(self.DEVICE)
+        weight = weight.squeeze().to(self.DEVICE)
+        network.to_device(self.DEVICE)
         # 高阶信息
         x1 =dynamics.get_x1_from_x0(x0, network)
         # 只考虑edge_index

@@ -43,3 +43,6 @@ ToySCCompUAU:
   EFF_AWARE_A2: [8.0, 8.0]
   MAX_DIMENSION: 2
   RECOVERY: 0.2
+
+test_dynamics_process:
+  beta: []

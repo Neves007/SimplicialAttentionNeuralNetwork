@@ -17,7 +17,7 @@ class BatchTask():
         self.model_config = config.model
         self.DEVICE = config.DEVICE
 
-        # model params
+        # model params_dict
         self.IS_WEIGHT = config.IS_WEIGHT
 
     def weighted_cross_entropy(self,y_true, y_pred, weights=None):

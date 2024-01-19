@@ -29,7 +29,6 @@ class SATLayer_regular(nn.Module):
         self.layer_norm1 = nn.LayerNorm(output_size)
         self.layer_norm2 = nn.LayerNorm(output_size)
 
-        self.agg_weight = nn.Parameter(torch.randn(3))
         self.LinearAgg = nn.Linear(2*output_size, output_size, bias=bias)
         # output
         self.output_linear_layer1 = nn.Linear(output_size, output_size, bias=bias)

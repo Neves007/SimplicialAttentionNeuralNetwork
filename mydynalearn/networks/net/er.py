@@ -63,7 +63,8 @@ class ER(Network):
         # 随机断边
         return inc_matrix_adj_info
 
-    def _to_DEVICE(self):
+    def to_device(self, device):
+        self.DEVICE = device
         self.nodes = self.nodes.to(self.DEVICE)
         self.edges = self.edges.to(self.DEVICE)
         self.NUM_NODES = self.NUM_NODES

@@ -13,7 +13,8 @@ class ConfigTrainingExp:
                  dynamics,
                  root_dir,
                  IS_WEIGHT=False,
-                 seed=None,):
+                 seed=None,
+                 ):
         self.NAME = NAME
         self.IS_WEIGHT = IS_WEIGHT
         self.seed = seed

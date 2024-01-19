@@ -1,8 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="PYTHON_MODULE" version="4">
   <component name="NewModuleRootManager">
-    <content url="file://$MODULE_DIR$" />
-    <orderEntry type="jdk" jdkName="Python 3.10 (torch)" jdkType="Python SDK" />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_CONFERENCE_SCCompUAU_GAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_CONFERENCE_SCCompUAU_SAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_CONFERENCE_SCUAU_DiffSAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_CONFERENCE_SCUAU_GAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_CONFERENCE_SCUAU_SAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_ER_CompUAU_DiffSAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_ER_CompUAU_DualSAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_ER_CompUAU_GAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_ER_CompUAU_SAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_ER_UAU_DiffSAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_ER_UAU_DualSAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_HIGHSCHOOL_SCCompUAU_DiffSAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_HIGHSCHOOL_SCCompUAU_GAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_HIGHSCHOOL_SCCompUAU_SAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_HIGHSCHOOL_SCUAU_DiffSAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_HIGHSCHOOL_SCUAU_GAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_HIGHSCHOOL_SCUAU_SAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_HOSPITAL_SCCompUAU_DiffSAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_HOSPITAL_SCCompUAU_GAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_HOSPITAL_SCCompUAU_SAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_HOSPITAL_SCUAU_DiffSAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_HOSPITAL_SCUAU_GAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_HOSPITAL_SCUAU_SAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_SCER_SCCompUAU_DiffSAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_SCER_SCCompUAU_GAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_SCER_SCCompUAU_SAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_SCER_SCUAU_DiffSAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_SCER_SCUAU_DualSAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_SCER_SCUAU_GAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_SCER_SCUAU_SAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_WORKPLACE_SCCompUAU_DiffSAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_WORKPLACE_SCCompUAU_GAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_WORKPLACE_SCCompUAU_SAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_WORKPLACE_SCUAU_DiffSAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_WORKPLACE_SCUAU_GAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_WORKPLACE_SCUAU_SAT" />
+      <excludeFolder url="file://$MODULE_DIR$/output/dataset" />
+      <excludeFolder url="file://$MODULE_DIR$/output/fig" />
+    </content>
+    <orderEntry type="jdk" jdkName="Python 3.7 (GAT)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PackageRequirementsSettings">
