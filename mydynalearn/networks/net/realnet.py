@@ -78,7 +78,6 @@ class Realnet():
             NUM_NODES = nodes.shape[0]
             NUM_EDGES = edges.shape[0]
             NUM_TRIANGLES = triangles.shape[0]
-            # todo：这个avg_k好像不一样
             AVG_K = torch.asarray([2 * len(edges), 3 * len(triangles)]) / NUM_NODES
             net_info = {"nodes": nodes,
                         "edges": edges,

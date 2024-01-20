@@ -3,9 +3,7 @@ import pickle
 
 import torch
 import numpy as np
-from mydynalearn.analyze.utils.utils import epochdata_datacur_2_dataT
-from mydynalearn.analyze.utils.data_handler import DynamicDataHandler
-from mydynalearn.analyze.utils.performance_data.getter import get as performance_data_getter
+
 class runModelOnTestData():
     def __init__(self,
                  config,
@@ -31,22 +29,22 @@ class runModelOnTestData():
 
     def get_global_info(self):
         global_info = {
-            "model_network": self.model_exp.config.network.NAME,
-            "model_dynamics": self.model_exp.config.dynamics.NAME,
-            "dataset_network": self.testdata_exp.config.network.NAME,
-            "dataset_dynamics": self.testdata_exp.config.dynamics.NAME,
-            "model": self.model_exp.config.model.NAME,
+            "model_network_name": self.model_exp.config.network.NAME,
+            "model_dynamics_name": self.model_exp.config.dynamics.NAME,
+            "dataset_network_name": self.testdata_exp.config.network.NAME,
+            "dataset_dynamics_name": self.testdata_exp.config.dynamics.NAME,
+            "model_name": self.model_exp.config.model.NAME,
         }
         return global_info
 
     def get_analyze_result_filepath(self,model_exp_epoch_index):
-        model_info = str.join('_',[self.global_info["model_network"],
-                                   self.global_info["model_dynamics"],
-                                   self.global_info["model"]
+        model_info = str.join('_',[self.global_info["model_network_name"],
+                                   self.global_info["model_dynamics_name"],
+                                   self.global_info["model_name"]
                                    ])
-        testdata_info = str.join('_',[self.global_info["dataset_network"],
-                                   self.global_info["dataset_dynamics"],
-                                   self.global_info["model"]
+        testdata_info = str.join('_',[self.global_info["dataset_network_name"],
+                                   self.global_info["dataset_dynamics_name"],
+                                   self.global_info["model_name"]
                                    ])
         print("model: {}\ntest data:{}".format(model_info,testdata_info))
         model_dir_name = "model_" + model_info
@@ -85,19 +83,18 @@ class runModelOnTestData():
         return R
 
     def create_analyze_result(self,model_exp_epoch_index):
-        test_result = self.model_exp.model.epoch_tasks.run_test_epoch(self.network, self.dynamics, self.test_loader,
+        test_result_time_list = self.model_exp.model.epoch_tasks.run_test_epoch(self.network, self.dynamics, self.test_loader,
                                                                       model_exp_epoch_index)
-        R = self.compute_R(test_result)
+        R = self.compute_R(test_result_time_list)
         analyze_result = {
-            "model_network": self.model_exp.config.network.NAME,
-            "model_dynamics": self.model_exp.config.dynamics.NAME,
-            "dataset_network": self.testdata_exp.config.network.NAME,
-            "dataset_dynamics": self.testdata_exp.config.dynamics.NAME,
-            "model_dynamics_state_map": self.model_exp.dataset.dynamics.STATES_MAP,
-            "dataset_dynamics_state_map": self.testdata_exp.dataset.dynamics.STATES_MAP,
-            "model": self.model_exp.config.model.NAME,
+            "model_dynamics": self.model_exp.dataset.dynamics,
+            "model_network_name": self.model_exp.config.network.NAME,
+            "model_dynamics_name": self.model_exp.config.dynamics.NAME,
+            "dataset_network_name": self.testdata_exp.config.network.NAME,
+            "dataset_dynamics_name": self.testdata_exp.config.dynamics.NAME,
+            "model_name": self.model_exp.config.model.NAME,
             "model_exp_epoch_index": model_exp_epoch_index,
-            "test_result": test_result,
+            "test_result_time_list": test_result_time_list,
             "R": R
         }
         return analyze_result

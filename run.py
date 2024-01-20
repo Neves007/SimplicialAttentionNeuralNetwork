@@ -31,50 +31,49 @@ from mydynalearn.analyze import *
 from mydynalearn.drawer import MatplotController
 
 NUM_SAMPLES = 10000
-TESTSET_TIMESTEP = 10
+TESTSET_TIMESTEP = 1000
 EPOCHS = 30  # 10
+device = torch.device('cuda')
+# device = torch.device('cpu')
 
 ''' 所有参数
-    "grpah_network" : ["ER"],
-    "grpah_dynamics" : ["UAU","CompUAU"],
+    "grpah_network": ["ER"],
+    "grpah_dynamics": ["UAU", "CompUAU"],
 
-    "simplicial_network" : ["SCER"],
-    "real_network" : ["CONFERENCE","HIGHSCHOOL","HOSPITAL","WORKPLACE"],
-    "simplicial_dynamics" : ["SCUAU", "SCCompUAU"],
+    "simplicial_network": ["SCER","CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
+    "simplicial_dynamics": ["SCUAU", "SCCompUAU"],
 
-
-    "model" : ["GAT","SAT","DiffSAT"],  # 至少选一个
-    "IS_WEIGHT" : [False]
+    "model": ["GAT", "SAT", "DiffSAT", "DualSAT"],  # 至少选一个
+    "IS_WEIGHT": [False]
 '''
 params = {
     "grpah_network": ["ER"],
     "grpah_dynamics": ["UAU", "CompUAU"],
 
-    "simplicial_network": ["SCER",],
-    "real_network": ["CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
+    "simplicial_network": ["SCER","CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
     "simplicial_dynamics": ["SCUAU", "SCCompUAU"],
 
-    "model": ["GAT", "SAT", "DiffSAT"],  # 至少选一个
+    "model": ["GAT", "SAT", "DiffSAT", "DualSAT"],  # 至少选一个
     "IS_WEIGHT": [False]
 }
+fix_config = {
+    "NUM_SAMPLES": 10000,
+    "TESTSET_TIMESTEP": 100,
+    "EPOCHS": 30,
+    "DEVICE": torch.device('cuda'),
+    # "DEVICE": torch.device('cpu')
+}
+
 
 if __name__ == '__main__':
-    train_experiment_manager = ExperimentManagerTrain(NUM_SAMPLES, TESTSET_TIMESTEP, EPOCHS, params)
+    train_experiment_manager = TrainExperimentManager(fix_config, params)
 
-    train_experiment_manager_realnet = ExperimentManagerRealnet(NUM_SAMPLES, TESTSET_TIMESTEP, EPOCHS, params)
-    analyze_trained_model = AnalyzeTrainedModel(train_experiment_manager)
-    analyze_trained_model_to_realnet = AnalyzeTrainedModelToRealnet(train_experiment_manager,
-                                                                    train_experiment_manager_realnet)
-
+    # 修改这个
+    analyze_manager = AnalyzeManager(train_experiment_manager)
     # # 训练
-    # train_experiment_manager.run()
-    # # 跑真实网络的测试数据
-    # train_experiment_manager_realnet.run()
+    train_experiment_manager.run()
     # 分析：测试集分析训练模型
-    analyze_trained_model.run()
-    # 分析：训练模型应用在真实网络.
-    analyze_trained_model_to_realnet.run()
-
-    # 画图：
-    matplot_drawer = MatplotController(analyze_trained_model, analyze_trained_model_to_realnet)
+    analyze_manager.run()
+    # # 画图：
+    matplot_drawer = MatplotController(analyze_manager)
     matplot_drawer.run()

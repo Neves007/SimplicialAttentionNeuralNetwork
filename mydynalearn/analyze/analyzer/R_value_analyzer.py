@@ -37,21 +37,21 @@ class RValueAnalyzer():
 
 
     def __init_r_value_dataframe(self):
-        r_value_dataframe = pd.DataFrame(columns=["model_network",
-                                                  "model_dynamics",
-                                                  "dataset_network",
-                                                  "dataset_dynamics",
-                                                  "model",
+        r_value_dataframe = pd.DataFrame(columns=["model_network_name",
+                                                  "model_dynamics_name",
+                                                  "dataset_network_name",
+                                                  "dataset_dynamics_name",
+                                                  "model_name",
                                                   "model_exp_epoch_index",
                                                   "R"])
         return r_value_dataframe
 
     def __init_stable_r_value_dataframe(self):
-        stable_r_value_dataframe = pd.DataFrame(columns=["model_network",
-                                                      "model_dynamics",
-                                                      "dataset_network",
-                                                      "dataset_dynamics",
-                                                      "model",
+        stable_r_value_dataframe = pd.DataFrame(columns=["model_network_name",
+                                                      "model_dynamics_name",
+                                                      "dataset_network_name",
+                                                      "dataset_dynamics_name",
+                                                      "model_name",
                                                       "stable_R_value",
                                                       "max_R_epoch"])
         return stable_r_value_dataframe
@@ -72,7 +72,11 @@ class RValueAnalyzer():
         return analyze_result_series
 
     def extract_group_properties(self,row):
-        columns = ["model_network", "model_dynamics", "dataset_network", "dataset_dynamics", "model"]
+        columns = ["model_network_name",
+                   "model_dynamics_name",
+                   "dataset_network_name",
+                   "dataset_dynamics_name",
+                   "model_name"]
         return {col: row[col] for col in columns}
     def add_r_value(self,analyze_result):
         analyze_result_series = self.analyze_result_to_pdseries(analyze_result)
@@ -104,7 +108,13 @@ class RValueAnalyzer():
             if window_stable:
                 return i  # 返回第一个稳定的epoch索引
         return -1  # 如果没有找到符合条件的epoch，则返回None
-    def get_best_epoch(self, model_network, model_dynamics, dataset_network, dataset_dynamics, model,**kwargs):
+    def get_best_epoch(self,
+                       model_network_name,
+                       model_dynamics_name,
+                       dataset_network_name,
+                       dataset_dynamics_name,
+                       model_name,
+                       **kwargs):
         """
         根据提供的参数在stable_r_value_dataframe中查找对应的stable_R_value和max_R_epoch。
 
@@ -122,11 +132,11 @@ class RValueAnalyzer():
         # 使用提供的参数在DataFrame中进行查找
         stable_r_value_dataframe = self.stable_r_value_dataframe
         query_result = stable_r_value_dataframe[
-            (stable_r_value_dataframe['model_network'] == model_network) &
-            (stable_r_value_dataframe['model_dynamics'] == model_dynamics) &
-            (stable_r_value_dataframe['dataset_network'] == dataset_network) &
-            (stable_r_value_dataframe['dataset_dynamics'] == dataset_dynamics) &
-            (stable_r_value_dataframe['model'] == model)
+            (stable_r_value_dataframe['model_network_name'] == model_network_name) &
+            (stable_r_value_dataframe['model_dynamics_name'] == model_dynamics_name) &
+            (stable_r_value_dataframe['dataset_network_name'] == dataset_network_name) &
+            (stable_r_value_dataframe['dataset_dynamics_name'] == dataset_dynamics_name) &
+            (stable_r_value_dataframe['model_name'] == model_name)
             ]
 
         # 如果有符合条件的行，返回第一条记录的stable_R_value和max_R_epoch
@@ -140,7 +150,12 @@ class RValueAnalyzer():
         if os.path.exists(self.stable_r_value_dataframe_file_path):
             return
         else:
-            group_cols = ["model_network", "model_dynamics", "dataset_network", "dataset_dynamics", "model"]
+            group_cols = ["model_network_name",
+                          "model_dynamics_name",
+                          "dataset_network_name",
+                          "dataset_dynamics_name",
+                          "model_name"]
+
             # 通过分组获得使R值首次稳定的 model_exp_epoch_index
             grouped = self.r_value_dataframe.groupby(group_cols)
 
