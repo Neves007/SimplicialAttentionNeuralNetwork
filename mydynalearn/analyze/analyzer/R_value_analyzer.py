@@ -104,7 +104,37 @@ class RValueAnalyzer():
             if window_stable:
                 return i  # 返回第一个稳定的epoch索引
         return -1  # 如果没有找到符合条件的epoch，则返回None
+    def get_best_epoch(self, model_network, model_dynamics, dataset_network, dataset_dynamics, model,**kwargs):
+        """
+        根据提供的参数在stable_r_value_dataframe中查找对应的stable_R_value和max_R_epoch。
 
+        参数:
+        - model_network: 模型网络
+        - model_dynamics: 模型动力学
+        - dataset_network: 数据集网络
+        - dataset_dynamics: 数据集动力学
+        - model: 模型标识符
+
+        返回:
+        - stable_R_value: 稳定的R值
+        - max_R_epoch: 达到最大R值的epoch
+        """
+        # 使用提供的参数在DataFrame中进行查找
+        stable_r_value_dataframe = self.stable_r_value_dataframe
+        query_result = stable_r_value_dataframe[
+            (stable_r_value_dataframe['model_network'] == model_network) &
+            (stable_r_value_dataframe['model_dynamics'] == model_dynamics) &
+            (stable_r_value_dataframe['dataset_network'] == dataset_network) &
+            (stable_r_value_dataframe['dataset_dynamics'] == dataset_dynamics) &
+            (stable_r_value_dataframe['model'] == model)
+            ]
+
+        # 如果有符合条件的行，返回第一条记录的stable_R_value和max_R_epoch
+        if not query_result.empty:
+            return query_result.iloc[0]['max_R_epoch']
+        else:
+            # 如果没有找到符合条件的记录，可以返回None或者一些默认值或错误信息
+            raise Exception('没有对应的值')
     def analyze_stable_r_value(self):
         self.load_r_value_dataframe()
         if os.path.exists(self.stable_r_value_dataframe_file_path):

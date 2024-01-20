@@ -1,7 +1,7 @@
 import torch
-from mydynalearn.drawer.matplot_drawer.fig_ytrure_ypred.getter import get as performance_drawer_getter
 from mydynalearn.analyze.analyzer import *
 from mydynalearn.config import *
+from mydynalearn.drawer.matplot_drawer.fig_ytrure_ypred.fig_ytrure_ypred import FigYtrureYpred
 import os
 class MatplotController():
     def __init__(self,analyze_manager):
@@ -25,8 +25,8 @@ class MatplotController():
     def make_dir(self,dir):
         if not os.path.exists(dir):
             os.makedirs(dir)
-    def draw_performance(self,analyze_result,dynamics):
-        fig_drawer = performance_drawer_getter(dynamics)
+    def draw_performance(self,analyze_result,STATES_MAP):
+        fig_drawer = FigYtrureYpred(STATES_MAP)
         fig_drawer.scatterT(**analyze_result)
         return fig_drawer
     def get_model_performance_fig_name(self,result):
@@ -59,26 +59,10 @@ class MatplotController():
         return file_path
     def trained_model_draw(self):
         print("*"*10+"DRAW TRAIN PERFORMANCE"+"*"*10)
-        stable_r_value_dataframe = self.analyze_manager.r_value_analyzer.stable_r_value_dataframe
-        for index, row in stable_r_value_dataframe.iterrows():
-            param = (row['model_network'],row['model_dynamics'],row['model'],False)
-            exp = self.analyze_manager.train_experiment_manager.get_train_exp(*param)
-            model_exp = exp
-            dataset_exp = exp
-            network, dynamics, train_loader, val_loader, test_loader = exp.create_dataset()
-            epoch_tasks = exp.model.epoch_tasks
-            EPOCHS = epoch_tasks.EPOCHS
-            model_exp_epoch_index = list(range(EPOCHS))[row['max_R_epoch']]
-            model_executor = runModelOnTestData(self.analyze_manager.config,
-                                                network,
-                                                dynamics,
-                                                test_loader,
-                                                model_exp_epoch_index,
-                                                model_exp=model_exp,
-                                                dataset_exp=dataset_exp,
-                                                )
-            analyze_result = model_executor.run()
-            fig_drawer = self.draw_performance(analyze_result,dynamics)
+        analyze_result_generator = self.analyze_manager.get_analyze_result_generator_for_best_epoch()
+        for analyze_result in analyze_result_generator:
+            STATES_MAP = analyze_result['model_dynamics_state_map']
+            fig_drawer = self.draw_performance(analyze_result,STATES_MAP)
             fig_file_name = self.get_model_performance_fig_name(analyze_result)
             fig_drawer.save_fig(fig_file_name)
             print("draw " + fig_file_name)

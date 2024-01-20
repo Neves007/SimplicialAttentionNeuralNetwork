@@ -23,6 +23,8 @@ class DynamicDataset(Dataset):
         self.NUM_SAMPLES = self.dataset_config.NUM_SAMPLES
         self.T_INIT = self.dataset_config.T_INIT
         self.DEVICE = self.config.DEVICE
+        self.network = self.get_dataset_network()
+        self.dynamics = self.get_dataset_dynamics()
         self.dataset_file_path = self.config.dataset_dir_path + "/dataset.pkl"
         self.need_to_run = not os.path.exists(self.dataset_file_path)
     def __len__(self) -> int:
@@ -51,19 +53,17 @@ class DynamicDataset(Dataset):
         return data
 
 
-    def set_dataset_network(self):
+    def get_dataset_network(self):
         network = get_network(self.config)
         network.create_net()
-        self.network = network
-    def set_dataset_dynamics(self):
+        return network
+    def get_dataset_dynamics(self):
         dynamics = get_dynamics(self.config)
         dynamics.set_network(self.network)
         dynamics.init_stateof_network()
-        self.dynamics = dynamics
+        return dynamics
 
     def init_dataset(self):
-        self.set_dataset_network()
-        self.set_dataset_dynamics()
         assert self.network.MAX_DIMENSION == self.dynamics.MAX_DIMENSION
         NUM_NODES = self.network.NUM_NODES
         NUM_STATES = self.dynamics.NUM_STATES

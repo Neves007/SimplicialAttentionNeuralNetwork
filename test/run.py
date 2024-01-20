@@ -48,12 +48,12 @@ device = torch.device('cuda')
 '''
 params = {
     "grpah_network": ["ER"],
-    "grpah_dynamics": ["UAU", "CompUAU"],
+    "grpah_dynamics": ["UAU"],
 
-    "simplicial_network": ["SCER","CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
-    "simplicial_dynamics": ["SCUAU", "SCCompUAU"],
+    "simplicial_network": ["SCER"],
+    "simplicial_dynamics": ["SCUAU"],
 
-    "model": ["GAT", "SAT", "DiffSAT"],  # 至少选一个
+    "model": ["GAT"],  # 至少选一个
     "IS_WEIGHT": [False]
 }
 fix_config = {

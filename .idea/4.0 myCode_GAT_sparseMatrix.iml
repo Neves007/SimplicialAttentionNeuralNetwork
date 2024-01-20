@@ -2,6 +2,11 @@
 <module type="PYTHON_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/output" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/output/analyze" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/output/dataset" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/output/fig" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/output/modelparams" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_CONFERENCE_SCCompUAU_GAT" />
       <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_CONFERENCE_SCCompUAU_SAT" />
       <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_CONFERENCE_SCUAU_DiffSAT" />
@@ -38,8 +43,6 @@
       <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_WORKPLACE_SCUAU_DiffSAT" />
       <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_WORKPLACE_SCUAU_GAT" />
       <excludeFolder url="file://$MODULE_DIR$/output/analyze/analyze_result/model_WORKPLACE_SCUAU_SAT" />
-      <excludeFolder url="file://$MODULE_DIR$/output/dataset" />
-      <excludeFolder url="file://$MODULE_DIR$/output/fig" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.7 (GAT)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

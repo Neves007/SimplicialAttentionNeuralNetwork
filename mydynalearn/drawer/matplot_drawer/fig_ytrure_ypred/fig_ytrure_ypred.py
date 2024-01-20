@@ -7,14 +7,24 @@ import matplotlib.pyplot as plt
 from torch.nn.functional import mse_loss
 from mydynalearn.drawer.utils.utils import _get_metrics
 
-
+import itertools
 class FigYtrureYpred():
-    def __init__(self,dynamics):
-        self.STATES_MAP = dynamics.STATES_MAP
-        self.dynamics = dynamics
-        self.colors = None
-        self.markers = None
-        self.label = None
+    def __init__(self,STATES_MAP):
+        all_colors = ["red","orange","yellow","green","cyan","blue","purple",'brown', 'stategrey', 'pink']
+        self.STATES_MAP = STATES_MAP
+        self.transition_lables = self.get_transition_lables()
+        self.colors = [all_colors[i] for i in range(len(self.transition_lables))]
+        self.markers = ["o" for i in range(len(self.transition_lables))]
+    def get_transition_lables(self):
+        '''通过对动力学状态的排列组合得出，转换的的标签
+
+        :return:
+        '''
+        STATES = self.STATES_MAP.keys()
+        # 使用 itertools.product 生成状态转换的所有可能组合
+        transitions = itertools.product(STATES, repeat=2)
+        transition_lables = [f'{start}_to_{end}' for start, end in transitions]
+        return transition_lables
 
     def get_marker_size(self,w_T,max=10,min=2,**kwargs):
         w_min = w_T.min()
@@ -38,7 +48,7 @@ class FigYtrureYpred():
         self.ax.set_ylabel("prediction")  # 设置y轴标注
 
         self.legend_elements = self.get_legend_elements()
-        self.ax.legend(handles=self.legend_elements, labels=self.label)
+        self.ax.legend(handles=self.legend_elements, labels=self.transition_lables)
         self.ax.grid(True)
     def save_fig(self,fig_file):
         self.fig.savefig(fig_file)
@@ -46,7 +56,7 @@ class FigYtrureYpred():
     def scatterT(self, performance_index,performance_data,model_exp_epoch_index,**kwargs):
         self.fig, self.ax = plt.subplots()
         marker_size = self.get_marker_size(max=700, min=50,**kwargs)
-        for index in range(len(self.label)):
+        for index in range(len(self.transition_lables)):
             self.ax.scatter(x=performance_data[index][:, 0].detach().numpy(),
                             y=performance_data[index][:, 1].detach().numpy(),
                             c=self.colors[index],
@@ -60,5 +70,5 @@ class FigYtrureYpred():
                                        c=self.colors[index],
                                        marker=self.markers[index],
                                        s=53,
-                                       alpha=0.8) for index in range(len(self.label))]
+                                       alpha=0.8) for index in range(len(self.transition_lables))]
         return legend_elements
