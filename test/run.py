@@ -47,8 +47,6 @@ device = torch.device('cuda')
     "IS_WEIGHT": [False]
 '''
 params = {
-    "grpah_network": ["ER"],
-    "grpah_dynamics": ["UAU"],
 
     "simplicial_network": ["SCER"],
     "simplicial_dynamics": ["SCUAU"],

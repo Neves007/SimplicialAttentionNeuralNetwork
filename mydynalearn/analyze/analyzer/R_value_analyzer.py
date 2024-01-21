@@ -108,13 +108,13 @@ class RValueAnalyzer():
             if window_stable:
                 return i  # 返回第一个稳定的epoch索引
         return -1  # 如果没有找到符合条件的epoch，则返回None
-    def get_best_epoch(self,
-                       model_network_name,
-                       model_dynamics_name,
-                       dataset_network_name,
-                       dataset_dynamics_name,
-                       model_name,
-                       **kwargs):
+    def get_best_epoch_index(self,
+                             model_network_name,
+                             model_dynamics_name,
+                             dataset_network_name,
+                             dataset_dynamics_name,
+                             model_name,
+                             **kwargs):
         """
         根据提供的参数在stable_r_value_dataframe中查找对应的stable_R_value和max_R_epoch。
 

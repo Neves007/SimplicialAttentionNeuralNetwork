@@ -12,7 +12,7 @@ import itertools
 
 class FigYtrureYpred():
     def __init__(self, model_dynamics,  model_exp_epoch_index,  test_result_time_list, **kwargs):
-        all_colors = ["red","orange","yellow","green","cyan","blue","purple",'brown', 'stategrey', 'pink']
+        all_colors = ["red","orange","yellow","green","cyan","blue","purple",'brown', 'grey', 'pink']
 
         self.dynamics = model_dynamics
         self.epoch_index = model_exp_epoch_index

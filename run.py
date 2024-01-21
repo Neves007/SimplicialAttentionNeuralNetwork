@@ -53,7 +53,7 @@ params = {
     "simplicial_network": ["SCER","CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
     "simplicial_dynamics": ["SCUAU", "SCCompUAU"],
 
-    "model": ["GAT", "SAT", "DiffSAT", "DualSAT"],  # 至少选一个
+    "model": ["GAT", "SAT", "DiffSAT"],  # 至少选一个
     "IS_WEIGHT": [False]
 }
 fix_config = {

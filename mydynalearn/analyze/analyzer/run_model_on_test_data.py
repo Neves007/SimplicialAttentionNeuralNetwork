@@ -1,29 +1,49 @@
 import os
 import pickle
-
 import torch
 import numpy as np
 
+from multipledispatch import dispatch
 class runModelOnTestData():
     def __init__(self,
                  config,
-                 network,
-                 dynamics,
-                 test_loader,
                  model_exp,
                  dataset_exp,
                  ):
         self.config = config
-        self.network = network
-        self.dynamics = dynamics
         self.IS_WEIGHT = model_exp.config.IS_WEIGHT
         self.model_exp = model_exp
+        self.testdata_exp = dataset_exp
         self.EPOCHS = model_exp.model.config.model.EPOCHS
 
-        self.test_loader = test_loader
-        self.testdata_exp = dataset_exp
-
         self.global_info = self.get_global_info()
+        self.all_need_to_run = self.check_run_necessity()
+
+    @dispatch()
+    def check_run_necessity(self):
+        '''静态方法，查看是否需要加载数据来创建对象
+
+        :param model_exp:
+        :param testdata_exp:
+        :return:
+        '''
+        all_need_to_run = False
+        for model_exp_epoch_index in range(self.EPOCHS):
+            need_to_run = self.check_run_necessity(model_exp_epoch_index)
+            if need_to_run == True:
+                all_need_to_run = True
+            else:
+                pass
+        return all_need_to_run
+
+
+    @dispatch(int)
+    def check_run_necessity(self, model_exp_epoch_index):
+        analyze_result_filepath = self.get_analyze_result_filepath(model_exp_epoch_index)
+        need_to_run = not os.path.exists(analyze_result_filepath)
+        return need_to_run
+
+
 
 
 
@@ -46,7 +66,6 @@ class runModelOnTestData():
                                    self.global_info["dataset_dynamics_name"],
                                    self.global_info["model_name"]
                                    ])
-        print("model: {}\ntest data:{}".format(model_info,testdata_info))
         model_dir_name = "model_" + model_info
         testdata_dir_name = "testdata_" + testdata_info
 
@@ -83,8 +102,11 @@ class runModelOnTestData():
         return R
 
     def create_analyze_result(self,model_exp_epoch_index):
-        test_result_time_list = self.model_exp.model.epoch_tasks.run_test_epoch(self.network, self.dynamics, self.test_loader,
-                                                                      model_exp_epoch_index)
+        network, dynamics, _, _, test_loader = self.testdata_exp.create_dataset()
+        test_result_time_list = self.model_exp.model.epoch_tasks.run_test_epoch(network,
+                                                                                dynamics,
+                                                                                test_loader,
+                                                                                model_exp_epoch_index)
         R = self.compute_R(test_result_time_list)
         analyze_result = {
             "model_dynamics": self.model_exp.dataset.dynamics,
@@ -98,16 +120,18 @@ class runModelOnTestData():
             "R": R
         }
         return analyze_result
+
+
     def run(self, model_exp_epoch_index):
         analyze_result_filepath = self.get_analyze_result_filepath(model_exp_epoch_index)
         need_to_run = not os.path.exists(analyze_result_filepath)
-        print("testing:")
         if need_to_run:
-            print("analyze epoch: ",model_exp_epoch_index)
             analyze_result = self.create_analyze_result(model_exp_epoch_index)
             self.save_analyze_result(analyze_result,analyze_result_filepath)
         else:
             analyze_result = self.load_analyze_result(analyze_result_filepath)
+        print("testing:")
+        print("analyze epoch: ", model_exp_epoch_index)
         print("output analyze_result_filepath: ",analyze_result_filepath)
         print("analyze completed!\n")
         return analyze_result
