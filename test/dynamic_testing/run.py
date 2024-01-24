@@ -22,14 +22,17 @@ from mydynalearn.drawer import MatplotController
     "simplicial_dynamics": ["SCUAU", "SCCompUAU"],
 '''
 params_dict = {
-    "network": "ER",
-    "dynamics": "UAU",
+    "grpah_network": ["ER"],
+    "grpah_dynamics": ["CompUAU"],
 }
 
 fix_config_dict = {
-    'NUM_SAMPLES' : 10,
-    'EFF_BETA_LIST': torch.linspace(0,1,11),
-    'DEVICE' : torch.device('cuda'),
+    'AVG_K': 10,
+    'NUM_SAMPLES' : 1000,
+    'RECOVERY':0.2,
+    'EFF_BETA_LIST': torch.linspace(0, 2, 21),
+    'DEVICE': torch.device('cuda'),
+    'ROUND': 10,
 }
 
 

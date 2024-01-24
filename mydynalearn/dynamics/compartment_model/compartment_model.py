@@ -15,10 +15,32 @@ class CompartmentModel():
         self.NAME = self.dynamics_config.NAME
 
         self.MAX_DIMENSION = self.dynamics_config.MAX_DIMENSION
-        self.NUM_STATES = self.dynamics_config.NUM_STATES
+        self.STATES_MAP = self.dynamics_config.STATES_MAP
+        self.NUM_STATES = len(self.STATES_MAP)
         self.NODE_FEATURE_MAP = torch.eye(self.NUM_STATES).to(self.DEVICE, dtype = torch.long)
-        self.SimpleDynamicWeight = weight_getter(self.NAME)
+    def get_transition_state(self,true_tp):
+        '''根据迁移概率计算迁移状态
 
+        :param true_tp: 迁移概率
+        :return:
+        '''
+        states = torch.multinomial(true_tp, num_samples=1, replacement=False).squeeze(1)
+        new_x0 = self.NODE_FEATURE_MAP[states]
+        return new_x0
+    def calculate_intersection_tensor(self,tensor_a,tensor_b):
+        '''计算同时存在tensor_a和tensor_b的元素
+
+        :param tensor_a:
+        :param tensor_b:
+        :return:
+        '''
+        # Find the unique elements in each tensor to remove any duplicates
+        unique_a = torch.unique(tensor_a)
+        unique_b = torch.unique(tensor_b)
+
+        # Find the intersection of the two tensors
+        intersection = unique_a[torch.isin(unique_a, unique_b)]
+        return intersection
     def print_log(self,num_indentation=0):
         ''' 对齐输出
 
@@ -98,6 +120,8 @@ class CompartmentModel():
         '''
         num_target_state_in_simplex = inc_matrix_col_feature[:,self.STATES_MAP[target_state]]
         act_simplex = num_target_state_in_simplex >= _threshold_scAct
+        # todo：使用稠密矩阵乘法，提高计算效率
+        # inc_matrix_activate_adj = torch.mul(inc_matrix_adj, act_simplex)
         inc_matrix_activate_adj = torch.sparse.FloatTensor.mul(inc_matrix_adj, act_simplex)
         return inc_matrix_activate_adj
 

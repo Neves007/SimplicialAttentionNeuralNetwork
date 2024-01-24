@@ -59,6 +59,7 @@ class Realnet():
         self.NUM_EDGES = self.net_info["NUM_EDGES"]
         self.NUM_TRIANGLES = self.net_info["NUM_TRIANGLES"]
         self.AVG_K = self.net_info["AVG_K"]
+        self.AVG_K_DELTA = self.net_info["AVG_K_DELTA"]
 
     def save_realnet(self,netdata_file,net_info):
         with open(netdata_file,"wb") as file:
@@ -78,7 +79,8 @@ class Realnet():
             NUM_NODES = nodes.shape[0]
             NUM_EDGES = edges.shape[0]
             NUM_TRIANGLES = triangles.shape[0]
-            AVG_K = torch.asarray([2 * len(edges), 3 * len(triangles)]) / NUM_NODES
+            AVG_K = 2 * len(edges) / NUM_NODES
+            AVG_K_DELTA = 3 * len(triangles) / NUM_NODES
             net_info = {"nodes": nodes,
                         "edges": edges,
                         "triangles": triangles,
@@ -86,6 +88,7 @@ class Realnet():
                         "NUM_EDGES": NUM_EDGES,
                         "NUM_TRIANGLES": NUM_TRIANGLES,
                         "AVG_K": AVG_K,
+                        "AVG_K_DELTA": AVG_K_DELTA,
                         }
             self.save_realnet(netdata_file,net_info)
 
@@ -122,6 +125,7 @@ class Realnet():
         self.NUM_EDGES = self.NUM_EDGES
         self.NUM_TRIANGLES = self.NUM_TRIANGLES
         self.AVG_K = self.AVG_K
+        self.AVG_K_DELTA = self.AVG_K_DELTA
 
         self.inc_matrix_adj0 = self.inc_matrix_adj0.to(device)
         self.inc_matrix_adj1 = self.inc_matrix_adj1.to(device)

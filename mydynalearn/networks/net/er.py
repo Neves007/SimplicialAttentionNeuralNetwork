@@ -13,9 +13,9 @@ class ER(Network):
         NUM_NODES = self.net_config.NUM_NODES
         nodes = torch.arange(NUM_NODES)
         NUM_EDGES = int(AVG_K * NUM_NODES / 2)
-        NUM_EDGES = NUM_EDGES
         edges = self._create_edges(NUM_NODES, NUM_EDGES)
-        AVG_K = torch.asarray([2 * len(edges) / NUM_NODES])
+
+        AVG_K = 2 * len(edges) / NUM_NODES
 
         net_info = {"nodes": nodes,
                     "edges": edges,

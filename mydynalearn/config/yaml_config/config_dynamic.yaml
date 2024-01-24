@@ -1,48 +1,128 @@
 UAU:
   NAME: "UAU"
-  NUM_STATES: 2
-  SEED_FREC: 0.1
-  EFF_AWARE: [8.0]
+  STATES_MAP:
+    U: 0
+    A: 1
   MAX_DIMENSION: 1
-  RECOVERY: 0.2
+  SEED_FREC: 0.1
+  EFF_AWARE: 8.0
+  MU: 0.1
 
 CompUAU:
-  NAME: "CompUAU"
-  NUM_STATES: 3
+  NAME: "CoopUAU"
+  STATES_MAP:
+    UU: 0
+    A1U: 1
+    UA2: 2
+    A1A2: 3
+  MAX_DIMENSION: 1
   SEED_FREC_A1: 0.1
   SEED_FREC_A2: 0.1
-  EFF_AWARE_A1: [8.0]
-  EFF_AWARE_A2: [8.0]
+  EFF_AWARE_A1: 8.0
+  EFF_AWARE_A2: 8.0
+  prime_A1: 0.0
+  prime_A2: 0.0
+  MU_A1: 0.1
+  MU_A2: 0.1
+
+CoopUAU:
+  NAME: "CoopUAU"
+  STATES_MAP:
+    UU: 0
+    A1U: 1
+    UA2: 2
+    A1A2: 3
   MAX_DIMENSION: 1
-  RECOVERY: 0.2
+  SEED_FREC_A1: 0.1
+  SEED_FREC_A2: 0.1
+  EFF_AWARE_A1: 8.0
+  EFF_AWARE_A2: 8.0
+  prime_A1: 2.0
+  prime_A2: 2.0
+  MU_A1: 0.1
+  MU_A2: 0.1
+
+AsymmUAU:
+  NAME: "AsymmUAU"
+  STATES_MAP:
+    UU: 0
+    A1U: 1
+    UA2: 2
+    A1A2: 3
+  MAX_DIMENSION: 1
+  SEED_FREC_A1: 0.1
+  SEED_FREC_A2: 0.1
+  EFF_AWARE_A1: 8.0
+  EFF_AWARE_A2: 8.0
+  prime_A1: 0.
+  prime_A2: 2.0
+  MU_A1: 0.1
+  MU_A2: 0.1
 
 SCUAU:
   NAME: "SCUAU"
-  NUM_STATES: 2
-  SEED_FREC: 0.1
-  EFF_AWARE: [8.0, 8.0]
+  STATES_MAP:
+    U: 0
+    A: 1
   MAX_DIMENSION: 2
-  RECOVERY: 0.2
+  SEED_FREC: 0.1
+  EFF_AWARE: 8.0
+  EFF_AWARE_DELTA: 8.0
+  MU: 0.1
 
 SCCompUAU:
   NAME: "SCCompUAU"
-  NUM_STATES: 3
+  STATES_MAP:
+    UU: 0
+    A1U: 1
+    UA2: 2
+    A1A2: 3
+  MAX_DIMENSION: 1
   SEED_FREC_A1: 0.1
   SEED_FREC_A2: 0.1
-  EFF_AWARE_A1: [8.0, 8.0]
-  EFF_AWARE_A2: [8.0, 8.0]
-  MAX_DIMENSION: 2
-  RECOVERY: 0.2
+  EFF_AWARE_A1: 8.0
+  EFF_AWARE_A2: 8.0
+  EFF_AWARE_A1_DELTA: 8.0
+  EFF_AWARE_A2_DELTA: 8.0
+  prime_A1: 0.0
+  prime_A2: 0.0
+  MU_A1: 0.1
+  MU_A2: 0.1
 
-ToySCCompUAU:
-  NAME: "ToySCCompUAU"
-  NUM_STATES: 3
+SCCoopUAU:
+  NAME: "SCCoopUAU"
+  STATES_MAP:
+    UU: 0
+    A1U: 1
+    UA2: 2
+    A1A2: 3
+  MAX_DIMENSION: 1
   SEED_FREC_A1: 0.1
   SEED_FREC_A2: 0.1
-  EFF_AWARE_A1: [8.0, 8.0]
-  EFF_AWARE_A2: [8.0, 8.0]
-  MAX_DIMENSION: 2
-  RECOVERY: 0.2
+  EFF_AWARE_A1: 8.0
+  EFF_AWARE_A2: 8.0
+  EFF_AWARE_A1_DELTA: 8.0
+  EFF_AWARE_A2_DELTA: 8.0
+  prime_A1: 2.0
+  prime_A2: 2.0
+  MU_A1: 0.1
+  MU_A2: 0.1
 
-test_dynamics_process:
-  beta: []
+SCAsymmUAU:
+  NAME: "AsymmUAU"
+  STATES_MAP:
+    UU: 0
+    A1U: 1
+    UA2: 2
+    A1A2: 3
+  MAX_DIMENSION: 1
+  SEED_FREC_A1: 0.1
+  SEED_FREC_A2: 0.1
+  EFF_AWARE_A1: 8.0
+  EFF_AWARE_A2: 8.0
+  EFF_AWARE_A1_DELTA: 8.0
+  EFF_AWARE_A2_DELTA: 8.0
+  prime_A1: 0.0
+  prime_A2: 2.0
+  MU_A1: 0.1
+  MU_A2: 0.1

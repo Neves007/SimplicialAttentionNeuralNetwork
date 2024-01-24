@@ -1,7 +1,6 @@
 from mydynalearn.model import *
 from mydynalearn.dataset import DynamicDataset
 from mydynalearn.model import Model
-from mydynalearn.evaluator import *
 
 
 

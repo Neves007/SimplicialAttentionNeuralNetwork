@@ -17,6 +17,7 @@ class SCER(Network):
         self.NUM_EDGES = self.net_info["NUM_EDGES"]
         self.NUM_TRIANGLES = self.net_info["NUM_TRIANGLES"]
         self.AVG_K = self.net_info["AVG_K"]
+        self.AVG_K_DELTA = self.net_info["AVG_K_DELTA"]
 
     def set_inc_matrix_adj_info(self):
         self.inc_matrix_adj0 = self.inc_matrix_adj_info["inc_matrix_adj0"]
@@ -83,7 +84,8 @@ class SCER(Network):
         edges = self._merge_edges(edges,edges_in_triangles) # 将三角中包含的边的边加入边
         edges = torch.asarray(list(edges)) # 最终的边
         triangles = torch.asarray(list(triangles)) # 最终的三角
-        AVG_K = torch.asarray([2*len(edges),3*len(triangles)])/NUM_NODES
+        AVG_K = 2*len(edges)/NUM_NODES
+        AVG_K_DELTA = 3*len(triangles)/NUM_NODES
         NUM_EDGES = edges.shape[0]
         NUM_TRIANGLES = triangles.shape[0]
 
@@ -94,6 +96,7 @@ class SCER(Network):
                     "NUM_EDGES": NUM_EDGES,
                     "NUM_TRIANGLES": NUM_TRIANGLES,
                     "AVG_K": AVG_K,
+                    "AVG_K_DELTA": AVG_K_DELTA,
                     }
         return net_info
     def _get_adj(self):
@@ -127,6 +130,7 @@ class SCER(Network):
         self.NUM_EDGES = self.NUM_EDGES
         self.NUM_TRIANGLES = self.NUM_TRIANGLES
         self.AVG_K = self.AVG_K
+        self.AVG_K_DELTA = self.AVG_K_DELTA
 
         self.inc_matrix_adj0 = self.inc_matrix_adj0.to(device)
         self.inc_matrix_adj1 = self.inc_matrix_adj1.to(device)

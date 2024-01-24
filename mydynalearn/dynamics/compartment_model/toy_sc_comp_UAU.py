@@ -11,8 +11,6 @@ class ToySCCompUAU(CompartmentModel):
         self.RECOVERY = self.dynamics_config.RECOVERY
         self.SEED_FREC_A1 = self.dynamics_config.SEED_FREC_A1
         self.SEED_FREC_A2 = self.dynamics_config.SEED_FREC_A2
-        self.STATES_MAP = {"U": 0, "A1": 1, "A2": 2}
-        assert len(self.STATES_MAP.keys())==self.NUM_STATES
 
     def _init_x0(self):
         x0 = torch.zeros(self.NUM_NODES).to(self.DEVICE,torch.long)

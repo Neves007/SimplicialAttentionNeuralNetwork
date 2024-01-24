@@ -25,16 +25,20 @@ class ConfigDynamicTestingExp:
 
         self.network = config_network[network]
         self.dynamics = config_dynamic[dynamics]
-        self.BETA_LIST = torch.linspace(0,2,11)
         self.dataset = config_dataset['default']
 
+        self.BETA_LIST = torch.linspace(0,2,11)
+        self.ROUND = 10
         self.DEVICE = torch.device('cuda')
         # self.DEVICE = torch.device('cpu')
 
     def set_path(self, root_dir="./output"):
-        dataset_dir_path = os.path.join(root_dir, "dynamicdataset")
+        dataset_dir_path = os.path.join(root_dir, "test_dynamic_dataset")
+        fig_dir_path = os.path.join(root_dir, "fig/test_dynamic")
         self.dataset_dir_path = os.path.join(dataset_dir_path)
+        self.fig_dir_path = fig_dir_path
         self.make_dir(self.dataset_dir_path)
+        self.make_dir(self.fig_dir_path)
 
     def make_dir(self, dir):
         if not os.path.exists(dir):

@@ -1,8 +1,8 @@
+import os
+
 from mydynalearn.model import *
 from mydynalearn.dataset import TestDynamicDataset
-from mydynalearn.model import Model
-from mydynalearn.evaluator import *
-
+from mydynalearn.drawer.matplot_drawer.fig_beta_rho.fig_beta_rho import FigBetaRho
 
 
 class ExperimentTestDynamic():
@@ -16,13 +16,22 @@ class ExperimentTestDynamic():
         ]
 
     def run_dynamic_process(self):
-        self.dataset.run()
+        self.dataset.show_info()
+        if self.dataset.is_need_to_run:
+            self.dataset.run()
+        else:
+            self.dataset = self.dataset.load_dataset()
 
     def draw(self):
-        stady_rho_list = self.dataset.stady_rho_list
-        EFF_BETA_LIST = self.dataset.EFF_BETA_LIST
-        dynamicEvaluator = DynamicEvaluator(self.config,self.dynamics)
-        dynamicEvaluator.evaluate(EFF_BETA_LIST, stady_rho_list)
+        data = self.dataset.get_draw_data()
+        drawer = FigBetaRho(self.dataset.dynamics,**data)
+        drawer.draw()
+        fig_dir_path = self.config.fig_dir_path
+        dataset_info = self.dataset.get_info()
+        fig_name = "_".join([dataset_info['network_name'],dataset_info['dynamic_name'],'.jpg'])
+        fig_file_path = os.path.join(fig_dir_path,fig_name)
+        drawer.save_fig(fig_file_path)
+
 
 
     def run(self):
