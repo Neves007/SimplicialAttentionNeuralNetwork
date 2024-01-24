@@ -204,19 +204,17 @@ class SCCoevUAU(CompartmentModel):
         UU_index, A1U_index, UA2_index, A1A2_index = self._get_nodeid_for_each_state()
         adj_A1U_act_edges, adj_UA2_act_edges, adj_A1A2_act_edges, adj_A1U_act_triangles, adj_UA2_act_triangles, adj_A1A2_act_triangles = self._get_adj_activate_simplex()
         # 不被一阶感染
-        BETA_A1A2ToA1 = self.BETA_A1(1 - self.BETA_A2) / (
-                    self.BETA_A1(1 - self.BETA_A2) + self.BETA_A2(1 - self.BETA_A1))
-        BETA_A1A2ToA2 = self.BETA_A2(1 - self.BETA_A1) / (
-                    self.BETA_A1(1 - self.BETA_A2) + self.BETA_A2(1 - self.BETA_A1))
+        BETA_A1A2ToA1 = self.BETA_A1 * (1 - self.BETA_A2) / (self.BETA_A1*(1 - self.BETA_A2) + self.BETA_A2*(1 - self.BETA_A1))
+        BETA_A1A2ToA2 = self.BETA_A2 * (1 - self.BETA_A1) / (self.BETA_A1*(1 - self.BETA_A2) + self.BETA_A2*(1 - self.BETA_A1))
         q_A1U = torch.pow(1 - self.BETA_A1, adj_A1U_act_edges)
         q_UA2 = torch.pow(1 - self.BETA_A2, adj_UA2_act_edges)
         q_A1A2ToA1 = torch.pow(1 - BETA_A1A2ToA1, adj_A1A2_act_edges)
         q_A1A2ToA2 = torch.pow(1 - BETA_A1A2ToA2, adj_A1A2_act_edges)
         # 不被二阶感染
-        BETA_DELTA_A1A2ToA1 = self.BETA_DELTA_A1(1 - self.BETA_DELTA_A2) / (
-                    self.BETA_DELTA_A1(1 - self.BETA_DELTA_A2) + self.BETA_DELTA_A2(1 - self.BETA_DELTA_A1))
-        BETA_DELTA_A1A2ToA2 = self.BETA_DELTA_A2(1 - self.BETA_DELTA_A1) / (
-                    self.BETA_DELTA_A1(1 - self.BETA_DELTA_A2) + self.BETA_DELTA_A2(1 - self.BETA_DELTA_A1))
+        BETA_DELTA_A1A2ToA1 = self.BETA_DELTA_A1*(1 - self.BETA_DELTA_A2) / (
+                    self.BETA_DELTA_A1*(1 - self.BETA_DELTA_A2) + self.BETA_DELTA_A2*(1 - self.BETA_DELTA_A1))
+        BETA_DELTA_A1A2ToA2 = self.BETA_DELTA_A2*(1 - self.BETA_DELTA_A1) / (
+                    self.BETA_DELTA_A1*(1 - self.BETA_DELTA_A2) + self.BETA_DELTA_A2*(1 - self.BETA_DELTA_A1))
         q_DELTA_A1U = torch.pow(1 - self.BETA_DELTA_A1, adj_A1U_act_triangles)
         q_DELTA_UA2 = torch.pow(1 - self.BETA_DELTA_A2, adj_UA2_act_triangles)
         q_DELTA_A1A2ToA1 = torch.pow(1 - BETA_DELTA_A1A2ToA1, adj_A1A2_act_triangles)
@@ -235,8 +233,8 @@ class SCCoevUAU(CompartmentModel):
         g_A1 = 1 - q_A1
         g_A2 = 1 - q_A2
 
-        f_A1 = g_A1*(1-g_A2)/(g_A1*(1-g_A2)+g_A2*(1-g_A1))
-        f_A2 = g_A2*(1-g_A1)/(g_A1*(1-g_A2)+g_A2*(1-g_A1))
+        f_A1 = g_A1*(1-g_A2)/(g_A1*(1-g_A2)+g_A2*(1-g_A1)+1e-15)
+        f_A2 = g_A2*(1-g_A1)/(g_A1*(1-g_A2)+g_A2*(1-g_A1)+1e-15)
 
         # 恢复，恢复迁移需要保证和为1
         recovery_prob = 1 - (1 - self.MU_A1) * (1 - self.MU_A2)
@@ -287,5 +285,7 @@ class SCCoevUAU(CompartmentModel):
         self.BETA_PRIME_A2 = 1 - (1 - self.BETA_A2)**self.prime_A2
         self.BETA_DELTA_PRIME_A1 = 1 - (1 - self.BETA_DELTA_A1)**self.prime_A1
         self.BETA_DELTA_PRIME_A2 = 1 - (1 - self.BETA_DELTA_A2)**self.prime_A2
+
+
         spread_result = self._spread()
         return spread_result

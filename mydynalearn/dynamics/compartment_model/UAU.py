@@ -7,7 +7,7 @@ class UAU(CompartmentModel):
     def __init__(self, config):
         super().__init__(config)
         self.EFF_AWARE = torch.tensor(self.dynamics_config.EFF_AWARE)
-        self.RECOVERY = self.dynamics_config.RECOVERY
+        self.MU = self.dynamics_config.MU
         self.SEED_FREC = self.dynamics_config.SEED_FREC
     def _init_x0(self):
         x0 = torch.zeros(self.NUM_NODES).to(self.DEVICE,torch.long)
@@ -57,8 +57,8 @@ class UAU(CompartmentModel):
 
 
     def _dynamic_for_node_A(self, A_index, true_tp):
-        true_tp[A_index, self.STATES_MAP["U"]] = self.RECOVERY
-        true_tp[A_index, self.STATES_MAP["A"]] = 1 - self.RECOVERY
+        true_tp[A_index, self.STATES_MAP["U"]] = self.MU
+        true_tp[A_index, self.STATES_MAP["A"]] = 1 - self.MU
 
     def _dynamic_for_node_U(self, U_index, adj_act_edges, true_tp):
         not_aware_prob = torch.pow(1 - self.BETA, adj_act_edges)
@@ -85,6 +85,6 @@ class UAU(CompartmentModel):
         return spread_result
 
     def _run_onestep(self):
-        self.BETA = self.EFF_AWARE * self.RECOVERY / self.network.AVG_K
+        self.BETA = self.EFF_AWARE * self.MU / self.network.AVG_K
         spread_result = self._spread()
         return spread_result

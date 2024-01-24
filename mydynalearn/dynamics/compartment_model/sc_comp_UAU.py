@@ -112,8 +112,8 @@ class SCCompUAU(CompartmentModel):
         g_A1 = 1 - q_A1
         g_A2 = 1 - q_A2
 
-        f_A1 = g_A1 * (1 - g_A2) / (g_A1 * (1 - g_A2) + g_A2 * (1 - g_A1))
-        f_A2 = g_A2 * (1 - g_A1) / (g_A1 * (1 - g_A2) + g_A2 * (1 - g_A1))
+        f_A1 = g_A1 * (1 - g_A2) / (g_A1 * (1 - g_A2) + g_A2 * (1 - g_A1)+1e-15)
+        f_A2 = g_A2 * (1 - g_A1) / (g_A1 * (1 - g_A2) + g_A2 * (1 - g_A1)+1e-15)
 
         # 恢复，恢复迁移需要保证和为1
         recovery_prob = 1 - (1 - self.MU_A1) * (1 - self.MU_A2)

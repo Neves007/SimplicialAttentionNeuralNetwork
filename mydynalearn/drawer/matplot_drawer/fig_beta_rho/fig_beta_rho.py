@@ -16,7 +16,7 @@ class FigBetaRho():
         for i, state in enumerate(self.state_list):
             y = self.stady_rho_dict[state]
             ax[i].set_title('{} dynamic model'.format(self.dynamic_name))
-            ax[i].plot(self.x, y)  # Plot x vs. y with circle markers
+            ax[i].plot(self.x, y,marker='^')  # Plot x vs. y with circle markers
             ax[i].set_xlabel("Effective Infection Rate")  # X-axis label
             ax[i].set_ylabel("$\\rho_{{{:s}}}$".format(state))  # Y-axis label
             ax[i].set_ylim([0, 1])  # Set the limits for the y-axis

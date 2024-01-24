@@ -3,10 +3,11 @@ from mydynalearn.dynamics.compartment_model import *
 __DYNAMICS__ = {
     "UAU": UAU,
     "CompUAU": CompUAU,
+    "CompUAUCoev": CoevUAU,
     "CoopUAU": CoevUAU,
     "AsymmUAU": CoevUAU,
     "SCUAU": SCUAU,
-    "SCCompUAU": SCCompUAU,
+    "SCCompUAU": SCCoevUAU,
     "SCCoopUAU": SCCoevUAU,
     "SCAsymmUAU": SCCoevUAU,
 }

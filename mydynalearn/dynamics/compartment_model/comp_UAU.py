@@ -32,7 +32,8 @@ class CompUAU(CompartmentModel):
         super().__init__(config)
         self.EFF_AWARE_A1 = torch.tensor(self.dynamics_config.EFF_AWARE_A1)
         self.EFF_AWARE_A2 = torch.tensor(self.dynamics_config.EFF_AWARE_A2)
-        self.RECOVERY = self.dynamics_config.RECOVERY
+        self.MU_A1 = self.dynamics_config.MU_A1
+        self.MU_A2 = self.dynamics_config.MU_A2
         self.SEED_FREC_A1 = self.dynamics_config.SEED_FREC_A1
         self.SEED_FREC_A2 = self.dynamics_config.SEED_FREC_A2
     def set_beta(self,eff_beta):
@@ -85,13 +86,13 @@ class CompUAU(CompartmentModel):
         return U_index, A1_index, A2_index
 
     def _dynamic_for_node_A1(self, A1_index, true_tp):
-        true_tp[A1_index, self.STATES_MAP["U"]] = self.RECOVERY
-        true_tp[A1_index, self.STATES_MAP["A1"]] = 1 - self.RECOVERY
+        true_tp[A1_index, self.STATES_MAP["U"]] = self.MU_A1
+        true_tp[A1_index, self.STATES_MAP["A1"]] = 1 - self.MU_A1
         true_tp[A1_index, self.STATES_MAP["A2"]] = 0
 
     def _dynamic_for_node_A2(self, A2_index, true_tp):
-        true_tp[A2_index, self.STATES_MAP["U"]] = self.RECOVERY
-        true_tp[A2_index, self.STATES_MAP["A2"]] = 1 - self.RECOVERY
+        true_tp[A2_index, self.STATES_MAP["U"]] = self.MU_A2
+        true_tp[A2_index, self.STATES_MAP["A2"]] = 1 - self.MU_A2
         true_tp[A2_index, self.STATES_MAP["A1"]] = 0
     def _dynamic_for_node_U(self, U_index, adj_A1_act_edges, adj_A2_act_edges, true_tp):
         # 不被影响的概率
@@ -102,12 +103,12 @@ class CompUAU(CompartmentModel):
         aware_prob = 1 - not_aware_prob  # 至少被一个A1或A2的邻居影响
         # g_A1：与所有A1态邻居接触，但被影响成为A1态的概率
         # g_A2：与所有A2态邻居接触，但被影响成为A2态的概率
-        g_A1 = 1 - not_aware_A1_prob + 1e-15
-        g_A2 = 1 - not_aware_A2_prob + 1e-15
+        g_A1 = 1 - not_aware_A1_prob
+        g_A2 = 1 - not_aware_A2_prob
         # f_A1：当已知节点被影响，被影响成为A1态的概率
         # f_A2：当已知节点被影响，被影响成为A2态的概率
-        f_A1 = g_A1*(1-0.5*g_A2)/(g_A1*(1-0.5*g_A2)+g_A2*(1-0.5*g_A1))
-        f_A2 = g_A2*(1-0.5*g_A1)/(g_A1*(1-0.5*g_A2)+g_A2*(1-0.5*g_A1))
+        f_A1 = g_A1*(1-0.5*g_A2)/(g_A1*(1-0.5*g_A2)+g_A2*(1-0.5*g_A1)+1e-15)
+        f_A2 = g_A2*(1-0.5*g_A1)/(g_A1*(1-0.5*g_A2)+g_A2*(1-0.5*g_A1)+1e-15)
 
         # 修改实际迁移概率
         true_tp[U_index, self.STATES_MAP["U"]]  = not_aware_prob[U_index]
@@ -131,7 +132,7 @@ class CompUAU(CompartmentModel):
         return spread_result
 
     def _run_onestep(self):
-        self.BETA_A1 = self.EFF_AWARE_A1 * self.RECOVERY / self.network.AVG_K
-        self.BETA_A2 = self.EFF_AWARE_A2 * self.RECOVERY / self.network.AVG_K
+        self.BETA_A1 = self.EFF_AWARE_A1 * self.MU_A1 / self.network.AVG_K
+        self.BETA_A2 = self.EFF_AWARE_A2 * self.MU_A2 / self.network.AVG_K
         spread_result = self._spread()
         return spread_result

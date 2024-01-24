@@ -8,7 +8,7 @@ class SCUAU(CompartmentModel):
         super().__init__(config)
         self.EFF_AWARE = torch.tensor(self.dynamics_config.EFF_AWARE)
         self.EFF_AWARE_DELTA = torch.tensor(self.dynamics_config.EFF_AWARE_DELTA)
-        self.RECOVERY = self.dynamics_config.RECOVERY
+        self.MU = self.dynamics_config.MU
         self.SEED_FREC = self.dynamics_config.SEED_FREC
     def set_beta(self,eff_beta):
         # todo: 在其他动力学也加上该函数
@@ -75,8 +75,8 @@ class SCUAU(CompartmentModel):
         return x0, x1, x2
 
     def _dynamic_for_node_A(self, A_index, true_tp):
-        true_tp[A_index, self.STATES_MAP["U"]] = self.RECOVERY
-        true_tp[A_index, self.STATES_MAP["A"]] = 1 - self.RECOVERY
+        true_tp[A_index, self.STATES_MAP["U"]] = self.MU
+        true_tp[A_index, self.STATES_MAP["A"]] = 1 - self.MU
 
     def _dynamic_for_node_U(self, U_index, adj_act_edges, adj_act_triangles, true_tp):
         # 感染概率
@@ -106,7 +106,7 @@ class SCUAU(CompartmentModel):
         }
         return spread_result
     def _run_onestep(self):
-        self.BETA = self.EFF_AWARE * self.RECOVERY / self.network.AVG_K
-        self.BETA_DELTA = self.EFF_AWARE_DELTA * self.RECOVERY / self.network.AVG_K_DELTA
+        self.BETA = self.EFF_AWARE * self.MU / self.network.AVG_K
+        self.BETA_DELTA = self.EFF_AWARE_DELTA * self.MU / self.network.AVG_K_DELTA
         spread_result = self._spread()
         return spread_result
