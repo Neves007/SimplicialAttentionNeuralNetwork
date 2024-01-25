@@ -45,7 +45,6 @@ class TestDynamicExperimentManager():
         'DEVICE': torch.device('cuda'),
         '''
         # T总时间步
-        config.network.AVG_K = self.fix_config_dict['AVG_K']
         config.dataset.NUM_SAMPLES = self.fix_config_dict['NUM_SAMPLES']
 
         config.EFF_BETA_LIST = self.fix_config_dict['EFF_BETA_LIST']

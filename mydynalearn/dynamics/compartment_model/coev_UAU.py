@@ -77,8 +77,8 @@ class CoevUAU(CompartmentModel):
         UU_index, A1U_index, UA2_index, A1A2_index = self._get_nodeid_for_each_state()
         adj_A1U_act_edges, adj_UA2_act_edges, adj_A1A2_act_edges = self._get_adj_activate_simplex()
         # 不被一阶感染
-        BETA_A1A2ToA1 = self.BETA_A1*(1 - self.BETA_A2) / (self.BETA_A1*(1 - self.BETA_A2) + self.BETA_A2*(1 - self.BETA_A1))
-        BETA_A1A2ToA2 = self.BETA_A2*(1 - self.BETA_A1) / (self.BETA_A1*(1 - self.BETA_A2) + self.BETA_A2*(1 - self.BETA_A1))
+        BETA_A1A2ToA1 = self.BETA_A1*(1 - self.BETA_A2) / (self.BETA_A1*(1 - self.BETA_A2) + self.BETA_A2*(1 - self.BETA_A1) + 1.e-15)
+        BETA_A1A2ToA2 = self.BETA_A2*(1 - self.BETA_A1) / (self.BETA_A1*(1 - self.BETA_A2) + self.BETA_A2*(1 - self.BETA_A1) + 1.e-15)
         q_A1U = torch.pow(1 - self.BETA_A1, adj_A1U_act_edges)
         q_UA2 = torch.pow(1 - self.BETA_A2, adj_UA2_act_edges)
         q_A1A2ToA1 = torch.pow(1 - BETA_A1A2ToA1, adj_A1A2_act_edges)

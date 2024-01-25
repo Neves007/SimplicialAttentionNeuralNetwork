@@ -38,20 +38,23 @@ device = torch.device('cuda')
 
 ''' 所有参数
     "grpah_network": ["ER"],
-    "grpah_dynamics": ["UAU", "CompUAU"],
+    "grpah_dynamics": ["UAU", "CompUAU", "CoopUAU", "AsymmUAU"],
 
     "simplicial_network": ["SCER","CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
-    "simplicial_dynamics": ["SCUAU", "SCCompUAU"],
+    "simplicial_dynamics": ["SCUAU", "SCCompUAU", "SCCoopUAU", "SCAsymUAU"],
 
     "model": ["GAT", "SAT", "DiffSAT", "DualSAT"],  # 至少选一个
     "IS_WEIGHT": [False]
 '''
+
 params = {
+    "grpah_network": ["ER"],
+    "grpah_dynamics": ["UAU", "CompUAU", "CoopUAU", "AsymmUAU"],
 
-    "simplicial_network": ["SCER"],
-    "simplicial_dynamics": ["SCUAU"],
+    "simplicial_network": ["SCER","CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
+    "simplicial_dynamics": ["SCUAU", "SCCompUAU", "SCCoopUAU", "SCAsymUAU"],
 
-    "model": ["GAT"],  # 至少选一个
+    "model": ["GAT", "SAT", "DiffSAT", "DualSAT"],  # 至少选一个
     "IS_WEIGHT": [False]
 }
 fix_config = {
