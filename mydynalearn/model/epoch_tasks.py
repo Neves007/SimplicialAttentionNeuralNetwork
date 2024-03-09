@@ -7,7 +7,7 @@ import torch
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from mydynalearn.model.optimizer import get as get_optimizer
-from mydynalearn.drawer import VisdomController
+# from mydynalearn.drawer import VisdomController
 from mydynalearn.model.util import *
 import copy
 from mydynalearn.logger.logger import *
@@ -95,7 +95,7 @@ class EpochTasks():
         return tag
 
 
-    def train_epoch(self,train_set, val_set, network, dynamics, epoch_index,visdom_drawer):
+    def train_epoch(self,train_set, val_set, network, dynamics, epoch_index):
         process_bar = tqdm(
             enumerate(zip(train_set, val_set)),
             maxinterval=10,
@@ -133,17 +133,16 @@ class EpochTasks():
                                                            self.optimizer.param_groups[0]['lr'],
                                                            R)
             process_bar.set_postfix(custom_info=item_info)
-            visdom_drawer.visdomDrawBatch(val_data)
+            # visdom_drawer.visdomDrawBatch(val_data)
         process_bar.close()
     def run_all(self,network, dynamics, train_set, val_set, test_set):
-        visdom_drawer = VisdomController(self.config, dynamics)
+        # visdom_drawer = VisdomController(self.config, dynamics)
         for epoch_index in range(self.EPOCHS):
             self.train_epoch(train_set,
                              val_set,
                              network,
                              dynamics,
-                             epoch_index,
-                             visdom_drawer)
+                             epoch_index)
             self.save(self.attention_model, self.optimizer, epoch_index)
             self.low_the_lr(epoch_index)
 

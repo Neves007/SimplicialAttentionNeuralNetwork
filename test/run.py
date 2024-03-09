@@ -38,23 +38,23 @@ device = torch.device('cuda')
 
 ''' 所有参数
     "grpah_network": ["ER"],
-    "grpah_dynamics": ["UAU", "CompUAU", "CoopUAU", "AsymmUAU"],
+    "grpah_dynamics": ["UAU", "CompUAU", "CoopUAU", "AsymUAU"],
 
     "simplicial_network": ["SCER","CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
     "simplicial_dynamics": ["SCUAU", "SCCompUAU", "SCCoopUAU", "SCAsymUAU"],
 
-    "model": ["GAT", "SAT", "DiffSAT", "DualSAT"],  # 至少选一个
+    "model": ["GAT", "SAT", "DiffSAT"],  # 至少选一个
     "IS_WEIGHT": [False]
 '''
 
 params = {
     "grpah_network": ["ER"],
-    "grpah_dynamics": ["UAU", "CompUAU", "CoopUAU", "AsymmUAU"],
+    "grpah_dynamics": ["UAU", "CompUAU", "CoopUAU", "AsymUAU"],
 
     "simplicial_network": ["SCER","CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
     "simplicial_dynamics": ["SCUAU", "SCCompUAU", "SCCoopUAU", "SCAsymUAU"],
 
-    "model": ["GAT", "SAT", "DiffSAT", "DualSAT"],  # 至少选一个
+    "model": ["GAT", "SAT", "DiffSAT"],  # 至少选一个
     "IS_WEIGHT": [False]
 }
 fix_config = {
@@ -62,7 +62,6 @@ fix_config = {
     "TESTSET_TIMESTEP": 100,
     "EPOCHS": 30,
     "DEVICE": torch.device('cuda'),
-    # "DEVICE": torch.device('cpu')
 }
 
 

@@ -24,9 +24,22 @@ class CompartmentModel():
         :param true_tp: 迁移概率
         :return:
         '''
-        states = torch.multinomial(true_tp, num_samples=1, replacement=False).squeeze(1)
-        new_x0 = self.NODE_FEATURE_MAP[states]
-        return new_x0
+        try:
+            states = torch.multinomial(true_tp, num_samples=1, replacement=False).squeeze(1)
+            new_x0 = self.NODE_FEATURE_MAP[states]
+            return new_x0
+        except Exception as e:
+            le0_index = torch.where(true_tp.sum(dim=1) <= 0)[0]
+            isnan_index = torch.where(torch.isnan(true_tp))[0]
+            if len(le0_index)>0:
+                print("sum of true_tp <=0\n", le0_index)
+                print("state of the node\n", self.x0[le0_index])
+            if len(isnan_index)>0:
+                print("true_tp is nan\n", isnan_index)
+                print("state of the node\n", self.x0[isnan_index])
+            raise e
+
+
     def calculate_intersection_tensor(self,tensor_a,tensor_b):
         '''计算同时存在tensor_a和tensor_b的元素
 

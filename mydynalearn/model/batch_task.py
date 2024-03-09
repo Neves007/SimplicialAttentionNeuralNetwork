@@ -4,7 +4,6 @@ import pickle
 import torch.nn as nn
 import torch
 from mydynalearn.model.optimizer import get as get_optimizer
-from mydynalearn.drawer import VisdomController
 from mydynalearn.model.util import *
 import copy
 from mydynalearn.logger.logger import *

@@ -16,7 +16,7 @@ from mydynalearn.drawer import MatplotController
 
 ''' 所有参数
     "grpah_network": ["ER"],
-    "grpah_dynamics": ["UAU","CompUAU","CompUAUCoev","CoopUAU","AsymmUAU",],
+    "grpah_dynamics": ["UAU","CompUAU","CompUAUCoev","CoopUAU","AsymUAU",],
 
     "simplicial_network": ["SCER"],
     "simplicial_dynamics": ["SCUAU", "SCCompUAU", "SCCoopUAU", "SCAsymUAU"],

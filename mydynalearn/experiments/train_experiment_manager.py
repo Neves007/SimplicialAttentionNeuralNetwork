@@ -18,8 +18,9 @@ class TrainExperimentManager():
         config.dataset.NUM_TEST = self.fix_config_dict['TESTSET_TIMESTEP']
         config.model.EPOCHS = self.fix_config_dict['EPOCHS']  # 10
         config.model.NAME = model_name
-        config.model.in_channels[0] = config.dynamics.NUM_STATES
-        config.model.out_channels[-1] = config.dynamics.NUM_STATES
+        NUM_STATES = len(config.dynamics.STATES_MAP.keys())
+        config.model.in_channels[0] = NUM_STATES
+        config.model.out_channels[-1] = NUM_STATES
         config.DEVICE = self.fix_config_dict['DEVICE']  # 10
 
     def get_loaded_model_exp(self, train_args, epoch_index):

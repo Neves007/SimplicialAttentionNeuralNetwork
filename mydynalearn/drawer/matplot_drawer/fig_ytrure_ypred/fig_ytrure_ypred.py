@@ -12,7 +12,17 @@ import itertools
 
 class FigYtrureYpred():
     def __init__(self, model_dynamics,  model_exp_epoch_index,  test_result_time_list, **kwargs):
-        all_colors = ["red","orange","yellow","green","cyan","blue","purple",'brown', 'grey', 'pink']
+        colormap_dict = {
+            "UAU": 'viridis',
+            "CompUAU": 'viridis',
+            "CoopUAU": 'viridis',
+            "AsymUAU": 'viridis',
+            "SCUAU": 'plasma',
+            "SCCompUAU": 'plasma',
+            "SCCoopUAU": 'plasma',
+            "SCAsymUAU": 'plasma',
+        }
+
 
         self.dynamics = model_dynamics
         self.epoch_index = model_exp_epoch_index
@@ -22,7 +32,17 @@ class FigYtrureYpred():
 
         self.STATES_MAP = model_dynamics.STATES_MAP
         self.transition_lables = self.dynamic_data_handler.get_transition_lables()
-        self.colors = [all_colors[i] for i in range(len(self.transition_lables))]
+        # self.colors = [all_colors[i] for i in range(len(self.transition_lables))]
+
+        cmap = plt.cm.get_cmap(colormap_dict[model_dynamics.NAME], len(self.transition_lables))
+
+        # 生成10个等间隔的值
+        indices = np.linspace(0, 1, len(self.transition_lables))
+
+        # 提取颜色
+
+        # 将颜色转换为RGB格式
+        self.colors = [color[:3] for color in cmap(indices)]
         self.markers = ["o" for i in range(len(self.transition_lables))]
 
 
@@ -51,7 +71,7 @@ class FigYtrureYpred():
         self.ax.set_ylabel("prediction")  # 设置y轴标注
 
         self.legend_elements = self.get_legend_elements()
-        self.ax.legend(handles=self.legend_elements, labels=self.transition_lables)
+        self.ax.legend(handles=self.legend_elements, labels=self.transition_lables, loc='upper left'              )
         self.ax.grid(True)
     def save_fig(self,fig_file):
         self.fig.savefig(fig_file)
@@ -63,7 +83,7 @@ class FigYtrureYpred():
         for index in range(len(self.transition_lables)):
             self.ax.scatter(x=self.performance_data[index][:, 0].detach().numpy(),
                             y=self.performance_data[index][:, 1].detach().numpy(),
-                            c=self.colors[index],
+                            c=np.array([self.colors[index]]),
                             marker=self.markers[index],
                             s=marker_size[self.performance_index[index]], alpha=0.3)
         self.editAix()
@@ -71,7 +91,7 @@ class FigYtrureYpred():
     def get_legend_elements(self):
         legend_elements = [plt.scatter([0],
                                        [0],
-                                       c=self.colors[index],
+                                       c=np.array([self.colors[index]]),
                                        marker=self.markers[index],
                                        s=53,
                                        alpha=0.8) for index in range(len(self.transition_lables))]

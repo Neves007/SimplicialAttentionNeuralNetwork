@@ -232,9 +232,16 @@ class SCCoevUAU(CompartmentModel):
         # 被影响的概率
         g_A1 = 1 - q_A1
         g_A2 = 1 - q_A2
+        epsilon = torch.tensor(1e-7).to(g_A1)
+        clamp_min = torch.tensor(0.).to(g_A1) + epsilon
+        clamp_max = torch.tensor(1.).to(g_A1) - epsilon
+        g_A1 = torch.clamp(g_A1, min=clamp_min, max=clamp_max)
+        g_A2 = torch.clamp(g_A2, min=clamp_min, max=clamp_max)
 
-        f_A1 = g_A1*(1-g_A2)/(g_A1*(1-g_A2)+g_A2*(1-g_A1)+1e-15)
-        f_A2 = g_A2*(1-g_A1)/(g_A1*(1-g_A2)+g_A2*(1-g_A1)+1e-15)
+        f_A1 = g_A1*(1-g_A2)/(g_A1*(1-g_A2)+g_A2*(1-g_A1))
+        f_A2 = g_A2*(1-g_A1)/(g_A1*(1-g_A2)+g_A2*(1-g_A1))
+
+
 
         # 恢复，恢复迁移需要保证和为1
         recovery_prob = 1 - (1 - self.MU_A1) * (1 - self.MU_A2)
@@ -261,6 +268,20 @@ class SCCoevUAU(CompartmentModel):
         true_tp[A1A2_index, self.STATES_MAP["A1U"]] = recovery_prob * f_MU_A1
         true_tp[A1A2_index, self.STATES_MAP["UA2"]] = recovery_prob * f_MU_A2
         true_tp[A1A2_index, self.STATES_MAP["A1A2"]] = 1 - recovery_prob
+
+        le0_index = torch.where(true_tp.sum(dim=1) <= 0)[0]
+        isnan_index = torch.where(torch.isnan(true_tp))[0]
+        try:
+            if len(le0_index) > 0:
+                print("sum of true_tp <=0\n", le0_index)
+                print("state of the node\n", self.x0[le0_index])
+                raise Exception("wrong true_tp")
+            if len(isnan_index) > 0:
+                print("true_tp is nan\n", isnan_index)
+                print("state of the node\n", self.x0[isnan_index])
+                raise Exception("wrong true_tp")
+        except Exception as e:
+            print(e)
         pass
 
     def _spread(self):

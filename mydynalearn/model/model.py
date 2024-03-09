@@ -1,7 +1,6 @@
 import os
 import torch.nn as nn
 from mydynalearn.model.optimizer import get as get_optimizer
-from mydynalearn.drawer import VisdomController
 
 from mydynalearn.model.epoch_tasks import EpochTasks
 

@@ -4,7 +4,7 @@ __DYNAMICS__ = {
     "UAU": UAU,
     "CompUAU": CoevUAU,
     "CoopUAU": CoevUAU,
-    "AsymmUAU": CoevUAU,
+    "AsymUAU": CoevUAU,
     "SCUAU": SCUAU,
     "SCCompUAU": SCCoevUAU,
     "SCCoopUAU": SCCoevUAU,

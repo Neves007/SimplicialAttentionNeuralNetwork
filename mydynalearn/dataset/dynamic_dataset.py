@@ -122,6 +122,7 @@ class DynamicDataset(Dataset):
         if self.is_dataset_exist():
             print("load dataset...")
             network, dynamics, train_set, val_set, test_set = self.load_dataset()
+
         else:
             print("build dataset...")
             self.buid_dataset()

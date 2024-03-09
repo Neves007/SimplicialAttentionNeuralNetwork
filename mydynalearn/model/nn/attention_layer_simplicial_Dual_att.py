@@ -101,7 +101,7 @@ class SATLayer_regular(nn.Module):
 
             agg0 = self.attention_agg(xj_0, ai_0, aj_0, incMatrix_adj0)
 
-            output = self.layer_norm1(self.agg_weight[0] * agg0 + x0)
+            output = self.layer_norm1(agg0 + x0)
         else:
             incMatrix_adj0, incMatrix_adj1, incMatrix_adj2 = network._unpack_inc_matrix_adj_info()
             xi_0 = self.leakyrelu(self.input_linear_layer1(x0))
@@ -117,7 +117,7 @@ class SATLayer_regular(nn.Module):
             agg1 = self.attention_agg(xj_1, ai_0, aj_1, incMatrix_adj1)
             agg2 = self.attention_agg(xj_2, ai_0, aj_2, incMatrix_adj2)
 
-            output = self.layer_norm1(self.dual_att_high(x0,agg0,agg1,agg2))
+            output = self.layer_norm1(self.dual_att_high(x0,agg0,agg1,agg2) + x0)
         output = self.layer_norm2(self.output_linear_layer1(output)+output)
         return output
 

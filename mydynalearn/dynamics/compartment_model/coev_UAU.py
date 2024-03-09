@@ -94,9 +94,14 @@ class CoevUAU(CompartmentModel):
         # 被影响的概率
         g_A1 = 1 - q_A1
         g_A2 = 1 - q_A2
+        epsilon = torch.tensor(1e-7).to(g_A1)
+        clamp_min = torch.tensor(0.).to(g_A1) + epsilon
+        clamp_max = torch.tensor(1.).to(g_A1) - epsilon
+        g_A1 = torch.clamp(g_A1, min=clamp_min, max=clamp_max)
+        g_A2 = torch.clamp(g_A2, min=clamp_min, max=clamp_max)
 
-        f_A1 = g_A1 * (1 - g_A2) / (g_A1 * (1 - g_A2) + g_A2 * (1 - g_A1) + 1.e-15)
-        f_A2 = g_A2 * (1 - g_A1) / (g_A1 * (1 - g_A2) + g_A2 * (1 - g_A1) + 1.e-15)
+        f_A1 = g_A1*(1-g_A2)/(g_A1*(1-g_A2)+g_A2*(1-g_A1))
+        f_A2 = g_A2*(1-g_A1)/(g_A1*(1-g_A2)+g_A2*(1-g_A1))
 
         # 恢复，恢复迁移需要保证和为1
         recovery_prob = 1 - (1 - self.MU_A1) * (1 - self.MU_A2)

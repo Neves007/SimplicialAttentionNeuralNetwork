@@ -8,8 +8,8 @@ UAU:
   EFF_AWARE: 8.0
   MU: 0.1
 
-CompUAUCoev:
-  NAME: "CompUAUCoev"
+CompUAU:
+  NAME: "CompUAU"
   STATES_MAP:
     UU: 0
     A1U: 1
@@ -42,8 +42,8 @@ CoopUAU:
   MU_A1: 0.1
   MU_A2: 0.1
 
-AsymmUAU:
-  NAME: "AsymmUAU"
+AsymUAU:
+  NAME: "AsymUAU"
   STATES_MAP:
     UU: 0
     A1U: 1
@@ -108,8 +108,8 @@ SCCoopUAU:
   MU_A1: 0.1
   MU_A2: 0.1
 
-SCAsymmUAU:
-  NAME: "SCAsymmUAU"
+SCAsymUAU:
+  NAME: "SCAsymUAU"
   STATES_MAP:
     UU: 0
     A1U: 1

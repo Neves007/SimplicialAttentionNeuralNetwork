@@ -100,14 +100,22 @@ class runModelOnTestData():
         R_input_y_true = y_true[torch.where(y_ob==1)].detach().numpy()
         R = np.corrcoef(R_input_y_pred,R_input_y_true)[0,1]
         return R
+    def compute_loss(self,test_result_curepoch):
+        loss_list = torch.stack([data["loss"] for data in test_result_curepoch])
+        loss = loss_list.mean()
+        loss = loss.detach().item()
+        return loss
 
     def create_analyze_result(self,model_exp_epoch_index):
-        network, dynamics, _, _, test_loader = self.testdata_exp.create_dataset()
+        try:
+            network, dynamics, _, _, test_loader = self.testdata_exp.create_dataset()
+        except Exception as e:
+            print(self.global_info)
+            raise e
         test_result_time_list = self.model_exp.model.epoch_tasks.run_test_epoch(network,
                                                                                 dynamics,
                                                                                 test_loader,
                                                                                 model_exp_epoch_index)
-        R = self.compute_R(test_result_time_list)
         analyze_result = {
             "model_dynamics": self.model_exp.dataset.dynamics,
             "model_network_name": self.model_exp.config.network.NAME,
@@ -117,7 +125,8 @@ class runModelOnTestData():
             "model_name": self.model_exp.config.model.NAME,
             "model_exp_epoch_index": model_exp_epoch_index,
             "test_result_time_list": test_result_time_list,
-            "R": R
+            "R": self.compute_R(test_result_time_list),
+            "loss":self.compute_loss(test_result_time_list)
         }
         return analyze_result
 
@@ -133,5 +142,5 @@ class runModelOnTestData():
         print("testing:")
         print("analyze epoch: ", model_exp_epoch_index)
         print("output analyze_result_filepath: ",analyze_result_filepath)
-        print("analyze completed!\n")
+        print("analyze completed!")
         return analyze_result
