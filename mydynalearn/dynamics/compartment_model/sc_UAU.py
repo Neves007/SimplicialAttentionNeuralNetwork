@@ -110,3 +110,16 @@ class SCUAU(CompartmentModel):
         self.BETA_DELTA = self.EFF_AWARE_DELTA * self.MU / self.network.AVG_K_DELTA
         spread_result = self._spread()
         return spread_result
+
+    def get_adj_activate_simplex_dict(self):
+        '''
+        将adj_activate_simplex聚合dict返回
+        :return:
+        '''
+        adj_act_edges,adj_act_triangles = self._get_adj_activate_simplex()
+        adj_activate_simplex_dict = {
+            "adj_act_edges": adj_act_edges,
+            "adj_act_triangles": adj_act_triangles,
+        }
+
+        return adj_activate_simplex_dict

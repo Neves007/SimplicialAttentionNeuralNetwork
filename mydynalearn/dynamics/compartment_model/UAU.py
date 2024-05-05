@@ -18,7 +18,6 @@ class UAU(CompartmentModel):
         x0[AWARE_SEED_INDEX] = self.NODE_FEATURE_MAP[self.STATES_MAP["A"]]
         self.x0=x0
     def set_beta(self,eff_beta):
-        # todo: 在其他动力学也加上该函数
         self.EFF_AWARE = eff_beta
 
     def _get_adj_activate_simplex(self):
@@ -69,7 +68,6 @@ class UAU(CompartmentModel):
 
 
     def _spread(self):
-        # todo: 先计算迁移概率，通过迁移概率抽样来决定迁移状态
         old_x0, old_x1, true_tp, adj_act_edges = self._preparing_spreading_data()
         U_index, A_index = self._get_nodeid_for_each_state()
         self._dynamic_for_node_U(U_index, adj_act_edges, true_tp)
@@ -88,3 +86,14 @@ class UAU(CompartmentModel):
         self.BETA = self.EFF_AWARE * self.MU / self.network.AVG_K
         spread_result = self._spread()
         return spread_result
+    def get_adj_activate_simplex_dict(self):
+        '''
+        将adj_activate_simplex聚合dict返回
+        :return:
+        '''
+        adj_act_edges = self._get_adj_activate_simplex()
+        adj_activate_simplex_dict = {
+            "adj_act_edges": adj_act_edges,
+        }
+
+        return adj_activate_simplex_dict

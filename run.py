@@ -48,17 +48,17 @@ device = torch.device('cuda')
 '''
 params = {
     "grpah_network": ["ER"],
-    "grpah_dynamics": ["UAU", "CompUAU"],
+    "grpah_dynamics": ["UAU", "CompUAU", "CoopUAU", "AsymUAU"],
 
     "simplicial_network": ["SCER","CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
-    "simplicial_dynamics": ["SCUAU", "SCCompUAU"],
+    "simplicial_dynamics": ["SCUAU", "SCCompUAU", "SCCoopUAU", "SCAsymUAU"],
 
     "model": ["GAT", "SAT", "DiffSAT"],  # 至少选一个
     "IS_WEIGHT": [False]
 }
 fix_config = {
     "NUM_SAMPLES": 10000,
-    "TESTSET_TIMESTEP": 100,
+    "TESTSET_TIMESTEP": 10,
     "EPOCHS": 30,
     "DEVICE": torch.device('cuda'),
     # "DEVICE": torch.device('cpu')
@@ -75,5 +75,6 @@ if __name__ == '__main__':
     # 分析：测试集分析训练模型
     analyze_manager.run()
     # # 画图：
-    matplot_drawer = MatplotController(analyze_manager)
+    analyze_result_for_best_epoch = analyze_manager.get_analyze_result_generator_for_best_epoch()
+    matplot_drawer = MatplotController(analyze_result_for_best_epoch)
     matplot_drawer.run()

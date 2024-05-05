@@ -27,8 +27,8 @@ params_dict = {
 }
 
 fix_config_dict = {
-    'NUM_SAMPLES' : 1000,
-    'EFF_BETA_LIST': torch.linspace(0,3, 101),
+    'NUM_SAMPLES' : 10,
+    'EFF_BETA_LIST': torch.linspace(0, 3, 11),
     'DEVICE': torch.device('cuda'),
     'ROUND': 5,
 }
@@ -40,4 +40,5 @@ if __name__ == '__main__':
 
     # # 训练
     test_dynamic_experiment_manager.run()
+
 

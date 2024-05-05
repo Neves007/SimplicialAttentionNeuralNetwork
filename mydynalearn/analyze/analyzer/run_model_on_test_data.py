@@ -2,7 +2,7 @@ import os
 import pickle
 import torch
 import numpy as np
-
+from mydynalearn.analyze.utils.data_handler.dynamic_data_handler import DynamicDataHandler
 from multipledispatch import dispatch
 class runModelOnTestData():
     def __init__(self,
@@ -10,6 +10,12 @@ class runModelOnTestData():
                  model_exp,
                  dataset_exp,
                  ):
+        '''
+        测试类，使用 testdata_exp 的测试数据来测试，model_exp的模型结果
+        :param config:
+        :param model_exp:
+        :param dataset_exp:
+        '''
         self.config = config
         self.IS_WEIGHT = model_exp.config.IS_WEIGHT
         self.model_exp = model_exp
@@ -107,7 +113,13 @@ class runModelOnTestData():
         return loss
 
     def create_analyze_result(self,model_exp_epoch_index):
+        '''
+
+        :param model_exp_epoch_index: 已训练模型model_exp的epoch
+        :return:
+        '''
         try:
+            # 读取测试数据集数据
             network, dynamics, _, _, test_loader = self.testdata_exp.create_dataset()
         except Exception as e:
             print(self.global_info)
@@ -116,22 +128,31 @@ class runModelOnTestData():
                                                                                 dynamics,
                                                                                 test_loader,
                                                                                 model_exp_epoch_index)
-        analyze_result = {
-            "model_dynamics": self.model_exp.dataset.dynamics,
+
+        dynamic_data_handler = DynamicDataHandler(dynamics, test_result_time_list)
+        test_result_info = {
             "model_network_name": self.model_exp.config.network.NAME,
             "model_dynamics_name": self.model_exp.config.dynamics.NAME,
+            "MAX_DIMENSION": dynamics.MAX_DIMENSION,
             "dataset_network_name": self.testdata_exp.config.network.NAME,
             "dataset_dynamics_name": self.testdata_exp.config.dynamics.NAME,
             "model_name": self.model_exp.config.model.NAME,
-            "model_exp_epoch_index": model_exp_epoch_index,
-            "test_result_time_list": test_result_time_list,
-            "R": self.compute_R(test_result_time_list),
-            "loss":self.compute_loss(test_result_time_list)
+            "model_epoch_index": model_exp_epoch_index,
         }
-        return analyze_result
+
+        test_result_df = dynamic_data_handler.get_testresult_dataframe(test_result_info)
+        model_performace_dict = dynamic_data_handler.get_model_performace(test_result_df)
+        merge_data = {
+            "test_result_info": test_result_info,
+            "test_result_df": test_result_df,
+            "dynamics_STATES_MAP": dynamics.STATES_MAP,
+            "model_performace_dict": model_performace_dict,
+        }
+        return merge_data
 
 
     def run(self, model_exp_epoch_index):
+
         analyze_result_filepath = self.get_analyze_result_filepath(model_exp_epoch_index)
         need_to_run = not os.path.exists(analyze_result_filepath)
         if need_to_run:

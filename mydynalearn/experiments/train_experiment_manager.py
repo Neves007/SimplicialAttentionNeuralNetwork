@@ -35,7 +35,7 @@ class TrainExperimentManager():
         return model_exp
 
 
-    def get_train_exp(self,network, dynamics, model, IS_WEIGHT):
+    def get_train_exp(self,network, dynamics, model, IS_WEIGHT=False):
         '''通过参数获得实验对象
 
         :param network:

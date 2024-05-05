@@ -38,9 +38,8 @@ class ConfigTrainingExp:
         self.DEVICE = torch.device('cpu')
 
     def set_path(self, root_dir="./output"):
-        dataset_dir_path = os.path.join(root_dir, "dataset")
+        self.dataset_dir_path = os.path.join(root_dir, "dataset")
         self.modelparams_dir_path = os.path.join(root_dir, "modelparams", self.NAME)
-        self.dataset_dir_path = os.path.join(dataset_dir_path, self.NAME)
 
         self.make_dir(self.dataset_dir_path)
         self.make_dir(self.modelparams_dir_path)

@@ -112,7 +112,6 @@ class SCCoevUAU(CompartmentModel):
 
     '''
     def __init__(self, config):
-        # todo: 已检查
         super().__init__(config)
         self.EFF_AWARE_A1 = torch.tensor(self.dynamics_config.EFF_AWARE_A1)
         self.EFF_AWARE_A2 = torch.tensor(self.dynamics_config.EFF_AWARE_A2)
@@ -120,15 +119,13 @@ class SCCoevUAU(CompartmentModel):
         self.EFF_AWARE_DELTA_A2 = torch.tensor(self.dynamics_config.EFF_AWARE_DELTA_A2)
         self.prime_A1 = torch.tensor(self.dynamics_config.prime_A1)
         self.prime_A2 = torch.tensor(self.dynamics_config.prime_A2)
-        # todo: 修改MU_A1
         self.MU_A1 = self.dynamics_config.MU_A1
         self.MU_A2 = self.dynamics_config.MU_A2
         self.SEED_FREC_A1 = self.dynamics_config.SEED_FREC_A1
         self.SEED_FREC_A2 = self.dynamics_config.SEED_FREC_A2
 
-    # todo: 修改set_beta
+
     def set_beta(self,eff_beta):
-        # todo: 在其他动力学也加上该函数
         self.EFF_AWARE_A1 = eff_beta
 
     def _init_x0(self):
@@ -310,3 +307,19 @@ class SCCoevUAU(CompartmentModel):
 
         spread_result = self._spread()
         return spread_result
+    def get_adj_activate_simplex_dict(self):
+        '''
+        将adj_activate_simplex聚合dict返回
+        :return:
+        '''
+        adj_A1U_act_edges, adj_UA2_act_edges, adj_A1A2_act_edges, adj_A1U_act_triangles, adj_UA2_act_triangles, adj_A1A2_act_triangles = self._get_adj_activate_simplex()
+        adj_activate_simplex_dict = {
+            "adj_A1U_act_edges": adj_A1U_act_edges,
+            "adj_UA2_act_edges": adj_UA2_act_edges,
+            "adj_A1A2_act_edges": adj_A1A2_act_edges,
+            "adj_A1U_act_triangles": adj_A1U_act_triangles,
+            "adj_UA2_act_triangles": adj_UA2_act_triangles,
+            "adj_A1A2_act_triangles": adj_A1A2_act_triangles,
+        }
+
+        return adj_activate_simplex_dict

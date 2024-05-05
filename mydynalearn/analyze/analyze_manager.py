@@ -1,6 +1,7 @@
 from tqdm import tqdm
-from mydynalearn.analyze.analyzer import *
+from mydynalearn.analyze.analyzer import runModelOnTestData,epochAnalyzer
 from mydynalearn.config import Config
+import os
 
 class AnalyzeManager():
     def __init__(self,train_experiment_manager):

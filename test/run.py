@@ -58,9 +58,9 @@ params = {
     "IS_WEIGHT": [False]
 }
 fix_config = {
-    "NUM_SAMPLES": 10000,
-    "TESTSET_TIMESTEP": 100,
-    "EPOCHS": 30,
+    "NUM_SAMPLES": 100,
+    "TESTSET_TIMESTEP": 50,
+    "EPOCHS": 3,
     "DEVICE": torch.device('cuda'),
 }
 
@@ -77,3 +77,8 @@ if __name__ == '__main__':
     # # 画图：
     matplot_drawer = MatplotController(analyze_manager)
     matplot_drawer.run()
+
+
+
+
+

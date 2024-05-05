@@ -37,25 +37,11 @@ class epochAnalyzer():
 
 
     def __init_all_epoch_dataframe(self):
-        all_epoch_dataframe = pd.DataFrame(columns=["model_network_name",
-                                                    "model_dynamics_name",
-                                                    "dataset_network_name",
-                                                    "dataset_dynamics_name",
-                                                    "model_name",
-                                                    "model_exp_epoch_index",
-                                                    "loss",
-                                                    "R",])
+        all_epoch_dataframe = pd.DataFrame()
         return all_epoch_dataframe
 
     def __init_best_epoch_dataframe(self):
-        best_epoch_dataframe = pd.DataFrame(columns=["model_network_name",
-                                                     "model_dynamics_name",
-                                                     "dataset_network_name",
-                                                     "dataset_dynamics_name",
-                                                     "model_name",
-                                                     "best_epoch",
-                                                     "loss",
-                                                     "R",])
+        best_epoch_dataframe = pd.DataFrame()
         return best_epoch_dataframe
 
     def save_all_epoch_dataframe(self):
@@ -69,20 +55,17 @@ class epochAnalyzer():
     def load_best_epoch_dataframe(self):
         self.best_epoch_dataframe = pd.read_csv(self.best_epoch_dataframe_file_path)
     def analyze_result_to_pdseries(self,analyze_result):
-        extracted_result = {key: analyze_result[key] for key in self.all_epoch_dataframe.columns}
-        analyze_result_series = pd.Series(extracted_result)
+        test_result_info = analyze_result['test_result_info']
+        model_performace_dict = analyze_result['model_performace_dict']
+        performace_dict = {"f1" : model_performace_dict["f1"],
+                           "R" : model_performace_dict["R"],
+                           "cross_loss" : model_performace_dict["cross_loss"],}
+        analyze_result_series = pd.Series({**test_result_info,**performace_dict})
         return analyze_result_series
 
-    def extract_group_properties(self,row):
-        columns = ["model_network_name",
-                   "model_dynamics_name",
-                   "dataset_network_name",
-                   "dataset_dynamics_name",
-                   "model_name"]
-        return {col: row[col] for col in columns}
     def add_epoch_result(self, analyze_result):
         analyze_result_series = self.analyze_result_to_pdseries(analyze_result)
-        self.all_epoch_dataframe = self.all_epoch_dataframe.append(analyze_result_series, ignore_index=True)
+        self.all_epoch_dataframe = pd.concat([self.all_epoch_dataframe,analyze_result_series.to_frame().T])
 
 
     # 定义一个函数来判断R值是否稳定
@@ -107,16 +90,12 @@ class epochAnalyzer():
         #         return i  # 返回第一个稳定的epoch索引
 
         # 找到最小损失的索引
-        loss_values = sorted_group_data['loss'].values
+        loss_values = sorted_group_data['cross_loss'].values
         r_values = sorted_group_data['R'].values
         # 最佳epoch index
         best_epoch_index = np.argmin(loss_values)
 
-        # 值
-        loss_value = loss_values[best_epoch_index]
-        r_value = r_values[best_epoch_index]
-
-        return best_epoch_index,loss_value,r_value  # 如果没有找到符合条件的epoch，则返回None
+        return best_epoch_index  # 如果没有找到符合条件的epoch，则返回None
     def get_best_epoch_index(self,
                              model_network_name,
                              model_dynamics_name,
@@ -150,7 +129,7 @@ class epochAnalyzer():
 
         # 如果有符合条件的行，返回第一条记录的best_epoch和best_epoch
         if not query_result.empty:
-            return query_result.iloc[0]['best_epoch']
+            return query_result.iloc[0]['model_epoch_index']
         else:
             print("network: {}\ndynamics: {}\nmodel: {}\n ".format(model_network_name,model_dynamics_name,model_name,))
             # 如果没有找到符合条件的记录，可以返回None或者一些默认值或错误信息
@@ -172,14 +151,11 @@ class epochAnalyzer():
             # 遍历每个分组
             for group_name, group_data in grouped:
                 # 获取当前分组的R值列表
-                sorted_group_data = group_data.sort_values(by='model_exp_epoch_index')
+                sorted_group_data = group_data.sort_values(by='model_epoch_index')
                 # 遍历R值和epoch列表，找到最初进入稳定状态的epoch值
-                best_epoch_index,loss_value,r_value = self.find_best_epoch(sorted_group_data)
-                properties = self.extract_group_properties(group_data.iloc[0])
-                properties["best_epoch"] = best_epoch_index
-                properties["loss"] = loss_value
-                properties["R"] = r_value
+                best_epoch_index = self.find_best_epoch(sorted_group_data)
+                best_epoch_series = group_data.iloc[best_epoch_index]
 
-                self.best_epoch_dataframe = self.best_epoch_dataframe.append(properties, ignore_index=True)
+                self.best_epoch_dataframe = pd.concat([self.best_epoch_dataframe, best_epoch_series.to_frame().T])
+
             self.save_best_epoch_dataframe()
-        pass
