@@ -16,7 +16,9 @@ class MatplotDrawer():
     def __init__(self):
         pass
 
-
+    def save_fig(self,fig_file_path):
+        self.fig.savefig(fig_file_path)
+        plt.close(self.fig)
 
 
 class FigYtrureYpred(MatplotDrawer):
@@ -44,9 +46,11 @@ class FigYtrureYpred(MatplotDrawer):
         self.STATES_MAP = dynamics_STATES_MAP
         self.test_result_df = test_result_df
 
-
-
-    def editAix(self):
+    def edit_ax(self):
+        '''
+        编辑ax
+        :return:
+        '''
         self.ax.set_title(r' $R$ = {:0.5f}'.format(self.corrcoef))
         # self.ax.set_title(r'epoch = {:d}, $R$ = {:0.5f}'.format(self.epoch_index, self.corrcoef))
         self.ax.set_xticks(np.linspace(0,1,5))
@@ -57,14 +61,12 @@ class FigYtrureYpred(MatplotDrawer):
         self.ax.set_ylabel("prediction")  # 设置y轴标注
         self.ax.legend(title="Transition type", loc='upper left')
         self.ax.grid(True)
-    def save_fig(self,fig_file):
-        self.fig.savefig(fig_file)
-        plt.close(self.fig)
+
     def draw(self):
         self.fig, self.ax = plt.subplots()
         # todo：修改主题
         sns.scatterplot(x="trans_prob_true", y="trans_prob_pred",
-                        hue="trans_type",
+                        hue="pred_trans_type",
                         palette=self.palette,
                         sizes=8,
                         linewidth=0,
@@ -80,9 +82,6 @@ class FigBetaRho():
         self.dynamic_name = dynamics.NAME
         self.num_fig = len(self.state_list)
 
-    def save_fig(self,fig_file):
-        self.fig.savefig(fig_file)
-        plt.close(self.fig)
     def draw(self):
         self.fig, ax = plt.subplots(1, self.num_fig, figsize=(5 * self.num_fig, 4.5))
         for i, state in enumerate(self.state_list):
@@ -109,9 +108,17 @@ class FigConfusionMatrix(MatplotDrawer):
 
     def draw(self):
         # Draw a heatmap with the numeric values in each cell
-        f, ax = plt.subplots(figsize=(9, 6))
+        fig, ax = plt.subplots(figsize=(9, 6))
         sns.heatmap(self.confusion_matrix, annot=True, fmt=".2%", linewidths=.5, ax=ax,cmap="Blues")
+        self.ax = ax
+        self.fig = fig
         plt.show()
+
+    def editAix(self):
+        self.ax.set_title("Normalized Confusion Matrix")
+        self.ax.set_xlabel("Predicted lable")  # 设置x轴标注
+        self.ax.set_ylabel("True lable")  # 设置y轴标注
+        self.ax.grid(True)
 
 
 

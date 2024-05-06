@@ -70,4 +70,4 @@ for network_dynamics_dataset_config in network_dynamics_dataset_config_list:
     exp = get_experiment(**kwargs)
     drawer_matplot_maxR = DrawerMatplotMaxR(exp.config, exp.dynamics)
     drawer_matplot_maxR.draw()
-drawer_matplot_maxR.save_fig()
+drawer_matplot_maxR._save_fig()
