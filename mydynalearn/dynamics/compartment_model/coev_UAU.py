@@ -2,6 +2,7 @@ import copy
 import torch
 import random
 from mydynalearn.dynamics.compartment_model import CompartmentModel
+from ..simple_dynamic_weight.simple_dynamic_weight import SimpleDynamicWeight
 #  进行一步动力学
 class CoevUAU(CompartmentModel):
     def __init__(self, config):
@@ -34,7 +35,7 @@ class CoevUAU(CompartmentModel):
         self.x0 = x0
 
 
-    def _get_adj_activate_simplex(self):
+    def get_adj_activate_simplex(self):
         '''
         聚合邻居单纯形信息
         了解节点周围单纯形，【非激活态，激活态】数量
@@ -75,7 +76,7 @@ class CoevUAU(CompartmentModel):
 
     def _dynamic_for_node(self, true_tp):
         UU_index, A1U_index, UA2_index, A1A2_index = self._get_nodeid_for_each_state()
-        adj_A1U_act_edges, adj_UA2_act_edges, adj_A1A2_act_edges = self._get_adj_activate_simplex()
+        adj_A1U_act_edges, adj_UA2_act_edges, adj_A1A2_act_edges = self.get_adj_activate_simplex()
         # 不被一阶感染
         BETA_A1A2ToA1 = self.BETA_A1*(1 - self.BETA_A2) / (self.BETA_A1*(1 - self.BETA_A2) + self.BETA_A2*(1 - self.BETA_A1) + 1.e-15)
         BETA_A1A2ToA2 = self.BETA_A2*(1 - self.BETA_A1) / (self.BETA_A1*(1 - self.BETA_A2) + self.BETA_A2*(1 - self.BETA_A1) + 1.e-15)
@@ -136,6 +137,8 @@ class CoevUAU(CompartmentModel):
         old_x0, old_x1, true_tp = self._preparing_spreading_data()
         self._dynamic_for_node(true_tp)
         new_x0 = self.get_transition_state(true_tp)
+        # todo：修改weight
+
         weight = 1. * torch.ones(self.NUM_NODES).to(self.DEVICE)
         spread_result = {
             "old_x0": old_x0,
@@ -153,16 +156,15 @@ class CoevUAU(CompartmentModel):
         spread_result = self._spread()
         return spread_result
 
-    # todo: 添加get_adj_activate_simplex_dict函数
     def get_adj_activate_simplex_dict(self):
         '''
         将adj_activate_simplex聚合dict返回
         :return:
         '''
-        adj_A1U_act_edges, adj_UA2_act_edges, adj_A1A2_act_edges = self._get_adj_activate_simplex()
+        adj_A1U_act_edges, adj_UA2_act_edges, adj_A1A2_act_edges = self.get_adj_activate_simplex()
         adj_activate_simplex_dict = {
-            "adj_A1U_act_edges" :adj_A1U_act_edges,
-            "adj_UA2_act_edges" :adj_UA2_act_edges,
-            "adj_A1A2_act_edges" :adj_A1A2_act_edges
+            "adj_A1U_act_edges" :adj_A1U_act_edges.to('cpu').numpy(),
+            "adj_UA2_act_edges" :adj_UA2_act_edges.to('cpu').numpy(),
+            "adj_A1A2_act_edges" :adj_A1A2_act_edges.to('cpu').numpy()
         }
         return adj_activate_simplex_dict

@@ -26,6 +26,10 @@ class AnalyzeManager():
             yield model_executor
 
     def get_analyze_result_generator_for_best_epoch(self):
+        '''
+        最佳结果的生成器
+        :return:
+        '''
         model_executor_generator = self._get_model_executor_generator()
         for model_executor in model_executor_generator:
             best_epoch_index = self.epoch_analyzer.get_best_epoch_index(**model_executor.global_info)
@@ -35,6 +39,10 @@ class AnalyzeManager():
             yield best_epoch_analyze_result
             
     def get_analyze_result_generator_for_all_epochs(self):
+        '''
+        所有结果的生成器
+        :return:
+        '''
         model_executor_generator = self._get_model_executor_generator()
         for model_executor in model_executor_generator:
             EPOCHS = model_executor.EPOCHS
@@ -74,9 +82,6 @@ class AnalyzeManager():
             self.epoch_analyzer.analyze_best_epoch()
         else:
             self.epoch_analyzer.load_best_epoch_dataframe()
-    
-
-
 
 
     def run(self):

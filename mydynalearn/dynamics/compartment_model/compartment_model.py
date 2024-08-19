@@ -1,11 +1,9 @@
 import copy
 from abc import abstractmethod
 
-from torch_scatter import scatter
-from torch_geometric.nn import MessagePassing
 import torch
 import random
-from mydynalearn.dynamics.simple_dynamic_weight.getter import get as weight_getter
+from ..simple_dynamic_weight.simple_dynamic_weight import SimpleDynamicWeight
 #  进行一步动力学
 class CompartmentModel():
     def __init__(self, config):
@@ -133,7 +131,6 @@ class CompartmentModel():
         '''
         num_target_state_in_simplex = inc_matrix_col_feature[:,self.STATES_MAP[target_state]]
         act_simplex = num_target_state_in_simplex >= _threshold_scAct
-        # todo：使用稠密矩阵乘法，提高计算效率
         # inc_matrix_activate_adj = torch.mul(inc_matrix_adj, act_simplex)
         inc_matrix_activate_adj = torch.sparse.FloatTensor.mul(inc_matrix_adj, act_simplex)
         return inc_matrix_activate_adj

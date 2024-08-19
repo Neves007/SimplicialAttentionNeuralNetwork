@@ -107,7 +107,6 @@ class SATLayer_regular(nn.Module):
             agg0 = self.attention_agg(xj_0, ai_0, aj_0, incMatrix_adj0)
             agg2 = self.attention_agg(xj_2, ai_0, aj_2, incMatrix_adj2)
 
-            # todo: 看能不能改成双重注意力
             # x0 = xi_0 + self.agg_weight[0]*agg0 + self.agg_weight[1]*agg1 + self.agg_weight[2]*agg2
             output = self.layer_norm1(self.agg_weight[0] * agg0 + self.agg_weight[2] * agg2 + x0)
         output = self.layer_norm2(self.output_linear_layer1(output)+output)

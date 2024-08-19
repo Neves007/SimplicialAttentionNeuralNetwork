@@ -11,6 +11,7 @@ class ExperimentTrain():
         self.dataset = DynamicDataset(self.config)
         self.model = Model(config)
         self.TASKS = [
+            "create_dataset",
             "train_model",
         ]
 

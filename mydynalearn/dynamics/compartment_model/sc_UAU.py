@@ -2,6 +2,7 @@ import copy
 import torch
 import random
 from mydynalearn.dynamics.compartment_model import CompartmentModel
+from ..simple_dynamic_weight.simple_dynamic_weight import SimpleDynamicWeight
 #  进行一步动力学
 class SCUAU(CompartmentModel):
     def __init__(self,config):
@@ -11,7 +12,6 @@ class SCUAU(CompartmentModel):
         self.MU = self.dynamics_config.MU
         self.SEED_FREC = self.dynamics_config.SEED_FREC
     def set_beta(self,eff_beta):
-        # todo: 在其他动力学也加上该函数
         self.EFF_AWARE = eff_beta
     def _init_x0(self):
         x0 = torch.zeros(self.NUM_NODES).to(self.DEVICE,torch.long)
@@ -21,7 +21,7 @@ class SCUAU(CompartmentModel):
         AWARE_SEED_INDEX = random.sample(range(self.NUM_NODES), NUM_SEED_NODES)
         x0[AWARE_SEED_INDEX] = self.NODE_FEATURE_MAP[self.STATES_MAP["A"]]
         self.x0=x0
-    def _get_adj_activate_simplex(self):
+    def get_adj_activate_simplex(self):
         '''
         聚合邻居单纯形信息
         了解节点周围单纯形，【非激活态，激活态】数量
@@ -53,7 +53,7 @@ class SCUAU(CompartmentModel):
         return adj_act_edges,adj_act_triangles
 
     def _preparing_spreading_data(self):
-        adj_act_edges,adj_act_triangles = self._get_adj_activate_simplex()
+        adj_act_edges,adj_act_triangles = self.get_adj_activate_simplex()
         old_x0 = copy.deepcopy(self.x0)
         old_x1 = copy.deepcopy(self.x1)
         old_x2 = copy.deepcopy(self.x2)
@@ -116,10 +116,10 @@ class SCUAU(CompartmentModel):
         将adj_activate_simplex聚合dict返回
         :return:
         '''
-        adj_act_edges,adj_act_triangles = self._get_adj_activate_simplex()
+        adj_act_edges,adj_act_triangles = self.get_adj_activate_simplex()
         adj_activate_simplex_dict = {
-            "adj_act_edges": adj_act_edges,
-            "adj_act_triangles": adj_act_triangles,
+            "adj_act_edges": adj_act_edges.to('cpu').numpy(),
+            "adj_act_triangles": adj_act_triangles.to('cpu').numpy(),
         }
 
         return adj_activate_simplex_dict

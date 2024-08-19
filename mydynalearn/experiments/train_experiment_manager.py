@@ -5,10 +5,10 @@ from mydynalearn.experiments import ExperimentTrain
 from mydynalearn.util.params_dealer import PasramsDealer
 
 class TrainExperimentManager():
-    def __init__(self,fix_config_dict, params):
+    def __init__(self,fix_config_dict, train_params):
         self.fix_config_dict = fix_config_dict
         self.root_dir = r"./output/"
-        self.train_params = PasramsDealer.assemble_train_params(params)
+        self.train_params = train_params
 
     def fix_config(self,config,model_name):
         '''调整配置

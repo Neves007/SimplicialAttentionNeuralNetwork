@@ -2,6 +2,7 @@ import copy
 import torch
 import random
 from mydynalearn.dynamics.compartment_model import CompartmentModel
+from ..simple_dynamic_weight.simple_dynamic_weight import SimpleDynamicWeight
 #  进行一步动力学
 class UAU(CompartmentModel):
     def __init__(self, config):
@@ -20,7 +21,7 @@ class UAU(CompartmentModel):
     def set_beta(self,eff_beta):
         self.EFF_AWARE = eff_beta
 
-    def _get_adj_activate_simplex(self):
+    def get_adj_activate_simplex(self):
         '''
         聚合邻居单纯形信息
         了解节点周围单纯形，【非激活态，激活态】数量
@@ -36,7 +37,7 @@ class UAU(CompartmentModel):
         # adj_act_edges = torch.sum(inc_matrix_adj_act_edge,dim=1)
         return adj_act_edges
     def _preparing_spreading_data(self):
-        adj_act_edges = self._get_adj_activate_simplex()
+        adj_act_edges = self.get_adj_activate_simplex()
         old_x0 = copy.deepcopy(self.x0)
         old_x1 = copy.deepcopy(self.x1)
         true_tp = torch.zeros(self.x0.shape).to(self.DEVICE)
@@ -80,6 +81,7 @@ class UAU(CompartmentModel):
             "true_tp":true_tp,
             "weight":weight
         }
+        len(torch.where(true_tp[:, 1] == 1))
         return spread_result
 
     def _run_onestep(self):
@@ -91,9 +93,9 @@ class UAU(CompartmentModel):
         将adj_activate_simplex聚合dict返回
         :return:
         '''
-        adj_act_edges = self._get_adj_activate_simplex()
+        adj_act_edges = self.get_adj_activate_simplex()
         adj_activate_simplex_dict = {
-            "adj_act_edges": adj_act_edges,
+            "adj_act_edges": adj_act_edges.to('cpu').numpy(),
         }
 
         return adj_activate_simplex_dict

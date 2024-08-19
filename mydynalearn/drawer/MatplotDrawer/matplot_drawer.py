@@ -14,6 +14,7 @@ import itertools
 
 class MatplotDrawer():
     def __init__(self):
+        self.shrink_times = 1
         pass
 
     def save_fig(self,fig_file_path):
@@ -63,14 +64,16 @@ class FigYtrureYpred(MatplotDrawer):
         self.ax.grid(True)
 
     def draw(self):
-        self.fig, self.ax = plt.subplots()
-        # todo：修改主题
+        # 设置点的大小范围，例如从10到100
+        size_range = (20, 500)
+        self.fig, self.ax = plt.subplots(figsize=(8, 6))
         sns.scatterplot(x="trans_prob_true", y="trans_prob_pred",
                         hue="pred_trans_type",
                         palette=self.palette,
-                        sizes=8,
+                        size="weight",  # 使用 'weight' 列来决定每个点的大小
+                        sizes=size_range,  # 设置点的大小范围
                         linewidth=0,
-                        alpha=0.5,
+                        alpha=0.1,
                         data=self.test_result_df, ax=self.ax)
 
 
@@ -108,17 +111,19 @@ class FigConfusionMatrix(MatplotDrawer):
 
     def draw(self):
         # Draw a heatmap with the numeric values in each cell
-        fig, ax = plt.subplots(figsize=(9, 6))
+        fig, ax = plt.subplots(figsize=(14, 10))
+        fig.subplots_adjust(top=0.981, bottom=0.123, left=0.091, right=0.99, hspace=0.275, wspace=0.375)
         sns.heatmap(self.confusion_matrix, annot=True, fmt=".2%", linewidths=.5, ax=ax,cmap="Blues")
         self.ax = ax
         self.fig = fig
-        plt.show()
 
-    def editAix(self):
+
+    def edit_ax(self):
         self.ax.set_title("Normalized Confusion Matrix")
-        self.ax.set_xlabel("Predicted lable")  # 设置x轴标注
-        self.ax.set_ylabel("True lable")  # 设置y轴标注
-        self.ax.grid(True)
+        self.ax.set_ylabel("Predicted lable")  # 设置x轴标注
+        self.ax.set_xlabel("True lable")  # 设置y轴标注
+        self.ax.grid(False)
+        plt.tight_layout()
 
 
 
@@ -128,7 +133,83 @@ class FigActiveNeighborsTransprob(MatplotDrawer):
                  test_result_df,
                  dynamics_STATES_MAP,
                  model_performace_dict,):
-        super(FigActiveNeighborsTransprob, self).__init__()
+        super().__init__()
+        self.STATES_MAP = dynamics_STATES_MAP
+        self.test_result_df = test_result_df
+        self.shrink_times = 1.5
+
+    def edit_ax(self):
+        '''
+        编辑ax
+        :return:
+        '''
+        # self.ax.set_title(r' $R$ = {:0.5f}'.format(self.corrcoef))
+        # self.ax.set_xticks(np.linspace(0,1,5))
+        # 自定义图例
+        from matplotlib.lines import Line2D
+        # 获取唯一的 transition_type
+        unique_types = self.test_result_df['transition_type'].unique()
+        # 创建自定义图例项
+        legend_elements = [
+            Line2D([0], [0], color=sns.color_palette("tab10")[i], lw=2, linestyle='-', label=f"{ut} (True)")
+            for i, ut in enumerate(unique_types)]
+        legend_elements += [
+            Line2D([0], [0], color=sns.color_palette("tab10")[i], lw=2, linestyle='--', label=f"{ut} (Pred)")
+            for i, ut in enumerate(unique_types)]
+
+        # 添加自定义图例到图形
+        self.ax.legend(handles=legend_elements, loc='center left', bbox_to_anchor=(1, 0.5), title="Transition Type")
+
+        self.ax.set_yticks(np.linspace(0,1,5))
+        self.ax.set_xlim(left=0)
+        self.ax.set_ylim([0,1])
+        self.ax.set_xlabel("k")  # 设置x轴标注
+        self.ax.set_ylabel("State transition probability")  # 设置y轴标注
+        self.ax.grid(True)
+        # 显示图形
+        plt.tight_layout()
+        plt.show()
+
+
+    def draw(self):
+        '''
+        绘制图像
+        :return:
+        '''
+        self.fig, self.ax = plt.subplots(figsize=(10/self.shrink_times, 6/self.shrink_times))
+        # 创建一个新的列来表示节点状态迁移的类型
+        self.test_result_df['transition_type'] = self.test_result_df.apply(
+            lambda row: f"{row['x_lable']} → {row['y_ob_lable']}", axis=1
+        )
+        # 绘制 trans_prob_true 的实线图（真实数据）
+        sns.lineplot(
+            x='adj_act_edges',
+            y='trans_prob_true',
+            hue='transition_type',
+            data=self.test_result_df,
+            ax=self.ax,
+            palette="tab10",  # 使用默认的10种颜色调色板
+            linestyle="-",  # 实线表示真实值
+            linewidth=3,  # 设置线条粗细为 2
+            alpha=0.8,  # 设置透明度为 0.8
+            legend=False  # 暂时不显示图例，后面一起处理
+        )
+
+        # 绘制 trans_prob_pred 的虚线图（预测数据）
+        sns.lineplot(
+            x='adj_act_edges',
+            y='trans_prob_pred',
+            hue='transition_type',
+            data=self.test_result_df,
+            ax=self.ax,
+            palette="tab10",  # 使用相同的调色板
+            linestyle="--",  # 虚线表示预测值
+            linewidth=3,  # 设置线条粗细为 2
+            alpha=0.8,  # 设置透明度为 0.8
+            legend=False  # 暂时不显示图例，后面一起处理
+        )
+
+
 
 
 class FigKLoss(MatplotDrawer):

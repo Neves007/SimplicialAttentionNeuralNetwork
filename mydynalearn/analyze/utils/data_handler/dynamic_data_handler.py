@@ -3,11 +3,11 @@ import itertools
 import pandas as pd
 import numpy as np
 from sklearn.metrics import confusion_matrix, roc_auc_score, f1_score,log_loss
-from sklearn.model_selection import train_test_split
-from sklearn.datasets import load_iris
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import label_binarize
+from mydynalearn.transformer.transformer import transition_to_latex
 import re
+from ..utils import get_all_transition_types
+from mydynalearn.transformer.transformer import transition_to_latex
+from sklearn.metrics import confusion_matrix
 
 class DynamicDataHandler():
     def __init__(self,dynamics, test_result_time_list,**kwargs):
@@ -31,6 +31,30 @@ class DynamicDataHandler():
         indices = np.argmax(state_code, axis=1)
         # 使用这些索引从列表b中提取对应的元素
         return np.array([state_map[index] for index in indices])
+
+    def sample_node_states(self,y_pred, state_map):
+        """
+        根据每个预测结果进行概率采样，返回每个预测结果对应的节点状态。
+
+        参数:
+        y_pred -- 预测结果，一个形状为 (10, 3) 的numpy数组，每一行代表一个概率分布。
+        state_map -- 状态映射，一个字典，键是状态，值是对应的概率索引。
+
+        返回:
+        list -- 包含10个元素的列表，每个元素是根据概率采样得到的节点状态。
+        """
+
+        # 初始化一个空列表来存储采样得到的状态
+        sampled_states = []
+
+        # 对每一行进行概率采样
+        for prob_dist in y_pred:
+            # 使用numpy的random.choice函数进行概率采样
+            sampled_index = np.random.choice(range(len(state_map)), p=prob_dist)
+            sampled_states.append(state_map[sampled_index])
+
+        return sampled_states
+
     def _extract_trans_prob(self, y_ob_T, prob_map):
         '''
         根据观测状态的编码y_ob_T，提取出对应状态的迁移概率
@@ -54,11 +78,7 @@ class DynamicDataHandler():
 
         # 使用列表推导式和格式化字符串生成 LaTeX 元素
         latex = [
-            "$\\mathrm{{{} \\: \\rightarrow \\: {}}}$".format(
-                replace_numbers_with_underscore(str(x_T[index])),
-                replace_numbers_with_underscore(str(y_ob_T[index]))
-            )
-            for index in range(len(x_T))
+            transition_to_latex(x_T[index], y_ob_T[index]) for index in range(len(x_T))
         ]
 
         return np.array(latex)
@@ -87,12 +107,17 @@ class DynamicDataHandler():
         y_pred = np.clip(y_pred, 1e-15, 1 - 1e-15)
         node_loss = (-y_ob * np.log(y_pred)).sum(axis=1)  # 按照需要的维度求和
         return node_loss
-    def _get_dict_neighbor_status(self):
+    def _get_dict_neighbor_status_dict(self, x):
         '''
         以字典形式合并所有节点的邻居状态数量（一阶和二阶）
         :return: 邻居状态数量
         '''
-        network = self.dynamics.network
+        #todo: 在dynamic中加入_get_dict_neighbor_status
+        tensor_x = torch.tensor(x,device=self.dynamics.DEVICE)
+        self.dynamics.set_features(tensor_x)
+        adj_activate_simplex_dict = self.dynamics.get_adj_activate_simplex_dict()
+        return adj_activate_simplex_dict
+    
 
     def _get_result_data(self,test_result):
         '''
@@ -113,20 +138,22 @@ class DynamicDataHandler():
             "y_ob": y_ob,
             "y_true": y_true,
             "y_pred": y_pred,
+            "weight": w_T,
         }
         test_result_data = {
             "node_id" : np.arange(x.shape[0]),
+            "weight":w_T,
             "x_lable": self._extract_state_labels(x, state_map),
             "y_ob_lable": self._extract_state_labels(y_ob, state_map),
-            "y_pred_lable": self._extract_state_labels(y_pred, state_map),
+            "y_pred_lable": np.array([np.random.choice(state_map, p=y_pred[i]) for i in range(len(y_pred))]),
             "trans_prob_true": self._extract_trans_prob(y_ob, y_true),
             "trans_prob_pred": self._extract_trans_prob(y_ob, y_pred),
-            "node_loss": self._get_node_loss(y_pred, y_ob)
+            "node_loss": self._get_node_loss(y_pred, y_ob),
         }
         # 网络结构数据，（节点度）
         k_data = self._get_dict_k()
-        # 邻居状态数据
-        neighbor_status_data = self._get_dict_neighbor_status()
+        # 邻居激活态数据
+        adj_activate_simplex_data = self._get_dict_neighbor_status_dict(x)
         # 迁移类型数据
         trans_type_data = {
             "true_trans_type": self._generate_trans_type(test_result_data["x_lable"], test_result_data["y_ob_lable"]),
@@ -138,6 +165,7 @@ class DynamicDataHandler():
         merged_dict = {
             **test_result_data,
             **k_data,
+            **adj_activate_simplex_data,
             **trans_type_data,
             }
 
@@ -184,14 +212,18 @@ class DynamicDataHandler():
         cross_loss = (-y_ob * np.log(y_pred)).sum(axis=1).mean()
 
         # 计算混淆矩阵
-        # todo: 重新求混淆矩阵
         confusion_matrix_df = pd.crosstab(test_result_df['true_trans_type'],
                                           test_result_df['pred_trans_type'],
-                                          rownames=['true_trans_type'],
-                                          colnames=['pred_trans_type'],
-                                          normalize=True,
+                                          rownames=['pred_trans_type'],
+                                          colnames=['true_trans_type'],
+                                          normalize=False,
                                           )
-
+        all_transition_types = get_all_transition_types(self.STATES_MAP)
+        all_labels = [transition_to_latex(origion_state, target_state) for origion_state, target_state in
+                      all_transition_types]
+        confusion_matrix_df = confusion_matrix_df.reindex(index=all_labels, columns=all_labels, fill_value=0.)
+        confusion_matrix_df = confusion_matrix_df.div(confusion_matrix_df.sum(axis=1), axis=0)
+        confusion_matrix_df = confusion_matrix_df.fillna(0)
         # 计算F1分数
         f1 = f1_score(y_true_labels, y_pred_labels, average='macro')
         y_true_value = (y_ob * y_true).sum(axis=1)

@@ -99,7 +99,7 @@
       <excludeFolder url="file://$MODULE_DIR$/output/modelparams/dynamicLearning-WORKPLACE-SCCoopUAU-GAT" />
       <excludeFolder url="file://$MODULE_DIR$/output/modelparams/dynamicLearning-WORKPLACE-SCCoopUAU-SAT" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.7 (GAT)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="pytorch38" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PackageRequirementsSettings">

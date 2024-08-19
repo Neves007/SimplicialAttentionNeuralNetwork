@@ -25,7 +25,7 @@ class FigMaxR():
         assert len(self.exp_NAME_list)==len(self.markers)
         self.label = None
 
-    def editAix(self,epoch_index,performance_data):
+    def edit_ax(self,epoch_index,performance_data):
         corrcoef,r2 = _get_metrics(performance_data)
         self.ax.set_title(r'epoch = {:d}, $R$ = {:0.5f}'.format(epoch_index, corrcoef))
         self.ax.set_xticks(np.linspace(0,1,5))

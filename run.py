@@ -30,22 +30,17 @@ from mydynalearn.experiments import *
 from mydynalearn.analyze import *
 from mydynalearn.drawer import MatplotController
 
-NUM_SAMPLES = 10000
-TESTSET_TIMESTEP = 1000
-EPOCHS = 30  # 10
-device = torch.device('cuda')
-# device = torch.device('cpu')
-
 ''' 所有参数
     "grpah_network": ["ER"],
-    "grpah_dynamics": ["UAU", "CompUAU"],
+    "grpah_dynamics": ["UAU", "CompUAU", "CoopUAU", "AsymUAU"],
 
     "simplicial_network": ["SCER","CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
-    "simplicial_dynamics": ["SCUAU", "SCCompUAU"],
+    "simplicial_dynamics": ["SCUAU", "SCCompUAU", "SCCoopUAU", "SCAsymUAU"],
 
-    "model": ["GAT", "SAT", "DiffSAT", "DualSAT"],  # 至少选一个
+    "model": ["GAT", "SAT", "DiffSAT"],  # 至少选一个
     "IS_WEIGHT": [False]
 '''
+
 params = {
     "grpah_network": ["ER"],
     "grpah_dynamics": ["UAU", "CompUAU", "CoopUAU", "AsymUAU"],
@@ -61,20 +56,18 @@ fix_config = {
     "TESTSET_TIMESTEP": 10,
     "EPOCHS": 30,
     "DEVICE": torch.device('cuda'),
-    # "DEVICE": torch.device('cpu')
 }
 
-
 if __name__ == '__main__':
-    train_experiment_manager = TrainExperimentManager(fix_config, params)
-
-    # 修改这个
-    analyze_manager = AnalyzeManager(train_experiment_manager)
     # # 训练
+    train_params = PasramsDealer.assemble_train_params(params)  # 实验的设置
+    train_experiment_manager = TrainExperimentManager(fix_config, train_params)  # 返回实验对象
     train_experiment_manager.run()
-    # 分析：测试集分析训练模型
+
+    ## 分析：测试集分析训练模型
+    analyze_manager = AnalyzeManager(train_experiment_manager)
     analyze_manager.run()
+
     # # 画图：
-    analyze_result_for_best_epoch = analyze_manager.get_analyze_result_generator_for_best_epoch()
-    matplot_drawer = MatplotController(analyze_result_for_best_epoch)
+    matplot_drawer = MatplotController(analyze_manager)
     matplot_drawer.run()

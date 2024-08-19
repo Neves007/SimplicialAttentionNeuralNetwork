@@ -3,7 +3,6 @@ import pickle
 import torch
 from tqdm import *
 from abc import abstractmethod
-from mydynalearn.dynamics.simple_dynamic_weight.getter import get as weight_getter
 from mydynalearn.networks import *
 from mydynalearn.networks.getter import get as get_network
 from mydynalearn.dynamics.getter import get as get_dynamics

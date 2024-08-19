@@ -10,51 +10,38 @@ import numpy as np
 import torch
 
 class SimpleDynamicWeight():
-    def __init__(self,DEVICE,old_x0,new_x0,network,dynamics,**kwargs):
+    def __init__(self,DEVICE,old_x0,new_x0,**kwargs):
         assert len(kwargs) == 0
         self.DEVICE = DEVICE
-        self.dynamics = dynamics
-        self.network = network
         self.old_x0 = old_x0
         self.new_x0 = new_x0
-        self.T = old_x0.shape[0]
 
-    def compute_element_occurrence(self, array):
-        array = array.view(len(array), 1)
-        neighbor_counts = torch.zeros_like(array)
-        distances_matrix = torch.abs(array.T - array)
-        distances_values, distances_count = torch.unique(distances_matrix, return_counts=True)
-        most_common_width = distances_values[distances_count.argmax()]
-        n_min = array.min()
-        n_max = array.max()
+    def get_weight(self):
 
-        width = 4 * most_common_width
+        # 将 one-hot 编码转换为单个整数标签，方便统计
+        old_labels = torch.argmax(self.old_x0, dim=1)
+        new_labels = torch.argmax(self.new_x0, dim=1)
 
-        mask1 = ((array - width) >= n_min).squeeze()
-        mask2 = ((array + width) <= n_max).squeeze()
-        mask3 = ((array - width) < n_min).squeeze()
-        mask4 = ((array + width) > n_max).squeeze()
+        num_states = self.old_x0.shape[1]
+        # 计算迁移类别（例如，从状态3到状态1可以编码为 3*4+1 = 13）
+        transitions = old_labels * num_states + new_labels
 
-        count1 = ((array >= (array.T - width)) & (array <= (array.T + width))).sum(dim=1).to(torch.float)
-        count2 = (array <= (n_min + 2 * width)).sum().to(torch.float)
-        count3 = (array >= (n_max - 2 * width)).sum().to(torch.float)
+        # 计算每种迁移的发生频率
+        transition_counts = torch.zeros(num_states*num_states,device=self.DEVICE)  # 因为有16种可能的迁移（从0到15）
+        for t in transitions:
+            transition_counts[t] += 1
+        transition_probs = transition_counts / transition_counts.sum()
 
-        neighbor_counts[mask1 & mask2] = count1[mask1 & mask2].view(-1, 1)
-        neighbor_counts[mask3] = count2
-        neighbor_counts[mask4] = count3
+        # 将每个节点的迁移映射到其对应的频率
+        node_transition_probs = transition_probs[transitions]
 
-        return neighbor_counts
-    def map_to_range(self, array, min=1, max=3):
-        '''
-        将数值隐射到到target_min_value，target_max_value之间
-        '''
-        min_value = torch.min(array)
-        max_value = torch.max(array)
-        normalized_values = min + (array - min_value) * (max - min) / (max_value - min_value)
-        return normalized_values
+        # 计算映射参数
+        min_val = node_transition_probs.min()
+        max_val = node_transition_probs.max()
+        a = (1 - 2) / (max_val - min_val)
+        b = 2 - a * min_val
 
-    def node_state_to_weight(self,x):
-        num_node_state = x.sum(dim=0)
-        num_node_state_prob = (x * num_node_state).sum(dim=1) / self.network.NUM_NODES
-        num_node_state_weight = torch.pow(self.map_to_range(num_node_state_prob),-1)
-        return num_node_state_weight
+        # 应用映射
+        mapped_transition_probs = a * node_transition_probs + b
+
+        return mapped_transition_probs
