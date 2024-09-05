@@ -22,7 +22,7 @@ class VisdomBatchDrawerCompUAU(VisdomBatchDrawer):
 
 
     def get_performance_data(self, data):
-        epoch_index, time_idx, loss, acc, x, y_pred, y_true, y_ob, w = unpackBatchData(
+        epoch_index, time_index, loss, acc, x, y_pred, y_true, y_ob, w = unpackBatchData(
             data)
         with torch.no_grad():
             U_U = torch.where((x[:, self.STATES_MAP["U"]] == 1) & (y_ob[:,self.STATES_MAP["U"]] == 1))[0]

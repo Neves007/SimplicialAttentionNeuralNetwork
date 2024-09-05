@@ -6,7 +6,7 @@ def _unpacktest_result_curepochResult(test_result_curepoch):
     loss_all = 1.*torch.zeros(T)
     acc_all = 1.*torch.zeros(T)
     for t,data in enumerate(test_result_curepoch):
-        time_idx = data['time_idx']
+        time_index = data['time_index']
         loss = data['loss']
         acc = data['acc']
         x = data['x']

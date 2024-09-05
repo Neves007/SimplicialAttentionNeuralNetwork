@@ -52,14 +52,14 @@ class VisdomBatchDrawer:
                     ytickmax=1,
                     ytickstep=0.1,
                     )
-        epoch_index, time_idx, train_loss, train_acc, train_x, train_y_pred, train_y_true, train_y_ob, train_w = unpackBatchData(
+        epoch_index, time_index, train_loss, train_acc, train_x, train_y_pred, train_y_true, train_y_ob, train_w = unpackBatchData(
             train_data)
-        epoch_index, time_idx, val_loss, val_acc, val_x, val_y_pred, val_y_true, val_y_ob, val_w = unpackBatchData(
+        epoch_index, time_index, val_loss, val_acc, val_x, val_y_pred, val_y_true, val_y_ob, val_w = unpackBatchData(
             val_data)
-        self.wind.line([train_loss.data.item()], [time_idx], win='train_loss', opts=opts,update='append')
-        self.wind.line([train_acc.data.item()], [time_idx], win='train_acc',opts=opts, update='append')
-        self.wind.line([val_loss.data.item()], [time_idx], win='val_loss', opts=opts,update='append')
-        self.wind.line([val_acc.data.item()], [time_idx], win='val_acc', opts=opts,update='append')
+        self.wind.line([train_loss.data.item()], [time_index], win='train_loss', opts=opts,update='append')
+        self.wind.line([train_acc.data.item()], [time_index], win='train_acc',opts=opts, update='append')
+        self.wind.line([val_loss.data.item()], [time_index], win='val_loss', opts=opts,update='append')
+        self.wind.line([val_acc.data.item()], [time_index], win='val_acc', opts=opts,update='append')
 
     def performance_data_null_filtering(self,performance_data):
         for index,data in enumerate(performance_data):

@@ -1,7 +1,6 @@
 import os
-
+from mydynalearn.dataset import *
 from mydynalearn.model import *
-from mydynalearn.dataset import TestDynamicDataset
 from mydynalearn.drawer.matplot_drawer.fig_beta_rho.fig_beta_rho import FigBetaRho
 from mydynalearn.drawer.matplot_drawing_task.matplot_drawing_task import FigBetaRhoDrawingTask
 
@@ -10,7 +9,7 @@ class ExperimentTestDynamic():
     def __init__(self,config):
         self.config = config
         self.NAME = config.NAME
-        self.dataset = TestDynamicDataset(self.config)
+        self.dataset = DynamicDatasetTimeEvolution(self.config)
         self.TASKS = [
             "run_dynamic_process",
             "draw"

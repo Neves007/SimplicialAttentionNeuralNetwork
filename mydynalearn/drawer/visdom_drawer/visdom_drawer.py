@@ -37,17 +37,17 @@ class VisdomDrawer:
         self.wind.line([0.], [0.],win = 'val_loss',opts = dict(title = 'val_loss',legend = ['val_loss']))
         self.wind.line([0.], [0.],win = 'val_acc',opts = dict(title = 'val_acc',legend = ['val_acc']))
 
-    def draw_acc_loss(self,train_loss, train_acc, val_loss,val_acc, time_idx):
+    def draw_acc_loss(self,train_loss, train_acc, val_loss,val_acc, time_index):
         opts = dict(
                     ytickmin=0,
                     ytickmax=1,
                     ytickstep=0.1,
                     )
 
-        self.wind.line([train_loss.data.item()], [time_idx], win='train_loss', opts=opts,update='append')
-        self.wind.line([train_acc.data.item()], [time_idx], win='train_acc',opts=opts, update='append')
-        self.wind.line([val_loss.data.item()], [time_idx], win='val_loss', opts=opts,update='append')
-        self.wind.line([val_acc.data.item()], [time_idx], win='val_acc', opts=opts,update='append')
+        self.wind.line([train_loss.data.item()], [time_index], win='train_loss', opts=opts,update='append')
+        self.wind.line([train_acc.data.item()], [time_index], win='train_acc',opts=opts, update='append')
+        self.wind.line([val_loss.data.item()], [time_index], win='val_loss', opts=opts,update='append')
+        self.wind.line([val_acc.data.item()], [time_index], win='val_acc', opts=opts,update='append')
 
     def get_performance_data(self,x,predict_TP, y_ob, fun_TP):
         self.STATES_MAP = {"S": 0, "I": 1}  # [S,I]

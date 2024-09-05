@@ -7,19 +7,52 @@ import matplotlib.pyplot as plt
 from torch.nn.functional import mse_loss
 from mydynalearn.drawer.utils.utils import _get_metrics
 import seaborn as sns
+from mydynalearn.config import *
 import pandas as pd
 import re
 
 import itertools
 
+
 class MatplotDrawer():
     def __init__(self):
-        self.shrink_times = 1
+        # self.shrink_times = 1
+        self.task_name = 'MatplotDrawer'
+        self.config_drawer = Config.get_config_drawer()
         pass
 
-    def save_fig(self,fig_file_path):
+    def save_fig(self, ):
+        fig_file_path = self.get_fig_file_path()
         self.fig.savefig(fig_file_path)
+        print("draw " + fig_file_path)
         plt.close(self.fig)
+
+    def _make_dir(self, dir):
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+
+    def get_fig_file_path(self, *args, **kwargs):
+        '''
+        获取图片的储存路径
+        :param data_info: 数据的基本信息
+        :return: fig_file_path
+        '''
+        # 初始化数据
+        network_name = self.test_result_info["model_network_name"]
+        dynamics_name = self.test_result_info["model_dynamics_name"]
+        model_name = self.test_result_info["model_name"]
+        epoch_index = self.test_result_info['model_epoch_index']
+        # 获得模型整体信息
+        model_info = str.join('_', [network_name, dynamics_name, model_name])
+        # 图片名称
+        fig_name = "FigYtrureYpred_{}_epoch_{}".format(model_info, epoch_index)
+        '_'.join([self.task_name, model_info, 'epoch', str(epoch_index)])
+        # 图片所在目录
+        fig_dir_root_path = self.config.fig_dir_path
+        fig_dir_path = os.path.join(fig_dir_root_path, network_name)
+        self._make_dir(fig_dir_path)
+        fig_file_path = os.path.join(fig_dir_path, fig_name)
+        return fig_file_path
 
 
 class FigYtrureYpred(MatplotDrawer):
@@ -27,10 +60,11 @@ class FigYtrureYpred(MatplotDrawer):
                  test_result_info,
                  test_result_df,
                  dynamics_STATES_MAP,
-                 model_performace_dict,
+                 model_performance_dict, *args, **kwargs
                  ):
-
         super().__init__()
+        self.task_name = 'FigYtrureYpred'
+        self.config = self.config_drawer['fig_ytrure_ypred']
         palette_list = {
             "UAU": 'viridis',
             "CompUAU": 'viridis',
@@ -41,9 +75,10 @@ class FigYtrureYpred(MatplotDrawer):
             "SCCoopUAU": 'plasma',
             "SCAsymUAU": 'plasma',
         }
+        self.test_result_info = test_result_info
         self.palette = palette_list[test_result_info['model_dynamics_name']]
         self.epoch_index = test_result_info['model_epoch_index']
-        self.corrcoef = model_performace_dict['R']
+        self.corrcoef = model_performance_dict['R']
         self.STATES_MAP = dynamics_STATES_MAP
         self.test_result_df = test_result_df
 
@@ -54,10 +89,10 @@ class FigYtrureYpred(MatplotDrawer):
         '''
         self.ax.set_title(r' $R$ = {:0.5f}'.format(self.corrcoef))
         # self.ax.set_title(r'epoch = {:d}, $R$ = {:0.5f}'.format(self.epoch_index, self.corrcoef))
-        self.ax.set_xticks(np.linspace(0,1,5))
-        self.ax.set_yticks(np.linspace(0,1,5))
-        self.ax.set_xlim([0,1])
-        self.ax.set_ylim([0,1])
+        self.ax.set_xticks(np.linspace(0, 1, 5))
+        self.ax.set_yticks(np.linspace(0, 1, 5))
+        self.ax.set_xlim([0, 1])
+        self.ax.set_ylim([0, 1])
         self.ax.set_xlabel("Target")  # 设置x轴标注
         self.ax.set_ylabel("prediction")  # 设置y轴标注
         self.ax.legend(title="Transition type", loc='upper left')
@@ -78,7 +113,9 @@ class FigYtrureYpred(MatplotDrawer):
 
 
 class FigBetaRho():
-    def __init__(self,dynamics, x, stady_rho_dict,**kwargs):
+    def __init__(self, dynamics, x, stady_rho_dict, **kwargs):
+        self.task_name = 'FigBetaRho'
+        self.config = self.config_drawer['fig_beta_rho']
         self.x = x
         self.stady_rho_dict = stady_rho_dict
         self.state_list = dynamics.STATES_MAP.keys()
@@ -90,7 +127,7 @@ class FigBetaRho():
         for i, state in enumerate(self.state_list):
             y = self.stady_rho_dict[state]
             ax[i].set_title('{} dynamic model'.format(self.dynamic_name))
-            ax[i].plot(self.x, y,marker='^')  # Plot x vs. y with circle markers
+            ax[i].plot(self.x, y, marker='^')  # Plot x vs. y with circle markers
             ax[i].set_xlabel("Effective Infection Rate")  # X-axis label
             ax[i].set_ylabel("$\\rho_{{{:s}}}$".format(state))  # Y-axis label
             ax[i].set_ylim([0, 1])  # Set the limits for the y-axis
@@ -104,19 +141,21 @@ class FigConfusionMatrix(MatplotDrawer):
                  test_result_info,
                  test_result_df,
                  dynamics_STATES_MAP,
-                 model_performace_dict,):
+                 model_performance_dict, *args, **kwargs):
         super(FigConfusionMatrix, self).__init__()
-        self.confusion_matrix = model_performace_dict['cm']
+        self.test_result_info = test_result_info
+        self.task_name = 'FigConfusionMatrix'
+        self.config = self.config_drawer['fig_confusion_matrix']
+        self.confusion_matrix = model_performance_dict['cm']
         self.STATES_MAP = dynamics_STATES_MAP
 
     def draw(self):
         # Draw a heatmap with the numeric values in each cell
         fig, ax = plt.subplots(figsize=(14, 10))
         fig.subplots_adjust(top=0.981, bottom=0.123, left=0.091, right=0.99, hspace=0.275, wspace=0.375)
-        sns.heatmap(self.confusion_matrix, annot=True, fmt=".2%", linewidths=.5, ax=ax,cmap="Blues")
+        sns.heatmap(self.confusion_matrix, annot=True, fmt=".2%", linewidths=.5, ax=ax, cmap="Blues")
         self.ax = ax
         self.fig = fig
-
 
     def edit_ax(self):
         self.ax.set_title("Normalized Confusion Matrix")
@@ -126,14 +165,16 @@ class FigConfusionMatrix(MatplotDrawer):
         plt.tight_layout()
 
 
-
 class FigActiveNeighborsTransprob(MatplotDrawer):
     def __init__(self,
                  test_result_info,
                  test_result_df,
                  dynamics_STATES_MAP,
-                 model_performace_dict,):
+                 model_performance_dict, *args, **kwargs):
         super().__init__()
+        self.task_name = 'FigActiveNeighborsTransprob'
+        self.config = self.config_drawer['fig_active_neighbors_transprob']
+        self.test_result_info = test_result_info
         self.STATES_MAP = dynamics_STATES_MAP
         self.test_result_df = test_result_df
         self.shrink_times = 1.5
@@ -160,23 +201,21 @@ class FigActiveNeighborsTransprob(MatplotDrawer):
         # 添加自定义图例到图形
         self.ax.legend(handles=legend_elements, loc='center left', bbox_to_anchor=(1, 0.5), title="Transition Type")
 
-        self.ax.set_yticks(np.linspace(0,1,5))
+        self.ax.set_yticks(np.linspace(0, 1, 5))
         self.ax.set_xlim(left=0)
-        self.ax.set_ylim([0,1])
+        self.ax.set_ylim([0, 1])
         self.ax.set_xlabel("k")  # 设置x轴标注
         self.ax.set_ylabel("State transition probability")  # 设置y轴标注
         self.ax.grid(True)
         # 显示图形
         plt.tight_layout()
-        plt.show()
-
 
     def draw(self):
         '''
         绘制图像
         :return:
         '''
-        self.fig, self.ax = plt.subplots(figsize=(10/self.shrink_times, 6/self.shrink_times))
+        self.fig, self.ax = plt.subplots(figsize=(10 / self.shrink_times, 6 / self.shrink_times))
         # 创建一个新的列来表示节点状态迁移的类型
         self.test_result_df['transition_type'] = self.test_result_df.apply(
             lambda row: f"{row['x_lable']} → {row['y_ob_lable']}", axis=1
@@ -210,15 +249,80 @@ class FigActiveNeighborsTransprob(MatplotDrawer):
         )
 
 
-
-
 class FigKLoss(MatplotDrawer):
     def __init__(self,
                  test_result_info,
                  test_result_df,
                  dynamics_STATES_MAP,
-                 model_performace_dict,):
-        super(FigKLoss, self).__init__()
+                 model_performance_dict, *args, **kwargs):
+        super().__init__()
+        self.task_name = 'FigKLoss'
+        self.config = self.config_drawer['fig_k_loss']
+        self.test_result_info = test_result_info
+        self.STATES_MAP = dynamics_STATES_MAP
+        self.test_result_df = test_result_df
+        self.shrink_times = 1.5
+        MAX_DIMENSION = self.test_result_info['MAX_DIMENSION']
+        if MAX_DIMENSION == 1:
+            self.x_lable = 'k_0'
+        elif MAX_DIMENSION == 2:
+            self.x_lable = 'k_2'
+
+    def edit_ax(self):
+        '''
+        编辑ax
+        :return:
+        '''
+        # self.ax.set_title(r' $R$ = {:0.5f}'.format(self.corrcoef))
+        # self.ax.set_xticks(np.linspace(0,1,5))
+        # 自定义图例
+        from matplotlib.lines import Line2D
+        # 获取唯一的 transition_type
+        unique_types = self.test_result_df['transition_type'].unique()
+        # 创建自定义图例项
+        legend_elements = [
+            Line2D([0], [0], color=sns.color_palette("tab10")[i], lw=2, linestyle='-', label=f"{ut}")
+            for i, ut in enumerate(unique_types)
+        ]
+
+        # 添加自定义图例到图形
+        self.ax.legend(handles=legend_elements, loc='upper right', bbox_to_anchor=(1.3, 0.7), title="Transition Type",
+                       fontsize=10)
+
+        # self.ax.set_ylim(bottom=0)
+        self.ax.set_ylim([0, 0.007])
+
+        self.ax.set_xlabel(self.x_lable)  # 设置x轴标注
+        self.ax.set_ylabel("Loss")  # 设置y轴标注
+        self.ax.grid(True)
+        # 显示图形
+        plt.tight_layout()
+        # plt.show()
+
+    def draw(self):
+        '''
+        绘制图像
+        :return:
+        '''
+        self.fig, self.ax = plt.subplots(figsize=(10 / self.shrink_times, 6 / self.shrink_times))
+        # 创建一个新的列来表示节点状态迁移的类型
+        self.test_result_df['transition_type'] = self.test_result_df.apply(
+            lambda row: f"{row['x_lable']} → {row['y_ob_lable']}", axis=1
+        )
+
+        # 绘制 trans_prob_true 的实线图（真实数据）
+        sns.lineplot(
+            x=self.x_lable,
+            y='node_loss',
+            hue='transition_type',
+            data=self.test_result_df,
+            ax=self.ax,
+            palette="tab10",  # 使用默认的10种颜色调色板
+            linestyle="-",  # 实线表示真实值
+            linewidth=3,  # 设置线条粗细为 2
+            alpha=0.8,  # 设置透明度为 0.8
+            legend=False  # 暂时不显示图例，后面一起处理
+        )
 
 
 class FigKDistribution(MatplotDrawer):
@@ -226,8 +330,65 @@ class FigKDistribution(MatplotDrawer):
                  test_result_info,
                  test_result_df,
                  dynamics_STATES_MAP,
-                 model_performace_dict,):
+                 model_performance_dict,
+                 network,
+                 *args, **kwargs):
         super(FigKDistribution, self).__init__()
+        self.task_name = 'FigKDistribution'
+        self.config = self.config_drawer['fig_k_distribution']
+        self.test_result_info = test_result_info
+        self.network = network
+        self.shrink_times = 1.5
+
+    def edit_ax(self):
+        '''
+        编辑ax
+        :return:
+        '''
+
+        # 显示图形
+        plt.tight_layout()
+        # plt.show()
+
+    def draw(self):
+        '''
+        绘制图像
+        :return:
+        '''
+
+        # 获取度分布
+        self.k_0_list = self.network.inc_matrix_adj0.sum(dim=1).to_dense().to('cpu').numpy()
+
+        # 判断 MAX_DIMENSION 的值
+        if self.test_result_info['MAX_DIMENSION'] == 1:
+            # 只绘制一阶度 k_0_list 的度分布
+            self.fig, self.ax = plt.subplots(figsize=(10 / self.shrink_times, 6 / self.shrink_times))
+            sns.histplot(self.k_0_list, kde=True, bins=30, color='blue', ax=self.ax)
+            self.ax.set_title('Distribution of First-Order Degree (k_0)', fontsize=16)
+            self.ax.set_xlabel('First-Order Degree (k_0)', fontsize=14)
+            self.ax.set_ylabel('Frequency', fontsize=14)
+            self.ax.grid(True)
+
+        elif self.test_result_info['MAX_DIMENSION'] == 2:
+            self.k_2_list = self.network.inc_matrix_adj2.sum(dim=1).to_dense().to('cpu').numpy()
+            # 创建上下排列的两个子图
+            self.fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10 / self.shrink_times, 12 / self.shrink_times))
+
+            # 绘制一阶度 k_0_list 的度分布
+            sns.histplot(self.k_0_list, kde=True, bins=30, color='blue', ax=ax1)
+            ax1.set_title('Distribution of First-Order Degree (k_0)', fontsize=16)
+            ax1.set_xlabel('First-Order Degree (k_0)', fontsize=14)
+            ax1.set_ylabel('Frequency', fontsize=14)
+            ax1.set_ylabel('Frequency', fontsize=14)
+            ax1.grid(True)
+
+            # 绘制二阶度 k_2_list 的度分布
+            sns.histplot(self.k_2_list, kde=True, bins=30, color='green', ax=ax2)
+            ax2.set_title('Distribution of Second-Order Degree (k_2)', fontsize=16)
+            ax2.set_xlabel('Second-Order Degree (k_2)', fontsize=14)
+            ax2.set_ylabel('Frequency', fontsize=14)
+            ax2.set_ylabel('Frequency', fontsize=14)
+            ax2.grid(True)
 
 
 class FigTimeEvolution(MatplotDrawer):
@@ -235,5 +396,80 @@ class FigTimeEvolution(MatplotDrawer):
                  test_result_info,
                  test_result_df,
                  dynamics_STATES_MAP,
-                 model_performace_dict,):
+                 *args, **kwargs):
         super(FigTimeEvolution, self).__init__()
+        self.config = self.config_drawer['fig_time_evolution']
+        self.task_name = 'FigTimeEvolution'
+        self.test_result_info = test_result_info
+        self.test_result_df = test_result_df
+        self.dynamics_STATES_MAP = dynamics_STATES_MAP
+        self.shrink_times = 1.5
+
+    def edit_ax(self):
+        '''
+        编辑ax
+        :return:
+        '''
+
+        # 设置图像标签和标题
+        self.ax.set_xlabel('Time')
+        self.ax.set_ylabel('Density')
+        self.ax.set_title('Time Evolution of Dynamics (Original vs ML)')
+
+        # 显示图例
+        self.ax.legend()
+
+        # 调整图像布局
+        plt.tight_layout()
+        # 显示图像
+        plt.show()
+
+    def draw(self):
+        '''
+        绘制时间演化图像
+        '''
+        # 提取列名
+        ori_columns = [col for col in self.test_result_df.columns if col.startswith('ori_x0_T')]
+        ml_columns = [col for col in self.test_result_df.columns if col.startswith('ml_x0_T')]
+
+        # 提取不同状态
+        state_U_columns = [col for col in ori_columns if col.endswith('_U')] + [col for col in ml_columns if
+                                                                                col.endswith('_U')]
+        state_A_columns = [col for col in ori_columns if col.endswith('_A')] + [col for col in ml_columns if
+                                                                                col.endswith('_A')]
+
+        # 设置图像大小
+        self.fig, self.ax = plt.subplots(figsize=(10 / self.shrink_times, 6 / self.shrink_times))
+        colors = sns.color_palette("deep", 2)  # 两种状态使用不同颜色，颜色调色盘
+
+        # 绘制状态U的原始和机器学习动力学数据
+        for col in state_U_columns:
+            if col.startswith('ori_x0_T'):
+                sns.lineplot(data=self.test_result_df, x=self.test_result_df.index, y=col, label=f'{col}_ori',
+                             ax=self.ax,
+                             linewidth=2,
+                             color=colors[0])
+            else:
+                # 通过抽样减少数据点，例如每隔5个点取一个
+                sampled_df = self.test_result_df.iloc[::3, :]
+                sns.scatterplot(data=sampled_df, x=sampled_df.index, y=col, label=f'{col}_ml',
+                                ax=self.ax,
+                                color=colors[0],
+                                s=85,  # 散点大小，数字越大点越大
+                                alpha=0.5)
+
+        # 绘制状态A的原始和机器学习动力学数据
+        for col in state_A_columns:
+            if col.startswith('ori_x0_T'):
+                sns.lineplot(data=self.test_result_df, x=self.test_result_df.index, y=col, label=f'{col}_ori',
+                             ax=self.ax,
+                             linewidth=2,
+                             color=colors[1])
+            else:
+                # 通过抽样减少数据点，例如每隔5个点取一个
+                sampled_df = self.test_result_df.iloc[::3, :]
+                sns.scatterplot(data=sampled_df, x=sampled_df.index, y=col, label=f'{col}_ml',
+                                ax=self.ax,
+                                color=colors[1],
+                                s=85,  # 散点大小，数字越大点越大
+                                alpha=0.5)

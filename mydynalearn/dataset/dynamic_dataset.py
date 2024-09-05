@@ -20,15 +20,20 @@ class DynamicDataset(Dataset):
         self.config = config
         self.dataset_config = config.dataset
         self.NUM_SAMPLES = self.dataset_config.NUM_SAMPLES
+        self.TIME_EVOLUTION_STEPS = self.dataset_config.TIME_EVOLUTION_STEPS
         self.T_INIT = self.dataset_config.T_INIT
         self.DEVICE = self.config.DEVICE
         self.network = self._get_dataset_network()
         self.dynamics = self._get_dataset_dynamics()
         self.dataset_file_path = self._get_dataset_file_path(self.network.NAME,self.dynamics.NAME)
         self.need_to_run = not os.path.exists(self.dataset_file_path)
+
+
     def _get_dataset_file_path(self,network_name,dynamics_name):
         dataset_file_name = f"DATASET_{network_name}_{dynamics_name}.pkl"
         return os.path.join(self.config.dataset_dir_path, dataset_file_name)
+
+
 
     def __len__(self) -> int:
         return self.NUM_SAMPLES
@@ -46,6 +51,9 @@ class DynamicDataset(Dataset):
     def _get_dataset_dynamics(self):
         dynamics = get_dynamics(self.config)
         return dynamics
+
+
+
     def is_dataset_exist(self):
         return os.path.exists(self.dataset_file_path)
     def _partition_dataSet(self):
@@ -90,7 +98,6 @@ class DynamicDataset(Dataset):
             self.dynamics.set_features(**onestep_spread_result)
             self._save_onesample_dataset(t, **onestep_spread_result)
 
-
     def _save_dataset(self, *data):
         file_name = self.dataset_file_path
         with open(file_name, "wb") as file:
@@ -104,13 +111,7 @@ class DynamicDataset(Dataset):
         file.close()
         return data
 
-
-
-
-
-
-
-    def run_dynamic_process(self):
+    def _buid_dynamic_process_dataset(self):
         '''动力学实验
             简介
                 - 运行一段连续时间演化的动力学过程
@@ -142,6 +143,6 @@ class DynamicDataset(Dataset):
                                train_set,
                                val_set,
                                test_set)
-        print("dynamics_dataset.output dataset_file: ",self.dataset_file_path)
+        print("dataset.output dataset_file: ",self.dataset_file_path)
         print("The data has been loaded completely!")
         return network, dynamics, train_set, val_set, test_set

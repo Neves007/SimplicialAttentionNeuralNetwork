@@ -6,7 +6,7 @@ def _unpacktest_result_curepochResult(test_result_curepoch):
     loss_all = 1.*torch.zeros(T)
     acc_all = 1.*torch.zeros(T)
     for t,data in enumerate(test_result_curepoch):
-        time_idx = data['time_idx']
+        time_index = data['time_index']
         loss = data['loss']
         acc = data['acc']
         x = data['x']
@@ -20,7 +20,7 @@ def _unpacktest_result_curepochResult(test_result_curepoch):
 def unpackBatchData(data):
     # 加weight
     epoch_index = data['epoch_index']
-    time_idx = data['time_idx']
+    time_index = data['time_index']
     loss = data['loss']
     acc = data['acc']
     x = data['x']
@@ -28,7 +28,7 @@ def unpackBatchData(data):
     y_true = data['y_true']
     y_ob = data['y_ob']
     w = data['w']
-    return epoch_index, time_idx, loss, acc, x, y_pred, y_true, y_ob, w
+    return epoch_index, time_index, loss, acc, x, y_pred, y_true, y_ob, w
 
 def compute_test_result_curepoch_loss_acc(test_result_curepoch):
     loss_all,acc_all = _unpacktest_result_curepochResult(test_result_curepoch)

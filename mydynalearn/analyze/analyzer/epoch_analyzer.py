@@ -56,11 +56,11 @@ class epochAnalyzer():
         self.best_epoch_dataframe = pd.read_csv(self.best_epoch_dataframe_file_path)
     def analyze_result_to_pdseries(self,analyze_result):
         test_result_info = analyze_result['test_result_info']
-        model_performace_dict = analyze_result['model_performace_dict']
-        performace_dict = {"f1" : model_performace_dict["f1"],
-                           "R" : model_performace_dict["R"],
-                           "cross_loss" : model_performace_dict["cross_loss"],}
-        analyze_result_series = pd.Series({**test_result_info,**performace_dict})
+        model_performance_dict = analyze_result['model_performance_dict']
+        performance_dict = {"f1" : model_performance_dict["f1"],
+                           "R" : model_performance_dict["R"],
+                           "cross_loss" : model_performance_dict["cross_loss"],}
+        analyze_result_series = pd.Series({**test_result_info,**performance_dict})
         return analyze_result_series
 
     def add_epoch_result(self, analyze_result):
@@ -96,6 +96,7 @@ class epochAnalyzer():
         best_epoch_index = np.argmin(loss_values)
 
         return best_epoch_index  # 如果没有找到符合条件的epoch，则返回None
+
     def get_best_epoch_index(self,
                              model_network_name,
                              model_dynamics_name,
@@ -134,6 +135,7 @@ class epochAnalyzer():
             print("network: {}\ndynamics: {}\nmodel: {}\n ".format(model_network_name,model_dynamics_name,model_name,))
             # 如果没有找到符合条件的记录，可以返回None或者一些默认值或错误信息
             raise Exception('没有对应的值')
+
     def analyze_best_epoch(self):
         self.load_all_epoch_dataframe()
         if os.path.exists(self.best_epoch_dataframe_file_path):
@@ -157,5 +159,4 @@ class epochAnalyzer():
                 best_epoch_series = group_data.iloc[best_epoch_index]
 
                 self.best_epoch_dataframe = pd.concat([self.best_epoch_dataframe, best_epoch_series.to_frame().T])
-
             self.save_best_epoch_dataframe()

@@ -148,6 +148,10 @@ class CoevUAU(CompartmentModel):
         }
         return spread_result
 
+
+
+
+
     def _run_onestep(self):
         self.BETA_A1 = self.EFF_AWARE_A1 * self.MU_A1 / self.network.AVG_K
         self.BETA_A2 = self.EFF_AWARE_A2 * self.MU_A2 / self.network.AVG_K

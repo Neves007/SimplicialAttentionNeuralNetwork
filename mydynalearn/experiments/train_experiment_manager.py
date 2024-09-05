@@ -1,6 +1,6 @@
 # 获取配置
 from mydynalearn.config.config_training_exp import ConfigTrainingExp
-from mydynalearn.experiments import ExperimentTrain
+from .experiment_train import ExperimentTrain
 
 from mydynalearn.util.params_dealer import PasramsDealer
 

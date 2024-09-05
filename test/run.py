@@ -42,8 +42,8 @@ from mydynalearn.drawer import MatplotController
 '''
 
 params = {
-    "grpah_network": ["ER"],
-    "grpah_dynamics": ["UAU"],
+    # "grpah_network": ["ER"],
+    # "grpah_dynamics": ["UAU"],
 
     "simplicial_network": ["SCER"],
     "simplicial_dynamics": ["SCUAU"],
@@ -66,10 +66,11 @@ if __name__ == '__main__':
     train_experiment_manager.run()
 
     ## 分析：测试集分析训练模型
-    analyze_manager = AnalyzeManager(train_experiment_manager)
+    exp_generator = train_experiment_manager.get_exp_generator()
+    analyze_manager = AnalyzeManager(exp_generator)
     analyze_manager.run()
 
-    # # 画图：
+    # # # 画图：
     matplot_drawer = MatplotController(analyze_manager)
     matplot_drawer.run()
 

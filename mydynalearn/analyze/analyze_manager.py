@@ -1,100 +1,70 @@
-from tqdm import tqdm
-from mydynalearn.analyze.analyzer import runModelOnTestData,epochAnalyzer
+from .exp_models_analyzer import ExpModelsAnalyzer
 from mydynalearn.config import Config
 import os
-
-class AnalyzeManager():
-    def __init__(self,train_experiment_manager):
-        '''
-        分析epoch
-
-        :param train_experiment_manager:
-        '''
+import pandas as pd
+import numpy as np
+class AnalyzeManager:
+    # todo: 添加save和load 
+    def __init__(self, exp_generator):
+        """
+        初始化 AnalyzeManager
+        :param exp_generator: 提供实验生成器的管理对象
+        """
         config_analyze = Config.get_config_analyze()
         self.config = config_analyze['default']
-        self.train_experiment_manager = train_experiment_manager
-        self.epoch_analyzer = epochAnalyzer(self.config)
+        self.file_path = self.__get_best_epoch_dataframe_file_path()
+        self.exp_generator = exp_generator
+        self.best_epoch_dataframe = pd.DataFrame()
 
-    def _get_model_executor_generator(self):
-        exp_generator = self.train_experiment_manager.get_exp_generator()  # 所有的实验对象
-        for exp in exp_generator:
-            # 读取数据
-            model_executor = runModelOnTestData(self.config,
-                                                model_exp=exp,
-                                                dataset_exp=exp,
-                                                )
-            yield model_executor
+    def __get_best_epoch_dataframe_file_path(self):
+        root_dir_path = self.config.root_dir_path
+        dataframe_dir_name = self.config.dataframe_dir_name
+        # 创建文件夹
+        dataframe_dir_path = os.path.join(root_dir_path, dataframe_dir_name)
+        if not os.path.exists(dataframe_dir_path):
+            os.makedirs(dataframe_dir_path)
+        # 返回文件路径
+        best_epoch_dataframe_file_name = "BestEpochDataframe.csv"
+        best_epoch_dataframe_file_path = os.path.join(dataframe_dir_path, best_epoch_dataframe_file_name)
+        return best_epoch_dataframe_file_path
+    
+    def analyze_exp(self, exp):
+        """
+        对单个实验中的所有epoch的模型进行分析
+        :param exp: 实验对象
+        """
+        print(f"Analyzing exp: {exp.NAME}")
+        exp_models_analyzer = ExpModelsAnalyzer(self.config, exp)
+        exp_models_analyzer.run()
+        print(f"Analysis completed for exp: {exp.NAME}")
+        try:
+            # 实验模型分析器：用于分析一个实验中的所有epoch的模型
+            exp_models_analyzer = ExpModelsAnalyzer(self.config, exp)
+            exp_models_analyzer.run()
+            best_epoch_exp_item, best_epoch_index = exp_models_analyzer.find_best_epoch()
+            self.__add_best_epoch_result_item(best_epoch_exp_item)
+            print(f"Analysis completed for exp: {exp.NAME}")
+        except Exception as e:
+            print(f"Error during analysis of exp {exp.NAME}: {e}")
+            raise e
+    def __add_best_epoch_result_item(self,best_epoch_exp_item):
+        self.best_epoch_dataframe = pd.concat([self.best_epoch_dataframe, best_epoch_exp_item])
 
-    def get_analyze_result_generator_for_best_epoch(self):
-        '''
-        最佳结果的生成器
-        :return:
-        '''
-        model_executor_generator = self._get_model_executor_generator()
-        for model_executor in model_executor_generator:
-            best_epoch_index = self.epoch_analyzer.get_best_epoch_index(**model_executor.global_info)
-            EPOCHS = model_executor.EPOCHS
-            best_epoch = list(range(EPOCHS))[best_epoch_index]
-            best_epoch_analyze_result = model_executor.run(best_epoch)
-            yield best_epoch_analyze_result
-            
-    def get_analyze_result_generator_for_all_epochs(self):
-        '''
-        所有结果的生成器
-        :return:
-        '''
-        model_executor_generator = self._get_model_executor_generator()
-        for model_executor in model_executor_generator:
-            EPOCHS = model_executor.EPOCHS
-            for model_exp_epoch_index in range(EPOCHS):
-                analyze_result = model_executor.run(model_exp_epoch_index)
-                yield analyze_result
+    def save_best_epoch_dataframe(self):
+        self.best_epoch_dataframe.to_csv(self.file_path, index=False)
 
-    def buid_anayze_result(self):
-        '''
-        将所有实验的数据集引入到自己的模型中，输出analyze_result
-        '''
-        model_executor_generator = self._get_model_executor_generator()
-        for model_executor in model_executor_generator:
-            EPOCHS = model_executor.EPOCHS
-            for model_exp_epoch_index in range(EPOCHS):
-                need_to_run = model_executor.check_run_necessity(model_exp_epoch_index)
-                if need_to_run:
-                    model_executor.run(model_exp_epoch_index)
-
-    def analyze_all_epochs(self):
-        all_epoch_dataframe_is_exist = os.path.exists(self.epoch_analyzer.all_epoch_dataframe_file_path)
-        if not all_epoch_dataframe_is_exist:
-            analyze_result_generator = self.get_analyze_result_generator_for_all_epochs()
-            for analyze_result in analyze_result_generator:
-                    self.epoch_analyzer.add_epoch_result(analyze_result)
-            self.epoch_analyzer.save_all_epoch_dataframe()
-        else:
-            self.epoch_analyzer.load_all_epoch_dataframe()
+    def load_best_epoch_dataframe(self):
+        self.best_epoch_dataframe = pd.read_csv(self.file_path)
+        return self.best_epoch_dataframe
 
 
-    def analyze_best_epoch(self):
-        '''分析R值的稳定点
-
-        io:  stable_r_value_dataframe.csv
-        ''' 
-        if not os.path.exists(self.epoch_analyzer.best_epoch_dataframe_file_path):
-            self.epoch_analyzer.analyze_best_epoch()
-        else:
-            self.epoch_analyzer.load_best_epoch_dataframe()
-
-
+        
     def run(self):
-        '''
-        分析训练数据，为画图做准备
-        输出：
-        '''
-        print("*" * 10 + " ANALYZE TRAINED MODEL " + "*" * 10)
-        print("buid anayze result")
-        self.buid_anayze_result()
-        print("analyze all epochs")
-        self.analyze_all_epochs()
-        print("analyze best epoch")
-        self.analyze_best_epoch()
-
-
+        """
+        对所有实验进行分析
+        """
+        print("Starting analysis of all experiments...")
+        for exp in self.exp_generator:
+            self.analyze_exp(exp)
+        self.save_best_epoch_dataframe()
+        print("Analysis of all experiments completed.")

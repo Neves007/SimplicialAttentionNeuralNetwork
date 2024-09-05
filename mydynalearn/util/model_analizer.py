@@ -34,7 +34,7 @@ class ModelAnalizer():
             bar_format='{l_bar}|{bar}| {n_fmt}/{total_fmt} [{rate_fmt}{postfix}|{elapsed}',
             total=test_loader.data_set['x'].shape[0],
         )
-        for time_idx, test_dataset_per_time in enumerate(process_bar):
+        for time_index, test_dataset_per_time in enumerate(process_bar):
             self.gnn_Model.eval()
             x, y_ob, true_TP, num_activate_simplex_Dict, structure_info = test_dataset_per_time
             logsoftmax_output = self.gnn_Model(x, structure_info)
@@ -76,7 +76,7 @@ class ModelAnalizer():
             bar_format='{l_bar}|{bar}| {n_fmt}/{total_fmt} [{rate_fmt}{postfix}|{elapsed}',
             total=100,
         )
-        for time_idx, test_dataset_per_time in enumerate(process_bar):
+        for time_index, test_dataset_per_time in enumerate(process_bar):
             self.gnn_Model.eval()
             x, weight, y_ob, true_TP, num_activate_simplex_Dict, structure_info = test_dataset_per_time
             logsoftmax_output = self.gnn_Model(x, structure_info)
