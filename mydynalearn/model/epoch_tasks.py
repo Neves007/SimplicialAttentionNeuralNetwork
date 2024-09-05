@@ -14,10 +14,12 @@ from mydynalearn.logger.logger import *
 from tqdm import tqdm
 from mydynalearn.model.getter import get as get_attmodel
 from mydynalearn.model.batch_task import BatchTask
+from mydynalearn.logger import Log
 
 class EpochTasks():
     def __init__(self, config):
         self.config = config
+        self.logger = Log("EpochTasks")
         self.EPOCHS = config.model.EPOCHS
         self.need_to_train = self.is_need_to_train()
         self.batch_task = BatchTask(config)
@@ -25,7 +27,7 @@ class EpochTasks():
         self.attention_model = get_attmodel(self.config)
         self.get_optimizer = get_optimizer(config.optimizer)
         self.optimizer = self.get_optimizer(self.attention_model.parameters())
-        self.scheduler = ReduceLROnPlateau(self.optimizer, mode='min', factor=0.1, patience=4, eps = 1e-8, threshold =0.1, verbose=True)
+        self.scheduler = ReduceLROnPlateau(self.optimizer, mode='min', factor=0.1, patience=4, eps = 1e-8, threshold =0.1)
 
     def get_fileName_model_state_dict(self,epoch_index):
         fileName_model_state_dict = self.config.modelparams_dir_path + "/epoch{:d}_model_state_dict.pth".format(
@@ -48,7 +50,7 @@ class EpochTasks():
         输出：
         '''
         self.epoch_index = epoch_index
-        checkpoint = torch.load(self.get_fileName_model_state_dict(epoch_index))
+        checkpoint = torch.load(self.get_fileName_model_state_dict(epoch_index), weights_only=True)
         self.attention_model.load_state_dict(checkpoint['model_state_dict'])
         self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 
@@ -148,15 +150,10 @@ class EpochTasks():
             self.low_the_lr(epoch_index)
 
     def run_test_epoch(self, network, dynamics, test_loader):
-        process_bar = tqdm(
-            enumerate(test_loader),
-            maxinterval=10,
-            mininterval=2,
-            bar_format='{l_bar}|{bar}| {n_fmt}/{total_fmt} [{rate_fmt}{postfix}|{elapsed}',
-            total=len(test_loader),
-        )
+        self.logger.increase_indent()
+        self.logger.log("run test epoch")
         self.attention_model.eval()
-        for time_index,test_dataset_per_time in process_bar:
+        for time_index,test_dataset_per_time in enumerate(test_loader):
             test_loss, test_x, test_y_pred, test_y_true, test_y_ob, test_w = self.batch_task._do_batch_(self.attention_model,
                                                                                                         network,
                                                                                                         dynamics,
@@ -164,4 +161,5 @@ class EpochTasks():
             test_data = self.pack_batch_data(self.epoch_index, time_index, test_loss, test_x, test_y_pred, test_y_true, test_y_ob,
                                              test_w)
             yield test_data
+        self.logger.decrease_indent()
 

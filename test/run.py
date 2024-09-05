@@ -52,10 +52,10 @@ params = {
     "IS_WEIGHT": [False]
 }
 fix_config = {
-    "NUM_SAMPLES": 10000,
+    "NUM_SAMPLES": 100,
     "TESTSET_TIMESTEP": 10,
-    "EPOCHS": 30,
-    "DEVICE": torch.device('cuda'),
+    "EPOCHS": 3,
+    "DEVICE": torch.device('cpu'),
 }
 
 
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     train_experiment_manager.run()
 
     ## 分析：测试集分析训练模型
-    exp_generator = train_experiment_manager.get_exp_generator()
+    exp_generator = list(train_experiment_manager.get_exp_generator())
     analyze_manager = AnalyzeManager(exp_generator)
     analyze_manager.run()
 

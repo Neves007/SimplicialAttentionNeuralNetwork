@@ -8,6 +8,7 @@ from mydynalearn.drawer.utils.utils import _get_metrics
 import re
 import itertools
 from mydynalearn.analyze.model_analyzer import ModelAnalyzer
+from mydynalearn.logger import Log
 
 
 class MatplotDrawingTask():
@@ -20,6 +21,7 @@ class MatplotDrawingTask():
 
     def __init__(self, analyze_manager):
         self.analyze_manager = analyze_manager
+        self.logger = Log("MatplotDrawingTask")
         self.best_epoch_dataframe = self.analyze_manager.load_best_epoch_dataframe()
 
     def _get_analyze_result(self, data):
@@ -76,8 +78,8 @@ class FigYtrureYpredDrawingTask(MatplotDrawingTask):
         :return:
         '''
         # 结果数据dataframe
+        self.logger.log("DRAW FigYtrureYpred")
         data_result = drawing_data['data_result']
-        print("*" * 10 + "DRAW FigYtrureYpred" + "*" * 10)
         # 图像绘制
         fig_drawer = FigYtrureYpred(**data_result)
         fig_drawer.draw()  # 绘制
@@ -110,7 +112,7 @@ class FigConfusionMatrixDrawingTask(FigYtrureYpredDrawingTask):
         '''
         # 结果数据dataframe
         data_result = drawing_data['data_result']
-        print("*" * 10 + "DRAW FigConfusionMatrix" + "*" * 10)
+        self.logger.log("DRAW FigConfusionMatrix")
         # 图像绘制
         fig_drawer = FigConfusionMatrix(**data_result)
         fig_drawer.draw()  # 绘制
@@ -163,7 +165,7 @@ class FigActiveNeighborsTransProbDrawingTask(FigYtrureYpredDrawingTask):
         '''
         # 结果数据dataframe
         data_result = drawing_data['data_result']
-        print("*" * 10 + "DRAW FigActiveNeighborsTrans" + "*" * 10)
+        self.logger.log("DRAW FigActiveNeighborsTrans")
         # 图像绘制
         fig_drawer = FigActiveNeighborsTransprob(**data_result)
         fig_drawer.draw()  # 绘制
@@ -188,7 +190,7 @@ class FigKLossDrawingTask(FigYtrureYpredDrawingTask):
         '''
         # 结果数据dataframe
         data_result = drawing_data['data_result']
-        print("*" * 10 + "DRAW FigKLoss" + "*" * 10)
+        self.logger.log("DRAW FigKLoss")
         # 图像绘制
         fig_drawer = FigKLoss(**data_result)
         fig_drawer.draw()  # 绘制
@@ -234,7 +236,7 @@ class FigKDistributionDrawingTask(FigYtrureYpredDrawingTask):
         # 结果数据dataframe
         data_result = drawing_data['data_result']
         network = data_result['network']
-        print("*" * 10 + "DRAW FigKDistribution" + "*" * 10)
+        self.logger.log("DRAW FigKDistribution")
         # 图像绘制
         fig_drawer = FigKDistribution(**data_result)
         fig_drawer.draw()  # 绘制
@@ -268,7 +270,7 @@ class FigTimeEvolutionDrawingTask(FigYtrureYpredDrawingTask):
         # 结果数据dataframe
         data_result = drawing_data['data_result']
         network = data_result['network']
-        print("*" * 10 + "DRAW FigKDistribution" + "*" * 10)
+        self.logger.log("DRAW TimeEvolution")
         # 图像绘制
         fig_drawer = FigTimeEvolution(**data_result)
         fig_drawer.draw()  # 绘制

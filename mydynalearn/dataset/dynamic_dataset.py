@@ -8,6 +8,7 @@ from mydynalearn.networks.getter import get as get_network
 from mydynalearn.dynamics.getter import get as get_dynamics
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
+from mydynalearn.logger import Log
 class DynamicDataset(Dataset):
     '''数据集类
     通过网络network和dynamics来说生成动力学数据集
@@ -18,6 +19,7 @@ class DynamicDataset(Dataset):
     '''
     def __init__(self, config) -> None:
         self.config = config
+        self.logger = Log("DynamicDataset")
         self.dataset_config = config.dataset
         self.NUM_SAMPLES = self.dataset_config.NUM_SAMPLES
         self.TIME_EVOLUTION_STEPS = self.dataset_config.TIME_EVOLUTION_STEPS
@@ -119,7 +121,7 @@ class DynamicDataset(Dataset):
         '''
         self._init_dataset()  # 设置
         self.dynamics.init_stateof_network()
-        print("create dynamics")
+        self.logger.log("create dynamics")
         for t in tqdm(range(self.NUM_SAMPLES)):
             onestep_spread_result = self.dynamics._run_onestep()
             self.dynamics.set_features(**onestep_spread_result)
@@ -128,12 +130,13 @@ class DynamicDataset(Dataset):
 
 
     def run(self):
+        self.logger.increase_indent()
         if self.is_dataset_exist():
-            print("load dataset...")
+            self.logger.log("load dataset...")
             network, dynamics, train_set, val_set, test_set = self._load_dataset()
 
         else:
-            print("build dataset...")
+            self.logger.log("build dataset...")
             self._buid_dataset()
             train_set, val_set, test_set = self._partition_dataSet()
             network = self.network
@@ -143,6 +146,7 @@ class DynamicDataset(Dataset):
                                train_set,
                                val_set,
                                test_set)
-        print("dataset.output dataset_file: ",self.dataset_file_path)
-        print("The data has been loaded completely!")
+        self.logger.log(f"dataset.output dataset_file: {self.dataset_file_path}")
+        self.logger.log("The data has been loaded completely!")
+        self.logger.decrease_indent()
         return network, dynamics, train_set, val_set, test_set

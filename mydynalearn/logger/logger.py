@@ -1,24 +1,25 @@
+# - 定义Log类并使用单例模式
+class Log:
+    # ANSI 转义序列，用于蓝色文本输出
+    INDENT = 0
+    BLUE = '\033[94m'
+    RESET = '\033[0m'  # 用于重置颜色
 
-# 训练过程的输出
-def log_train_begin(train_params):
-    train_info = '_'.join((str(value) for value in train_params))
-    print("Begin to train")
-    print("train model:",train_info)
 
-def log_training():
-    print("training model...")
+    def __init__(self,env = None):
+        self.env = env
 
-# 真实网络
+    def set_env(self,env):
+        self.env = env
+    def increase_indent(self):
+        Log.INDENT += 1
 
-def log_realnet_begin(train_params):
-    train_info = '_'.join((str(value) for value in train_params))
-    print("realnet model:",train_info)
+    def decrease_indent(self):
+        if Log.INDENT > 0:
+            Log.INDENT -= 1
 
-def log_exp_end():
-    print("\tEnd.")
-    print()
-
-def log_analyze_trained_model(train_param):
-    train_info = ' '.join((str(value) for value in train_param))
-    print(train_info)
-
+    def log(self, message):
+        if self.env is not None:
+            print(Log.BLUE + "  " * Log.INDENT +  self.env + ": " + message + Log.RESET)
+        else:
+            print(" " * Log.INDENT + Log.BLUE + message + Log.RESET)

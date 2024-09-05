@@ -3,7 +3,7 @@ from .utils.data_handler import *
 from mydynalearn.config import Config
 import os
 import pickle
-
+from mydynalearn.logger import Log
 
 class ModelAnalyzer:
     config = Config.get_config_analyze()['default']
@@ -13,9 +13,12 @@ class ModelAnalyzer:
         :param exp: 实验对象
         """
         self.exp = exp
+        self.logger = Log("ModelAnalyzer")
         self.dynamics = self.exp.dynamics
         self.epoch_index = epoch_index
         self.test_model = self._init_test_model()
+
+
 
     def get_analyze_result_dir_path(self):
         """
@@ -52,6 +55,8 @@ class ModelAnalyzer:
         """
         :return:
         """
+        self.logger.increase_indent()
+        self.logger.log(f"analyze model performance of epoch {self.epoch_index}")
         network, dynamics, _, _, test_loader = self.exp.create_dynamic_dataset()
         self.network = network
         self.dynamics = dynamics
@@ -62,6 +67,7 @@ class ModelAnalyzer:
                                                                           dynamics,
                                                                           generator_performance_result)
         analyze_result = handler_performance_generator.create_analyze_result()
+        self.logger.decrease_indent()
         return analyze_result
 
     def analyze_model_performance_time_evolution(self):
@@ -76,6 +82,12 @@ class ModelAnalyzer:
                                                                                                       dynamic_dataset_time_evolution)
         analyze_result_model_performance_time_evolution = handler_performance_generator_time_evolution.create_analyze_result()
         return analyze_result_model_performance_time_evolution
+
+    def result_file_is_exist(self, type='normal_performance'):
+        analyze_result_dir_path = self.get_analyze_result_dir_path()
+        analyze_result_filepath = os.path.join(analyze_result_dir_path,
+                                               f"epoch{self.epoch_index}_{type}_analyze_result.pkl")
+        return os.path.exists(analyze_result_filepath)
 
     def save(self, result, type):
         '''
@@ -128,38 +140,50 @@ class ModelAnalyzer:
             result = pickle.load(f)
         return result
 
-    def run_normal_performance_analysis(self):
-        """
-        对单个实验进行模型性能分析（随机数据集）
-        """
-
+    def get_normal_performance_analysis_result(self):
         try:
             # 尝试加载分析结果
             model_performance_analyze_result = self.load(type="normal_performance")
-            print("Normal performance analysis results is already analyzed ")
         except FileNotFoundError:
             # 如果文件不存在，则运行分析并保存结果
             self.network = self.exp.network.create_net()
-            print("No existing normal performance analysis results found. Running analysis...")
             model_performance_analyze_result = self.analyze_model_performance()
             self.save(model_performance_analyze_result, type="normal_performance")
-            print("Normal performance analysis completed and results saved.")
-
         return model_performance_analyze_result
 
-    def run_time_evolution_performance_analysis(self):
+    def get_time_evolution_performance_analysis_result(self):
         """
         对单个实验进行模型性能分析（时间演化数据集）
         """
         try:
             # 尝试加载分析结果
             model_performance_analyze_result_time_evolution = self.load(type="time_evolution")
-            print("Loaded existing time evolution performance analysis results.")
         except FileNotFoundError:
             # 如果文件不存在，则运行分析并保存结果
-            print("No existing time evolution performance analysis results found. Running analysis...")
             self.network = self.exp.network.create_net()
             model_performance_analyze_result_time_evolution = self.analyze_model_performance_time_evolution()
             self.save(model_performance_analyze_result_time_evolution, type="time_evolution")
-            print("Time evolution performance analysis completed and results saved.")
         return model_performance_analyze_result_time_evolution
+
+    def run_normal_performance_analysis(self):
+        """
+        对单个实验进行模型性能分析
+        """
+        # 只运行没有结果文件的epoch的模型
+        if not self.result_file_is_exist(type="normal_performance"):
+            self.logger.increase_indent()
+            self.logger.log(f"analyze the model of epoch {self.epoch_index}")
+            self.get_normal_performance_analysis_result()
+            self.logger.decrease_indent()
+
+
+    def run_time_evolution_performance_analysis(self):
+        """
+        对单个实验进行实验演化分析
+        """
+        # 只运行没有结果文件的epoch的模型
+        if not self.result_file_is_exist(type="time_evolution"):
+            self.logger.increase_indent()
+            self.logger.log(f"analyze the model of epoch {self.epoch_index}")
+            self.get_time_evolution_performance_analysis_result()
+            self.logger.decrease_indent()

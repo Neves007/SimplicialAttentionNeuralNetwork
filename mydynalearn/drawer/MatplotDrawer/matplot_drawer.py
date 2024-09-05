@@ -10,7 +10,7 @@ import seaborn as sns
 from mydynalearn.config import *
 import pandas as pd
 import re
-
+from mydynalearn.logger import Log
 import itertools
 
 
@@ -18,14 +18,17 @@ class MatplotDrawer():
     def __init__(self):
         # self.shrink_times = 1
         self.task_name = 'MatplotDrawer'
+        self.logger = Log("MatplotDrawer")
         self.config_drawer = Config.get_config_drawer()
         pass
 
-    def save_fig(self, ):
+    def save_fig(self):
+        self.logger.increase_indent()
         fig_file_path = self.get_fig_file_path()
         self.fig.savefig(fig_file_path)
-        print("draw " + fig_file_path)
+        self.logger.log("saved in:  " + fig_file_path)
         plt.close(self.fig)
+        self.logger.decrease_indent()
 
     def _make_dir(self, dir):
         if not os.path.exists(dir):
@@ -45,7 +48,7 @@ class MatplotDrawer():
         # 获得模型整体信息
         model_info = str.join('_', [network_name, dynamics_name, model_name])
         # 图片名称
-        fig_name = "FigYtrureYpred_{}_epoch_{}".format(model_info, epoch_index)
+        fig_name = "{}_{}_epoch_{}".format(self.task_name, model_info, epoch_index)
         '_'.join([self.task_name, model_info, 'epoch', str(epoch_index)])
         # 图片所在目录
         fig_dir_root_path = self.config.fig_dir_path
@@ -421,8 +424,6 @@ class FigTimeEvolution(MatplotDrawer):
 
         # 调整图像布局
         plt.tight_layout()
-        # 显示图像
-        plt.show()
 
     def draw(self):
         '''

@@ -2,6 +2,7 @@ import os.path
 import pickle
 import random
 from abc import abstractmethod
+from mydynalearn.logger import Log
 
 import networkx as nx
 import numpy as np
@@ -14,6 +15,7 @@ from mydynalearn.networks.util.util import nodeToEdge_matrix
 class Network():
     def __init__(self, config):
         # toy_network = True
+        self.logger = Log("Network")
         self.config = config
         self.net_config = config.network
         self.NAME = self.net_config.NAME
@@ -46,9 +48,10 @@ class Network():
         with open(self.file_path, 'rb') as f:
             loaded_network = pickle.load(f)
         self.__dict__.update(loaded_network.__dict__)
-        print(f"Network loaded successfully from {self.file_path}")
+        self.logger.log(f"Network loaded successfully from {self.file_path}")
 
     def create_net(self):
+        self.logger.increase_indent()
         try:
             self.load()
         except FileNotFoundError:
@@ -58,6 +61,7 @@ class Network():
             self.set_inc_matrix_adj_info()
             self.to_device(self.DEVICE)
             self.save()
+        self.logger.decrease_indent()
         return self
 
     def print_log(self,num_indentation=0):

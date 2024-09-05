@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.7 (GAT)" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="pytorch38" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="torch" project-jdk-type="Python SDK" />
 </project>
