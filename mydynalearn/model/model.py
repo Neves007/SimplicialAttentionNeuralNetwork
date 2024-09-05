@@ -3,6 +3,7 @@ import torch.nn as nn
 from mydynalearn.model.optimizer import get as get_optimizer
 
 from mydynalearn.model.epoch_tasks import EpochTasks
+from mydynalearn.logger import Log
 
 from torch.utils.data import DataLoader
 import torch
@@ -11,6 +12,7 @@ class Model():
         """Dense version of GAT."""
         # config
         self.config = config
+        self.logger = Log("Model")
         self.NAME = config.model.NAME
         self.epoch_tasks = EpochTasks(config)
         self.need_to_train = self.epoch_tasks.need_to_train
@@ -18,5 +20,8 @@ class Model():
     # 放进数据集类里面
 
     # 定义模型
-    def run(self,network, dynamics, train_set, val_set, test_set):
-        self.epoch_tasks.run_all(network, dynamics, train_set, val_set, test_set)
+    def run(self,dataset):
+        self.logger.increase_indent()
+        self.logger.log("Beginning model training...")
+        self.epoch_tasks.run_all(**dataset)
+        self.logger.decrease_indent()

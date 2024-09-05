@@ -7,6 +7,7 @@ from mydynalearn.networks import *
 from mydynalearn.networks.getter import get as get_network
 from mydynalearn.dynamics.getter import get as get_dynamics
 from torch.utils.data import Dataset, Subset
+from mydynalearn.logger import Log
 
 class DynamicDatasetTimeEvolution(Dataset):
     '''数据集类
@@ -18,6 +19,7 @@ class DynamicDatasetTimeEvolution(Dataset):
     '''
     def __init__(self, exp, ml_model, network, dynamics) -> None:
         self.config = exp.config
+        self.logger = Log("DynamicDatasetTimeEvolution")
         self.exp = exp
         self.ml_model = ml_model
         self.DEVICE = self.config.DEVICE
@@ -82,6 +84,8 @@ class DynamicDatasetTimeEvolution(Dataset):
         self.ml_weight_T[t] = weight
 
     def _save_dataset(self):
+        self.logger.increase_indent()
+        self.logger.log(f"save: {self.dataset_file_path}")
         data = {
             "ori_x0_T": self.ori_x0_T,
             "ml_x0_T": self.ml_x0_T,
@@ -90,12 +94,16 @@ class DynamicDatasetTimeEvolution(Dataset):
         with open(file_name, "wb") as file:
             pickle.dump(data, file)
         file.close()
+        self.logger.decrease_indent()
 
     def _load_dataset(self):
+        self.logger.increase_indent()
         file_name = self.dataset_file_path
+        self.logger.log(f"load: {file_name}")
         with open(file_name, "rb") as file:
             data = pickle.load(file)
         file.close()
+        self.logger.decrease_indent()
         return data
 
     def get_dataset(self):
@@ -109,14 +117,16 @@ class DynamicDatasetTimeEvolution(Dataset):
         '''原动力学模型产生的时间序列数据
         '''
         # 获取动力学数据
+        self.logger.increase_indent()
+        self.logger.log("Build original time evolution dataset")
         self.network.create_net()  # 构造网络
         self.dynamics.set_network(self.network)  # 设置动力学网络
         self.dynamics.init_stateof_network()  # 在T_INIT时间后重置网络状态
-        print("create dynamics")
-        for t in tqdm(range(self.TIME_EVOLUTION_STEPS)):
+        for t in range(self.TIME_EVOLUTION_STEPS):
             onestep_spread_result = self.dynamics._run_onestep()
             self.dynamics.set_features(**onestep_spread_result)
             self._save_ori_onesample_dataset(t, **onestep_spread_result)
+        self.logger.decrease_indent()
 
     def set_cur_state(self, old_x0, new_x0, true_tp, weight):
         self.cur_x0_for_ml = old_x0
@@ -127,11 +137,12 @@ class DynamicDatasetTimeEvolution(Dataset):
         '''机器学习动力学模型产生的时间序列数据
         '''
         # 获取动力学数据
+        self.logger.increase_indent()
+        self.logger.log("Build machine learning time evolution dataset")
         self.network.create_net()  # 构造网络
         self.dynamics.set_network(self.network)  # 设置动力学网络
         self.dynamics.init_stateof_network()  # 在T_INIT时间后重置网络状态
-        print("create dynamics")
-        for t in tqdm(range(self.TIME_EVOLUTION_STEPS)):
+        for t in range(self.TIME_EVOLUTION_STEPS):
             onestep_spread_result = self.dynamics._run_onestep()
             self.dynamics.spread_result_to_float(onestep_spread_result)
             _, x0, y_pred, y_true, y_ob, w = self.ml_model.batch_task._do_batch_(self.ml_model.attention_model,self.network,self.dynamics, tuple(onestep_spread_result.values()))
@@ -144,38 +155,30 @@ class DynamicDatasetTimeEvolution(Dataset):
             }
             self.dynamics.set_features(**ml_onestep_spread_result)
             self._save_ml_onesample_dataset(t, **ml_onestep_spread_result)
-
-    def _load_existing_dataset(self):
-        """
-        从现有的文件中加载数据集。
-        """
-        data = self._load_dataset()
-        return data
+        self.logger.decrease_indent()
 
     def _build_and_save_new_dataset(self):
         """
         构建新的数据集并保存到文件中。
         """
-        print("Building new dataset...")
         # 构建原始动力学模型的数据集
+        self.logger.increase_indent()
+        self.logger.log("build and save time evolution dataset")
         self._buid_dataset_original_time_evolution()
         self._buid_dataset_ml_time_evolution()
         self._save_dataset()
-        self._print_dataset_info()
+        self.logger.decrease_indent()
         return self.get_dataset()
-
-    def _print_dataset_info(self):
-        """
-        打印数据集信息。
-        """
-        print("dataset.output dataset_file:", self.dataset_file_path)
-        print("The data has been loaded completely!")
 
     def run(self):
         """
         加载或构建动力学数据集，并返回网络、动力学和时间演化数据集。
         """
+        self.logger.increase_indent()
+        self.logger.log("run time evolution dynamics dataset")
         if self.is_dataset_exist():
-            return self._load_existing_dataset()
+            dataset = self._load_dataset()
         else:
-            return self._build_and_save_new_dataset()
+            dataset =  self._build_and_save_new_dataset()
+        self.logger.decrease_indent()
+        return dataset

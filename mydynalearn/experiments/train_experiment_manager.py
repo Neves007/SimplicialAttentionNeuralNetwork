@@ -1,12 +1,13 @@
 # 获取配置
 from mydynalearn.config.config_training_exp import ConfigTrainingExp
 from .experiment_train import ExperimentTrain
-
+from mydynalearn.logger import Log
 from mydynalearn.util.params_dealer import PasramsDealer
 
 class TrainExperimentManager():
     def __init__(self,fix_config_dict, train_params):
         self.fix_config_dict = fix_config_dict
+        self.logger = Log("TrainExperimentManager")
         self.root_dir = r"./output/"
         self.train_params = train_params
 
@@ -68,11 +69,11 @@ class TrainExperimentManager():
         训练模型
         输出：模型的参数 model_state_dict
         '''
-        print("*"*10+" TRAINING PROCESS "+"*"*10)
+        self.logger.log("TRAINING PROCESS")
         exp_generator = self.get_exp_generator()
         for exp in exp_generator:
             exp.run()
             # torch.cuda.empty_cache()
-        print("TRAINING PROCESS COMPLETED!\n\n")
+        self.logger.log("TRAINING PROCESS COMPLETED!\n\n")
 
 

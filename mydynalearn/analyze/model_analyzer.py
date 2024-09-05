@@ -57,15 +57,11 @@ class ModelAnalyzer:
         """
         self.logger.increase_indent()
         self.logger.log(f"analyze model performance of epoch {self.epoch_index}")
-        network, dynamics, _, _, test_loader = self.exp.create_dynamic_dataset()
-        self.network = network
-        self.dynamics = dynamics
-        generator_performance_result = self.test_model.run_test_epoch(network, dynamics, test_loader)
+        dataset = self.exp.dataset.load()
+        generator_performance_result = self.test_model.run_test_epoch(**dataset)
         handler_performance_generator = PerformanceResultGeneratorHandler(self.exp,
                                                                           self.epoch_index,
-                                                                          network,
-                                                                          dynamics,
-                                                                          generator_performance_result)
+                                                                          generator_performance_result,**dataset)
         analyze_result = handler_performance_generator.create_analyze_result()
         self.logger.decrease_indent()
         return analyze_result
@@ -74,6 +70,8 @@ class ModelAnalyzer:
         """分析时间演化数据
         :return:
         """
+        self.logger.increase_indent()
+        self.logger.log(f"analyze time evolution model performance of epoch {self.epoch_index}")
         dynamic_dataset_time_evolution = self.create_dynamic_dataset_time_evolution()
         handler_performance_generator_time_evolution = PerformanceResultGeneratorTimeEvolutionHandler(self.exp,
                                                                                                       self.epoch_index,
@@ -81,6 +79,7 @@ class ModelAnalyzer:
                                                                                                       self.dynamics,
                                                                                                       dynamic_dataset_time_evolution)
         analyze_result_model_performance_time_evolution = handler_performance_generator_time_evolution.create_analyze_result()
+        self.logger.decrease_indent()
         return analyze_result_model_performance_time_evolution
 
     def result_file_is_exist(self, type='normal_performance'):
@@ -170,11 +169,14 @@ class ModelAnalyzer:
         对单个实验进行模型性能分析
         """
         # 只运行没有结果文件的epoch的模型
+        self.logger.increase_indent()
+        self.logger.log(f"analyze normal performance")
         if not self.result_file_is_exist(type="normal_performance"):
             self.logger.increase_indent()
             self.logger.log(f"analyze the model of epoch {self.epoch_index}")
             self.get_normal_performance_analysis_result()
             self.logger.decrease_indent()
+        self.logger.decrease_indent()
 
 
     def run_time_evolution_performance_analysis(self):
@@ -182,8 +184,11 @@ class ModelAnalyzer:
         对单个实验进行实验演化分析
         """
         # 只运行没有结果文件的epoch的模型
+        self.logger.increase_indent()
+        self.logger.log(f"time_evolution performance")
         if not self.result_file_is_exist(type="time_evolution"):
             self.logger.increase_indent()
             self.logger.log(f"analyze the model of epoch {self.epoch_index}")
             self.get_time_evolution_performance_analysis_result()
             self.logger.decrease_indent()
+        self.logger.decrease_indent()

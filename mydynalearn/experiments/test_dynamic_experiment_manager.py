@@ -1,12 +1,13 @@
 # 获取配置
 from mydynalearn.config import ConfigDynamicTestingExp
 from mydynalearn.experiments import ExperimentTestDynamic
-
+from mydynalearn.logger import Log
 from mydynalearn.util.params_dealer import PasramsDealer
 
 class TestDynamicExperimentManager():
     def __init__(self, fix_config_dict, params_dict):
         self.fix_config_dict = fix_config_dict
+        self.logger = Log("TestDynamicExperimentManager")
         self.params = PasramsDealer.assemble_test_dynamics_params(params_dict)
         self.root_dir = r"./output/"
     def get_train_exp(self,network, dynamics):
@@ -57,10 +58,10 @@ class TestDynamicExperimentManager():
         训练模型
         输出：模型的参数 model_state_dict
         '''
-        print("*"*10+" TRAINING PROCESS "+"*"*10)
+        self.logger.log("*"*10+" TRAINING PROCESS "+"*"*10)
         exp_generator = self.get_exp_generator()
         for exp in exp_generator:
             exp.run()
-        print("PROCESS COMPLETED!\n\n")
+        self.logger.log("PROCESS COMPLETED!\n\n")
 
 

@@ -1,11 +1,13 @@
 import os
 import pandas as pd
 import numpy as np
+from mydynalearn.logger import Log
 
 
 class BestEpochHandler():
     def __init__(self, config, exp, model_performance_analyze_result_generator):
         self.config = config
+        self.logger = Log("BestEpochHandler")
         self.exp = exp
         self.file_path = self.__get_exp_dataframe_file_path()
         self.model_performance_analyze_result_generator = model_performance_analyze_result_generator
@@ -51,26 +53,24 @@ class BestEpochHandler():
         self.exp_dataframe = pd.read_csv(self.file_path)
 
     def find_best_epoch(self):
+        self.logger.increase_indent()
+        self.logger.log("find best epoch")
         self.__build_exp_dataframe()
         # 找到 cross_loss 最小值对应的行
-        try:
-            # Assuming self.exp_dataframe is your DataFrame
-            self.exp_dataframe['cross_loss'] = pd.to_numeric(self.exp_dataframe['cross_loss'], errors='coerce')
-            # 找到 cross_loss 列最小的值和对应的行索引
-            min_cross_loss_item = self.exp_dataframe.nsmallest(1, 'cross_loss').reset_index(drop=True)
+        # Assuming self.exp_dataframe is your DataFrame
+        self.exp_dataframe['cross_loss'] = pd.to_numeric(self.exp_dataframe['cross_loss'], errors='coerce')
+        # 找到 cross_loss 列最小的值和对应的行索引
+        min_cross_loss_item = self.exp_dataframe.nsmallest(1, 'cross_loss').reset_index(drop=True)
 
-            # 提取该行中对应的 model_epoch_index 值，并转换为整数
-            # 提取 model_epoch_index 的值
-            value = min_cross_loss_item.at[0, 'model_epoch_index']
+        # 提取该行中对应的 model_epoch_index 值，并转换为整数
+        # 提取 model_epoch_index 的值
+        value = min_cross_loss_item.at[0, 'model_epoch_index']
 
-            # value有时是int有时是series。处理数据
-            if isinstance(value, int):
-                min_cross_loss_epoch_index = value
-            else:
-                # 如果不是 int 类型，假设是 Series 或其他类型，则调用 .item()
-                min_cross_loss_epoch_index = value.item()
-        except Exception as e:
-            print(self.exp_dataframe.loc[:, 'cross_loss'])
-            print(self.exp_dataframe.loc[:, 'cross_loss'].dtype)
-            raise e
+        # value有时是int有时是series。处理数据
+        if isinstance(value, int):
+            min_cross_loss_epoch_index = value
+        else:
+            # 如果不是 int 类型，假设是 Series 或其他类型，则调用 .item()
+            min_cross_loss_epoch_index = value.item()
+        self.logger.decrease_indent()
         return min_cross_loss_item, min_cross_loss_epoch_index

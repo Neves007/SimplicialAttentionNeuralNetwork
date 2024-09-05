@@ -36,12 +36,14 @@ class EpochTasks():
 
     def save(self, attention_model, optimizer, epoch_index):
         model_state_dict_file_path = self.get_fileName_model_state_dict(epoch_index)
-        print("\ntraining.epochtask. output dataset_file: ", model_state_dict_file_path)
+        self.logger.increase_indent()
+        self.logger.log(f"save: {model_state_dict_file_path}")
         torch.save({
             # 存储 batch的state_dict
             'model_state_dict': attention_model.state_dict(),
             'optimizer_state_dict': optimizer.state_dict()
         }, model_state_dict_file_path)
+        self.logger.decrease_indent()
 
     def load(self, epoch_index):
         '''
@@ -99,15 +101,10 @@ class EpochTasks():
 
 
     def train_epoch(self,train_set, val_set, network, dynamics, epoch_index):
-        process_bar = tqdm(
-            enumerate(zip(train_set, val_set)),
-            maxinterval=10,
-            mininterval=2,
-            bar_format='{l_bar}|{bar}| {n_fmt}/{total_fmt} [{rate_fmt}{postfix}|{elapsed}',
-            total=len(train_set)
-        )
+        self.logger.increase_indent()
+        self.logger.log(f"train epoch: {epoch_index}")
         R_stack = []
-        for time_index, (train_dataset_per_time, val_dataset_per_time) in process_bar:
+        for time_index, (train_dataset_per_time, val_dataset_per_time) in enumerate(zip(train_set, val_set)):
             self.attention_model.train()
             self.optimizer.zero_grad()
             train_loss, train_x, train_y_pred, train_y_true, train_y_ob, train_w = self.batch_task._do_batch_(self.attention_model,
@@ -135,10 +132,9 @@ class EpochTasks():
             item_info = 'Epoch:{:d} LR:{:f} R:{:f}'.format(epoch_index,
                                                            self.optimizer.param_groups[0]['lr'],
                                                            R)
-            process_bar.set_postfix(custom_info=item_info)
             self.visdom_drawer.visdomDrawBatch(val_data)
-        process_bar.close()
-    def run_all(self,network, dynamics, train_set, val_set, test_set):
+        self.logger.decrease_indent()
+    def run_all(self,network, dynamics, train_set, val_set,*args,**kwargs):
         self.visdom_drawer = VisdomController(self.config, dynamics)
         for epoch_index in range(self.EPOCHS):
             self.train_epoch(train_set,
@@ -149,11 +145,11 @@ class EpochTasks():
             self.save(self.attention_model, self.optimizer, epoch_index)
             self.low_the_lr(epoch_index)
 
-    def run_test_epoch(self, network, dynamics, test_loader):
+    def run_test_epoch(self, network, dynamics, test_set,*args,**kwargs):
         self.logger.increase_indent()
         self.logger.log("run test epoch")
         self.attention_model.eval()
-        for time_index,test_dataset_per_time in enumerate(test_loader):
+        for time_index,test_dataset_per_time in enumerate(test_set):
             test_loss, test_x, test_y_pred, test_y_true, test_y_ob, test_w = self.batch_task._do_batch_(self.attention_model,
                                                                                                         network,
                                                                                                         dynamics,

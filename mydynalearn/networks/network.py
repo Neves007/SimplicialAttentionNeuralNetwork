@@ -34,12 +34,9 @@ class Network():
         """
         Save the current network object to a file using pickle.
         """
-        try:
-            with open(self.file_path, 'wb') as f:
-                pickle.dump(self, f)
-            print(f"Network saved successfully to {self.file_path}")
-        except Exception as e:
-            print(f"An error occurred while saving the network: {e}")
+        with open(self.file_path, 'wb') as f:
+            pickle.dump(self, f)
+        self.logger.log(f"Network saved successfully to: {self.file_path}")
 
     def load(self):
         """

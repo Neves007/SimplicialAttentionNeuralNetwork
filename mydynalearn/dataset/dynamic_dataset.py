@@ -91,7 +91,7 @@ class DynamicDataset(Dataset):
         self.dynamics.set_network(self.network)  # 设置动力学网络
         self._init_dataset()
         # 生成数据集
-        for t in tqdm(range(self.NUM_SAMPLES)):
+        for t in range(self.NUM_SAMPLES):
             # 动力学初始化
             if t % self.T_INIT == 0:
                 self.dynamics.init_stateof_network()  # 在T_INIT时间后重置网络状态
@@ -100,13 +100,13 @@ class DynamicDataset(Dataset):
             self.dynamics.set_features(**onestep_spread_result)
             self._save_onesample_dataset(t, **onestep_spread_result)
 
-    def _save_dataset(self, *data):
+    def save(self, dataset):
         file_name = self.dataset_file_path
         with open(file_name, "wb") as file:
-            pickle.dump(data, file)
+            pickle.dump(dataset, file)
         file.close()
 
-    def _load_dataset(self):
+    def load(self):
         file_name = self.dataset_file_path
         with open(file_name, "rb") as file:
             data = pickle.load(file)
@@ -122,31 +122,25 @@ class DynamicDataset(Dataset):
         self._init_dataset()  # 设置
         self.dynamics.init_stateof_network()
         self.logger.log("create dynamics")
-        for t in tqdm(range(self.NUM_SAMPLES)):
+        for t in range(self.NUM_SAMPLES):
             onestep_spread_result = self.dynamics._run_onestep()
             self.dynamics.set_features(**onestep_spread_result)
             self._save_onesample_dataset(t, **onestep_spread_result)
 
-
-
     def run(self):
         self.logger.increase_indent()
-        if self.is_dataset_exist():
-            self.logger.log("load dataset...")
-            network, dynamics, train_set, val_set, test_set = self._load_dataset()
-
-        else:
+        if not self.is_dataset_exist():
             self.logger.log("build dataset...")
             self._buid_dataset()
             train_set, val_set, test_set = self._partition_dataSet()
             network = self.network
             dynamics = self.dynamics
-            self._save_dataset(network,
-                               dynamics,
-                               train_set,
-                               val_set,
-                               test_set)
-        self.logger.log(f"dataset.output dataset_file: {self.dataset_file_path}")
-        self.logger.log("The data has been loaded completely!")
+            dataset = {
+                "network": network,
+                "dynamics": dynamics,
+                "train_set": train_set,
+                "val_set": val_set,
+                "test_set": test_set,
+            }
+            self.save(dataset)
         self.logger.decrease_indent()
-        return network, dynamics, train_set, val_set, test_set

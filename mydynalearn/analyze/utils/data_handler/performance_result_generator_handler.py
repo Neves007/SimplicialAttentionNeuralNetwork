@@ -1,7 +1,7 @@
 import pandas as pd
 from mydynalearn.analyze.utils.data_handler import DynamicDataHandler
 class PerformanceResultGeneratorHandler():
-    def __init__(self, exp, epoch_index,network,dynamics, performance_result_generator):
+    def __init__(self, exp, epoch_index, performance_result_generator,network,dynamics,*args,**kwargs):
         self.exp = exp
         self.epoch_index = epoch_index
         self.network = network

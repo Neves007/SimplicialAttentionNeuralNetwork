@@ -104,7 +104,7 @@ class runModelOnTestData:
         创建分析结果
         """
         try:
-            network, dynamics, _, _, test_loader = self.testdata_exp.create_dynamic_dataset()
+            network, dynamics, _, _, test_loader = self.testdata_exp.dataset.load()
         except Exception as e:
             print(self.exp_info)
             raise e
