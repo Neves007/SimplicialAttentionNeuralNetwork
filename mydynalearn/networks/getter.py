@@ -4,6 +4,7 @@ from mydynalearn.networks import *
 __networks__ = {
     "ER": ER,
     "SCER": SCER,
+    "SCSF": SCSF,
     "ToySCER": ToySCER,
     "CONFERENCE": Realnet,
     "HIGHSCHOOL": Realnet,

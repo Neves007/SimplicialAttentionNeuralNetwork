@@ -9,7 +9,7 @@
       <sourceFolder url="file://$MODULE_DIR$/output/modelparams" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/output/network" isTestSource="false" />
     </content>
-    <orderEntry type="jdk" jdkName="torch" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="pytorch38 (3)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PackageRequirementsSettings">

@@ -54,7 +54,6 @@ class BestEpochHandler():
 
     def find_best_epoch(self):
         self.logger.increase_indent()
-        self.logger.log("find best epoch")
         self.__build_exp_dataframe()
         # 找到 cross_loss 最小值对应的行
         # Assuming self.exp_dataframe is your DataFrame
@@ -72,5 +71,6 @@ class BestEpochHandler():
         else:
             # 如果不是 int 类型，假设是 Series 或其他类型，则调用 .item()
             min_cross_loss_epoch_index = value.item()
+        self.logger.log(f"find best epoch: {min_cross_loss_epoch_index}")
         self.logger.decrease_indent()
         return min_cross_loss_item, min_cross_loss_epoch_index

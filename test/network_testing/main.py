@@ -6,7 +6,7 @@
 import torch
 
 from mydynalearn.networks import *
-from mydynalearn.config import *
+from mydynalearn.config import Config
 import matplotlib.pyplot as plt
 
 
@@ -21,12 +21,12 @@ NETWORKS = {
 }
 
 NETWORK_CONFIG = {
-    "ER": NetworkConfig().er(),
-    "SCER": NetworkConfig().sc_er(),
-    "CONFERENCE": NetworkConfig().real_scnet_conference(),
-    "HIGHSCHOOL": NetworkConfig().real_scnet_high_school(),
-    "HOSPITAL": NetworkConfig().real_scnet_hospital(),
-    "WORKPLACE": NetworkConfig().real_scnet_workplace(),
+    "ER": Config.get_config_network().ER,
+    "SCER": Config.get_config_network().SCER,
+    "CONFERENCE": Config.get_config_network().CONFERENCE,
+    "HIGHSCHOOL": Config.get_config_network().HIGHSCHOOL,
+    "HOSPITAL": Config.get_config_network().HOSPITAL,
+    "WORKPLACE": Config.get_config_network().WORKPLACE,
 }
 
 def get_simple_net_info(NETWORK_NAME):
