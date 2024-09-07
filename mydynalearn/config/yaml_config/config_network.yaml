@@ -11,6 +11,12 @@ SCER:
   AVG_K: 20
   AVG_K_DELTA: 8
 
+SCSF:
+  NAME: 'SCSF'
+  NUM_NODES: 1000
+  MAX_DIMENSION: 2
+  ntri: 1
+
 ToySCER:
   NAME: 'ToySCER'
   NUM_NODES: 8
