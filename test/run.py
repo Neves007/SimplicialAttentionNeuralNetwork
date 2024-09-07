@@ -42,11 +42,11 @@ from mydynalearn.drawer import MatplotController
 '''
 
 params = {
-    # "grpah_network": ["ER"],
-    # "grpah_dynamics": ["UAU"],
+    "grpah_network": ["ER", "SF"],
+    "grpah_dynamics": ["UAU", "CompUAU", "CoopUAU", "AsymUAU"],
 
-    "simplicial_network": ["SCER"],
-    "simplicial_dynamics": ["SCUAU"],
+    "simplicial_network": ["SCER", "SCSF", "CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
+    "simplicial_dynamics": ["SCUAU", "SCCompUAU", "SCCoopUAU", "SCAsymUAU"],
 
     "model": ["GAT", "SAT", "DiffSAT"],  # 至少选一个
     "IS_WEIGHT": [False]

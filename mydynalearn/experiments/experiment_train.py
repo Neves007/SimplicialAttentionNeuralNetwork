@@ -15,7 +15,7 @@ class ExperimentTrain:
         self.model = Model(config)
         self.TASKS = [
             "create_dynamic_dataset",
-            # "train_model",
+            "train_model",
         ]
 
     def _get_exp_info(self):

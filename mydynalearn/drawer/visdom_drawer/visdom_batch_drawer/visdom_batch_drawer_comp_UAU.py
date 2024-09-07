@@ -25,21 +25,21 @@ class VisdomBatchDrawerCompUAU(VisdomBatchDrawer):
         epoch_index, time_index, loss, acc, x, y_pred, y_true, y_ob, w = unpackBatchData(
             data)
         with torch.no_grad():
-            U_U = torch.where((x[:, self.STATES_MAP["U"]] == 1) & (y_ob[:,self.STATES_MAP["U"]] == 1))[0]
-            U_A1 = torch.where((x[:, self.STATES_MAP["U"]] == 1) & (y_ob[:,self.STATES_MAP["A1"]] == 1))[0]
-            U_A2 = torch.where((x[:, self.STATES_MAP["U"]] == 1) & (y_ob[:,self.STATES_MAP["A2"]] == 1))[0]
-            A1_A1 = torch.where((x[:, self.STATES_MAP["A1"]] == 1) & (y_ob[:,self.STATES_MAP["A1"]] == 1))[0]
-            A1_U = torch.where((x[:, self.STATES_MAP["A1"]] == 1) & (y_ob[:,self.STATES_MAP["U"]] == 1))[0]
-            A2_A2 = torch.where((x[:, self.STATES_MAP["A2"]] == 1) & (y_ob[:, self.STATES_MAP["A2"]] == 1))[0]
-            A2_U = torch.where((x[:, self.STATES_MAP["A2"]] == 1) & (y_ob[:, self.STATES_MAP["U"]] == 1))[0]
+            U_U = torch.where((x[:, self.STATES_MAP["UU"]] == 1) & (y_ob[:,self.STATES_MAP["UU"]] == 1))[0]
+            U_A1 = torch.where((x[:, self.STATES_MAP["UU"]] == 1) & (y_ob[:,self.STATES_MAP["A1U"]] == 1))[0]
+            U_A2 = torch.where((x[:, self.STATES_MAP["UU"]] == 1) & (y_ob[:,self.STATES_MAP["UA2"]] == 1))[0]
+            A1_A1 = torch.where((x[:, self.STATES_MAP["A1U"]] == 1) & (y_ob[:,self.STATES_MAP["A1U"]] == 1))[0]
+            A1_U = torch.where((x[:, self.STATES_MAP["A1U"]] == 1) & (y_ob[:,self.STATES_MAP["UU"]] == 1))[0]
+            A2_A2 = torch.where((x[:, self.STATES_MAP["UA2"]] == 1) & (y_ob[:, self.STATES_MAP["UA2"]] == 1))[0]
+            A2_U = torch.where((x[:, self.STATES_MAP["UA2"]] == 1) & (y_ob[:, self.STATES_MAP["UU"]] == 1))[0]
 
-            U_U_true_pred = torch.cat((y_true[U_U,self.STATES_MAP["U"]].view(-1, 1), y_pred[U_U,self.STATES_MAP["U"]].view(-1, 1)), dim=1).cpu().numpy()
-            U_A1_true_pred = torch.cat((y_true[U_A1,self.STATES_MAP["A1"]].view(-1, 1), y_pred[U_A1,self.STATES_MAP["A1"]].view(-1, 1)), dim=1).cpu().numpy()
-            U_A2_true_pred = torch.cat((y_true[U_A2,self.STATES_MAP["A2"]].view(-1, 1), y_pred[U_A2,self.STATES_MAP["A2"]].view(-1, 1)), dim=1).cpu().numpy()
-            A1_A1_true_pred = torch.cat((y_true[A1_A1,self.STATES_MAP["A1"]].view(-1, 1), y_pred[A1_A1,self.STATES_MAP["A1"]].view(-1, 1)), dim=1).cpu().numpy()
-            A1_U_true_pred = torch.cat((y_true[A1_U,self.STATES_MAP["U"]].view(-1, 1), y_pred[A1_U,self.STATES_MAP["U"]].view(-1, 1)), dim=1).cpu().numpy()
-            A2_A2_true_pred = torch.cat((y_true[A2_A2,self.STATES_MAP["A2"]].view(-1, 1), y_pred[A2_A2,self.STATES_MAP["A2"]].view(-1, 1)), dim=1).cpu().numpy()
-            A2_U_true_pred = torch.cat((y_true[A2_U,self.STATES_MAP["U"]].view(-1, 1), y_pred[A2_U,self.STATES_MAP["U"]].view(-1, 1)), dim=1).cpu().numpy()
+            U_U_true_pred = torch.cat((y_true[U_U,self.STATES_MAP["UU"]].view(-1, 1), y_pred[U_U,self.STATES_MAP["UU"]].view(-1, 1)), dim=1).cpu().numpy()
+            U_A1_true_pred = torch.cat((y_true[U_A1,self.STATES_MAP["A1U"]].view(-1, 1), y_pred[U_A1,self.STATES_MAP["A1U"]].view(-1, 1)), dim=1).cpu().numpy()
+            U_A2_true_pred = torch.cat((y_true[U_A2,self.STATES_MAP["UA2"]].view(-1, 1), y_pred[U_A2,self.STATES_MAP["UA2"]].view(-1, 1)), dim=1).cpu().numpy()
+            A1_A1_true_pred = torch.cat((y_true[A1_A1,self.STATES_MAP["A1U"]].view(-1, 1), y_pred[A1_A1,self.STATES_MAP["A1U"]].view(-1, 1)), dim=1).cpu().numpy()
+            A1_U_true_pred = torch.cat((y_true[A1_U,self.STATES_MAP["UU"]].view(-1, 1), y_pred[A1_U,self.STATES_MAP["UU"]].view(-1, 1)), dim=1).cpu().numpy()
+            A2_A2_true_pred = torch.cat((y_true[A2_A2,self.STATES_MAP["UA2"]].view(-1, 1), y_pred[A2_A2,self.STATES_MAP["UA2"]].view(-1, 1)), dim=1).cpu().numpy()
+            A2_U_true_pred = torch.cat((y_true[A2_U,self.STATES_MAP["UU"]].view(-1, 1), y_pred[A2_U,self.STATES_MAP["UU"]].view(-1, 1)), dim=1).cpu().numpy()
 
         performance_data = [U_U_true_pred,
                             U_A1_true_pred,

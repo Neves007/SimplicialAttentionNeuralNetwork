@@ -132,10 +132,10 @@ class EpochTasks():
             item_info = 'Epoch:{:d} LR:{:f} R:{:f}'.format(epoch_index,
                                                            self.optimizer.param_groups[0]['lr'],
                                                            R)
-            self.visdom_drawer.visdomDrawBatch(val_data)
+            # self.visdom_drawer.visdomDrawBatch(val_data)
         self.logger.decrease_indent()
     def run_all(self,network, dynamics, train_set, val_set,*args,**kwargs):
-        self.visdom_drawer = VisdomController(self.config, dynamics)
+        # self.visdom_drawer = VisdomController(self.config, dynamics)
         for epoch_index in range(self.EPOCHS):
             self.train_epoch(train_set,
                              val_set,

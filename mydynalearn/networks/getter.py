@@ -3,6 +3,7 @@ import loguru
 from mydynalearn.networks import *
 __networks__ = {
     "ER": ER,
+    "SF": SF,
     "SCER": SCER,
     "SCSF": SCSF,
     "ToySCER": ToySCER,

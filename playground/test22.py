@@ -3,15 +3,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 
-# todo: 补充参数
-    # nodes 节点序列
-    # edges 边序列
-    # triangles 三角序列
-    # NUM_NODES 节点数
-    # NUM_EDGES 边数
-    # NUM_TRIANGLES 三角数
-    # AVG_K 一阶平均度
-    # AVG_K_DELTA 二阶平均度
 # todo：相邻关系
     # inc_matrix_adj_info
 # todo: 管理过程
@@ -36,13 +27,15 @@ class SCSF():
     def compute_pcum_from_plink(self, plink):
         pcum = torch.cat([torch.tensor([0], device=self.DEVICE), torch.cumsum(plink[:, 2] / torch.sum(plink[:, 2]), dim=0)])
         return pcum
-    
+
     def _init_network(self):
+        # 所需参数
+        N0 = 3
         # Create initial adjacency matrix on cuda
-        A0 = torch.ones((self.N0, self.N0), device=self.DEVICE)
+        A0 = torch.ones((N0, N0), device=self.DEVICE)
         A0 = A0 - torch.diag(torch.diag(A0))
         A = torch.zeros((self.NUM_NODES, self.NUM_NODES), device=self.DEVICE)
-        A[:self.N0, :self.N0] = A0
+        A[:N0, :N0] = A0
 
         # 三角参与矩阵，元素表示边（i，j）上都多少个三角形
         Dij = A * (A @ A)
@@ -56,14 +49,23 @@ class SCSF():
         # 由plink的度分布决定的累积概率
         pcum = self.compute_pcum_from_plink(plink)
 
+
+        nodes = torch.arange(self.NUM_NODES)
+        edges = set()
+        triangles = set()
+        # 根据平均度计算边和三角形的数量
         attr = {
+            "N0": N0,
             "A": A,
             "Dij":Dij,
             "plink":plink,
             "pcum":pcum,
+            "nodes": nodes,
+            "edges": edges,
+            "triangles": triangles,
         }
         self.set_attr(attr)
-    
+
     def _add_a_node(self, new_node_i):
         self.A[new_node_i, new_node_i] = 0
         l = len(self.plink)
@@ -78,71 +80,97 @@ class SCSF():
             # 根据累积概率向量 (pcum) 和随机生成的值 (dummy)，确定哪些边被选中。
             diffs = self.pcum.view(-1, 1) - dummy.view(1, -1)  # 计算累积概率 pcum 和随机生成的值 dummy 之间的差异。
             temp = torch.diff(torch.sign(diffs), dim=0)  # 沿着维度 0（行）计算相邻元素之间的差异。
-            idx = torch.nonzero(temp != 0)[:, 0]  # 确定符号变化的行索引（即找到随机值在哪个累积概率区间中）。
+            attached_link_index_list = torch.nonzero(temp != 0)[:, 0]  # 确定符号变化的行索引（即找到随机值在哪个累积概率区间中）。
 
             # 确保选择的ntri个连边里没有重复节点
-            if len(torch.unique(self.plink[idx, :2])) == 2 * self.ntri:
+            if len(torch.unique(self.plink[attached_link_index_list, :2])) == 2 * self.ntri:
                 isw = 1
-        return idx
-    
-    def _update_adj_info(self, new_node_i, idx):
-        
-        for link_index in range(len(idx)):
-            inode = int(self.plink[idx[link_index], 0].item())
-            jnode = int(self.plink[idx[link_index], 1].item())
+        return attached_link_index_list
 
-            self.A[new_node_i, inode] = 1
-            self.A[new_node_i, jnode] = 1
-            self.A[inode, new_node_i] = 1
-            self.A[jnode, new_node_i] = 1
+    def _update_adj_info(self, new_node_i, inode, jnode):
+        # Update A
+        self.A[new_node_i, inode] = 1
+        self.A[new_node_i, jnode] = 1
+        self.A[inode, new_node_i] = 1
+        self.A[jnode, new_node_i] = 1
 
-            # Update Dij
-            self.Dij[new_node_i, inode] = 1
-            self.Dij[new_node_i, jnode] = 1
-            self.Dij[inode, new_node_i] = 1
-            self.Dij[jnode, new_node_i] = 1
-            self.Dij[inode, jnode] += 1
-            self.Dij[jnode, inode] += 1
+        # Update Dij
+        self.Dij[new_node_i, inode] = 1
+        self.Dij[new_node_i, jnode] = 1
+        self.Dij[inode, new_node_i] = 1
+        self.Dij[jnode, new_node_i] = 1
+        self.Dij[inode, jnode] += 1
+        self.Dij[jnode, inode] += 1
 
-            # 更新 plink：添加两条新的边，并且连边k上多一个三角形
-            self.plink = torch.cat([self.plink, torch.tensor([[new_node_i, inode, 1], [new_node_i, jnode, 1]], device=self.DEVICE)], dim=0)
-            self.plink[idx[link_index], 2] = self.Dij[inode, jnode].item()
 
-                
+    def _update_edges_and_triangles(self, new_node_i, inode, jnode):
+        """
+        更新 edges 和 triangles 集合
+        :param new_node_i: 新添加的节点的索引
+        :param idx: 连接到新节点的边的索引
+        """
+        self.edges.add(tuple(sorted([inode, jnode])))
+        self.triangles.add(tuple(sorted([new_node_i, inode, jnode])))
+
+
 
     def _add_new_nodes(self):
         # 添加新节点
         for new_node_i in range(self.N0, self.NUM_NODES):
-            idx = self._add_a_node(new_node_i)
-            self._update_adj_info(new_node_i, idx)
-            pcum = self.compute_pcum_from_plink(self.plink)
-            self.__setattr__("pcum", pcum)
-        
+            attached_link_index_list = self._add_a_node(new_node_i)
+            for link_index in range(len(attached_link_index_list)):
+                # 新增的邻居节点
+                inode = int(self.plink[attached_link_index_list[link_index], 0].item())
+                jnode = int(self.plink[attached_link_index_list[link_index], 1].item())
+                # 更新拓扑结构
+                self._update_edges_and_triangles(new_node_i, inode, jnode)
+                self._update_adj_info(new_node_i, inode, jnode)
+
+                # 更新参数
+                self.plink = torch.cat(
+                    [self.plink, torch.tensor([[new_node_i, inode, 1], [new_node_i, jnode, 1]], device=self.DEVICE)],
+                    dim=0)
+                self.plink[attached_link_index_list[link_index], 2] = self.Dij[inode, jnode].item()
+                self.pcum = self.compute_pcum_from_plink(self.plink)
+
     def build(self):
         self._init_network()
         self._add_new_nodes()
 
 
     def get_net_info(self):
-        # 所需参数
-        self.N0 = 3
-        super().__setattr__("self.N0", self.N0)
-        # 根据平均度计算边和三角形的数量
-        nodes = torch.arange(self.NUM_NODES)
         self.build()
+        # 根据建立的拓扑结构更新网络信息
+        edges = torch.tensor(list(self.edges),dtype=torch.long)  # 最终的边
+        triangles = torch.tensor(list(self.triangles),dtype=torch.long)  # 最终的三角
+        NUM_EDGES = edges.shape[0]
+        NUM_TRIANGLES = triangles.shape[0]
+        AVG_K = 2 * len(edges) / self.NUM_NODES
+        AVG_K_DELTA = 3 * len(triangles) / self.NUM_NODES
+
+        net_info = {
+            "edges": edges,
+            "triangles": triangles,
+            "NUM_EDGES": NUM_EDGES,
+            "NUM_TRIANGLES": NUM_TRIANGLES,
+            "AVG_K": AVG_K,
+            "AVG_K_DELTA": AVG_K_DELTA,
+        }
+        self.set_attr(net_info)
+
+
 
 
 
 # Example of usage
 net_config = {
     "NAME": 'SCSF',
-    "NUM_NODES": 1000,
+    "NUM_NODES": 10000,
     "MAX_DIMENSION": 2,
     "ntri": 1,
     "DEVICE": "cpu",
 }
 net = SCSF(net_config)
-
 net_info = net.get_net_info()
 
 

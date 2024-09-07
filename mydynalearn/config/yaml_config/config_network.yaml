@@ -4,6 +4,14 @@ ER:
   MAX_DIMENSION: 1
   AVG_K: 20
 
+SF:
+  NAME: 'SF'
+  NUM_NODES: 1000
+  MAX_DIMENSION: 1
+  AVG_K: 20
+  N0: 3
+  nlink: 3
+
 SCER:
   NAME: 'SCER'
   NUM_NODES: 1000

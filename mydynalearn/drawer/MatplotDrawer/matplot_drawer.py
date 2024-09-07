@@ -282,9 +282,10 @@ class FigKLoss(MatplotDrawer):
         from matplotlib.lines import Line2D
         # 获取唯一的 transition_type
         unique_types = self.test_result_df['transition_type'].unique()
+        palette = sns.color_palette("tab10", n_colors=len(unique_types))
         # 创建自定义图例项
         legend_elements = [
-            Line2D([0], [0], color=sns.color_palette("tab10")[i], lw=2, linestyle='-', label=f"{ut}")
+            Line2D([0], [0], color=palette[i], lw=2, linestyle='-', label=f"{ut}")
             for i, ut in enumerate(unique_types)
         ]
 

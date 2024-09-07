@@ -17,12 +17,19 @@ class Network():
         # toy_network = True
         self.logger = Log("Network")
         self.config = config
-        self.net_config = config.network
-        self.NAME = self.net_config.NAME
         self.DEVICE = self.config.DEVICE
-        self.MAX_DIMENSION = self.net_config.MAX_DIMENSION
+        self.net_config = config.network
+        self.set_attr(self.net_config)
         self.file_path = self.get_file_path()
         pass
+    def set_attr(self, attributes):
+        '''
+        批量设置属性
+        :param attributes:
+        :return:
+        '''
+        for key, value in attributes.items():
+            setattr(self, key, value)
 
     def get_file_path(self):
         network_dir_path = self.config.network_dir_path
@@ -52,10 +59,7 @@ class Network():
         try:
             self.load()
         except FileNotFoundError:
-            self.net_info = self.get_net_info()
-            self._set_net_info()
-            self.inc_matrix_adj_info = self._get_adj()  # 关联矩阵
-            self.set_inc_matrix_adj_info()
+            self.build()
             self.to_device(self.DEVICE)
             self.save()
         self.logger.decrease_indent()
@@ -96,7 +100,7 @@ class Network():
         pass
 
     @abstractmethod
-    def _get_adj(self):
+    def _update_adj(self):
         pass
 
     @abstractmethod

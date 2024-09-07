@@ -76,8 +76,8 @@ def generate_real_network(read_file):
         new_triad_cliques=[x for x in new_all_cliques if len(x)==3]
         new_two_cliques_df=pd.DataFrame(new_two_cliques,columns=['i','j'])
         new_triad_cliques_df=pd.DataFrame(new_triad_cliques,columns=['i','j','l'])
-        two_cliques_df=two_cliques_df.append(new_two_cliques_df)
-        triad_cliques_df=triad_cliques_df.append(new_triad_cliques_df)
+        two_cliques_df = pd.concat([two_cliques_df, new_two_cliques_df], ignore_index=True)
+        triad_cliques_df = pd.concat([triad_cliques_df, new_triad_cliques_df], ignore_index=True)
     #display(two_cliques_df)
     #display(triad_cliques_df)
 

@@ -9,21 +9,7 @@ class SCER(Network):
         super().__init__(net_config)
         pass
 
-    def _set_net_info(self):
-        self.nodes = self.net_info["nodes"]
-        self.edges = self.net_info["edges"]
-        self.triangles = self.net_info["triangles"]
-        self.NUM_NODES = self.net_info["NUM_NODES"]
-        self.NUM_EDGES = self.net_info["NUM_EDGES"]
-        self.NUM_TRIANGLES = self.net_info["NUM_TRIANGLES"]
-        self.AVG_K = self.net_info["AVG_K"]
-        self.AVG_K_DELTA = self.net_info["AVG_K_DELTA"]
-
-    def set_inc_matrix_adj_info(self):
-        self.inc_matrix_adj0 = self.inc_matrix_adj_info["inc_matrix_adj0"]
-        self.inc_matrix_adj1 = self.inc_matrix_adj_info["inc_matrix_adj1"]
-        self.inc_matrix_adj2 = self.inc_matrix_adj_info["inc_matrix_adj2"]
-    def get_createSimplex_num(self,NUM_NODES,AVG_K,AVG_K_DELTA):
+    def get_createSimplex_num(self):
         '''
             通过平均度计算单纯形创建概率
         '''
@@ -33,23 +19,26 @@ class SCER(Network):
             for j in range(i,self.MAX_DIMENSION):
                 C_matrix[i,j] = comb(j+1,i+1)
         C_matrix_inv = np.linalg.pinv(C_matrix)  # 逆
-        k_matrix = np.array([AVG_K, AVG_K_DELTA])
+        k_matrix = np.array([self.AVG_K, self.AVG_K_DELTA])
         k_prime = np.dot(C_matrix_inv, k_matrix)  # 需要生成的单纯形平均度
         # 转换为需要生成的单纯形总个数，乘以N除以单纯形中的节点数(重复的单纯形不算)。
-        Num_create_simplices = k_prime * NUM_NODES / np.array([i + 2 for i in range(self.MAX_DIMENSION)])
-        return Num_create_simplices.astype(np.int16)
-    def _create_edges(self, NUM_NODES, NUM_EDGES):
+        Num_create_simplices = k_prime * self.NUM_NODES / np.array([i + 2 for i in range(self.MAX_DIMENSION)])
+        NUM_EDGES, NUM_TRIANGLES =  Num_create_simplices.astype(np.int16)
+        self.__setattr__("NUM_EDGES", NUM_EDGES)
+        self.__setattr__("NUM_TRIANGLES", NUM_TRIANGLES)
+
+    def _create_edges(self):
         edges = set()
-        while len(edges) < NUM_EDGES:
-            edge = random.sample(range(NUM_NODES), 2)
+        while len(edges) < self.NUM_EDGES:
+            edge = random.sample(range(self.NUM_NODES), 2)
             edge.sort()
             edges.add(tuple(edge))
         return edges
 
-    def _create_triangles(self, NUM_NODES, NUM_TRIANGLES):
+    def _create_triangles(self):
         triangles = set()
-        while len(triangles) < NUM_TRIANGLES:
-            triangle = random.sample(range(NUM_NODES), 3)
+        while len(triangles) < self.NUM_TRIANGLES:
+            triangle = random.sample(range(self.NUM_NODES), 3)
             triangle.sort()
             triangles.add(tuple(triangle))
         edges_in_triangles = set()
@@ -64,42 +53,46 @@ class SCER(Network):
             edges_in_triangles.add(tuple(edge1))
             edges_in_triangles.add(tuple(edge2))
             edges_in_triangles.add(tuple(edge3))
+        triangles = torch.asarray(list(triangles))  # 最终的边
+        self.__setattr__("triangles", triangles)
         return triangles, edges_in_triangles
 
     def _merge_edges(self,edges,edges_in_triangles):
         for edge in edges_in_triangles:
             edges.add(edge)
-        return edges
-    def get_net_info(self):
-        # 所需参数
-        AVG_K = self.net_config.AVG_K
-        AVG_K_DELTA = self.net_config.AVG_K_DELTA
-        NUM_NODES = self.net_config.NUM_NODES
-        # 根据平均度计算边和三角形的数量
-        nodes = torch.arange(NUM_NODES)
-        NUM_EDGES, NUM_TRIANGLES = self.get_createSimplex_num(NUM_NODES,AVG_K,AVG_K_DELTA)
-        # 生成网络
-        edges = self._create_edges(NUM_NODES,NUM_EDGES) # 生成边
-        triangles,edges_in_triangles = self._create_triangles(NUM_NODES,NUM_TRIANGLES) # 生成三角形
-        edges = self._merge_edges(edges,edges_in_triangles) # 将三角中包含的边的边加入边
-        edges = torch.asarray(list(edges)) # 最终的边
-        triangles = torch.asarray(list(triangles)) # 最终的三角
-        AVG_K = 2*len(edges)/NUM_NODES
-        AVG_K_DELTA = 3*len(triangles)/NUM_NODES
-        NUM_EDGES = edges.shape[0]
-        NUM_TRIANGLES = triangles.shape[0]
+        edges = torch.asarray(list(edges))  # 最终的边
+        self.__setattr__("edges", edges)
+        self.__setattr__("NUM_EDGES",self.edges.shape[0])
 
-        net_info = {"nodes": nodes,
-                    "edges": edges,
-                    "triangles": triangles,
-                    "NUM_NODES": NUM_NODES,
-                    "NUM_EDGES": NUM_EDGES,
-                    "NUM_TRIANGLES": NUM_TRIANGLES,
-                    "AVG_K": AVG_K,
-                    "AVG_K_DELTA": AVG_K_DELTA,
-                    }
-        return net_info
-    def _get_adj(self):
+
+    def _init_network(self):
+        # 根据平均度计算边和三角形的数量
+        self.__setattr__("nodes",torch.arange(self.NUM_NODES))
+    def _update_topology_info(self):
+
+        # 根据建立的拓扑结构更新网络信息
+        NUM_EDGES = self.edges.shape[0]
+        NUM_TRIANGLES = self.triangles.shape[0]
+        AVG_K = 2 * len(self.edges) / self.NUM_NODES
+        AVG_K_DELTA = 3 * len(self.triangles) / self.NUM_NODES
+
+        net_info = {
+            "nodes": self.nodes,
+            "edges": self.edges,
+            "triangles": self.triangles,
+            "NUM_EDGES": NUM_EDGES,
+            "NUM_TRIANGLES": NUM_TRIANGLES,
+            "AVG_K": AVG_K,
+            "AVG_K_DELTA": AVG_K_DELTA,
+        }
+        self.__setattr__("net_info",net_info)
+        self.set_attr(net_info)
+
+
+
+
+
+    def _update_adj(self):
         # inc_matrix_0：节点和节点的关联矩阵
         # 先对边进行预处理，无相边会有问题。
         inverse_matrix=torch.asarray([[0, 1], [1, 0]])
@@ -119,7 +112,9 @@ class SCER(Network):
             "inc_matrix_adj1":inc_matrix_adj1,
             "inc_matrix_adj2":inc_matrix_adj2
         }
-        return inc_matrix_adj_info
+        self.set_attr(inc_matrix_adj_info)
+        self.__setattr__("inc_matrix_adj_info",inc_matrix_adj_info)
+
 
     def to_device(self,device):
         self.DEVICE = device
@@ -138,3 +133,16 @@ class SCER(Network):
 
     def _unpack_inc_matrix_adj_info(self):
         return self.inc_matrix_adj0, self.inc_matrix_adj1, self.inc_matrix_adj2
+
+    def build(self):
+        nodes = torch.arange(self.NUM_NODES, device=self.DEVICE)
+        self.__setattr__("nodes", nodes)
+
+        # 所需参数
+        self.get_createSimplex_num()
+        # 生成网络
+        edges = self._create_edges() # 生成边
+        triangles,edges_in_triangles = self._create_triangles() # 生成三角形
+        self._merge_edges(edges,edges_in_triangles) # 将三角中包含的边的边加入边
+        self._update_topology_info()
+        self._update_adj()
