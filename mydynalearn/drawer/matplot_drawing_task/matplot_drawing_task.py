@@ -135,10 +135,10 @@ class FigActiveNeighborsTransProbDrawingTask(FigYtrureYpredDrawingTask):
         '''
         # 设置配置
         best_epoch_dataframe = self.best_epoch_dataframe
-        model_network_name = "ER"
-        model_dynamics_name = "UAU"
-        dataset_network_name = "ER"
-        dataset_dynamics_name = "UAU"
+        model_network_name = "SCER"
+        model_dynamics_name = "SCUAU"
+        dataset_network_name = "SCER"
+        dataset_dynamics_name = "SCUAU"
         # 拿到详细信息
         best_epoch_dataframe_ER_UAU = best_epoch_dataframe[
             (best_epoch_dataframe['model_network_name'] == model_network_name) &
@@ -247,7 +247,6 @@ class FigTimeEvolutionDrawingTask(FigYtrureYpredDrawingTask):
     '''
     时间演化图
     '''
-
     def __init__(self, analyze_manager):
         super(FigTimeEvolutionDrawingTask, self).__init__(analyze_manager)
 
@@ -257,9 +256,9 @@ class FigTimeEvolutionDrawingTask(FigYtrureYpredDrawingTask):
         :param data: 一行数据记录
         :return:
         '''
+        # type is time_evolution or normal_performance
         time_evolution_analyze_result = ModelAnalyzer.load_from_dataframe_item(data, type="time_evolution")
         return time_evolution_analyze_result
-
 
     def draw_fig(self, drawing_data):
         '''

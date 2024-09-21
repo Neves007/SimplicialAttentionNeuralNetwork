@@ -31,10 +31,10 @@ from mydynalearn.analyze import *
 from mydynalearn.drawer import MatplotController
 
 ''' 所有参数
-    "grpah_network": ["ER"],
+    "grpah_network": ["ER", "SF"],
     "grpah_dynamics": ["UAU", "CompUAU", "CoopUAU", "AsymUAU"],
 
-    "simplicial_network": ["SCER","CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
+    "simplicial_network": ["SCER", "SCSF", "CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
     "simplicial_dynamics": ["SCUAU", "SCCompUAU", "SCCoopUAU", "SCAsymUAU"],
 
     "model": ["GAT", "SAT", "DiffSAT"],  # 至少选一个
@@ -42,13 +42,13 @@ from mydynalearn.drawer import MatplotController
 '''
 
 params = {
-    "grpah_network": ["ER"],
+    "grpah_network": ["ER", "SF"],
     "grpah_dynamics": ["UAU", "CompUAU", "CoopUAU", "AsymUAU"],
 
-    "simplicial_network": ["SCER","CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
+    "simplicial_network": ["SCER", "SCSF", "CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
     "simplicial_dynamics": ["SCUAU", "SCCompUAU", "SCCoopUAU", "SCAsymUAU"],
 
-    "model": ["GAT", "SAT", "DiffSAT"],  # 至少选一个
+    "model": ["GAT", "SAT"],  # 至少选一个
     "IS_WEIGHT": [False]
 }
 fix_config = {
@@ -65,9 +65,11 @@ if __name__ == '__main__':
     train_experiment_manager.run()
 
     ## 分析：测试集分析训练模型
-    analyze_manager = AnalyzeManager(train_experiment_manager)
-    analyze_manager.run()
+    exp_generator = list(train_experiment_manager.get_exp_generator())
+    analyze_manager = AnalyzeManager(exp_generator)
+    # analyze_manager.run()
 
-    # # 画图：
+    # # # 画图：
     matplot_drawer = MatplotController(analyze_manager)
     matplot_drawer.run()
+

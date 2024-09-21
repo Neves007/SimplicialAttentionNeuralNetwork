@@ -31,17 +31,6 @@ from mydynalearn.analyze import *
 from mydynalearn.drawer import MatplotController
 
 ''' 所有参数
-    "grpah_network": ["ER"],
-    "grpah_dynamics": ["UAU", "CompUAU", "CoopUAU", "AsymUAU"],
-
-    "simplicial_network": ["SCER","CONFERENCE", "HIGHSCHOOL", "HOSPITAL", "WORKPLACE"],
-    "simplicial_dynamics": ["SCUAU", "SCCompUAU", "SCCoopUAU", "SCAsymUAU"],
-
-    "model": ["GAT", "SAT", "DiffSAT"],  # 至少选一个
-    "IS_WEIGHT": [False]
-'''
-
-params = {
     "grpah_network": ["ER", "SF"],
     "grpah_dynamics": ["UAU", "CompUAU", "CoopUAU", "AsymUAU"],
 
@@ -50,27 +39,38 @@ params = {
 
     "model": ["GAT", "SAT", "DiffSAT"],  # 至少选一个
     "IS_WEIGHT": [False]
+'''
+
+params = {
+    "grpah_network": ["ER", "SF"],
+    "grpah_dynamics": ["UAU",],
+
+    "simplicial_network": ["SCER", "SCSF"],
+    "simplicial_dynamics": ["SCUAU"],
+
+    "model": ["GAT", "SAT"],  # 至少选一个
+    "IS_WEIGHT": [False]
 }
 fix_config = {
     "NUM_SAMPLES": 100,
     "TESTSET_TIMESTEP": 10,
     "EPOCHS": 3,
-    "DEVICE": torch.device('cpu'),
+    "DEVICE": torch.device('cuda'),
 }
 
 
 if __name__ == '__main__':
-    # # 训练
+    # 训练
     train_params = PasramsDealer.assemble_train_params(params)  # 实验的设置
     train_experiment_manager = TrainExperimentManager(fix_config, train_params)  # 返回实验对象
     train_experiment_manager.run()
 
-    ## 分析：测试集分析训练模型
+    # 分析：测试集分析训练模型
     exp_generator = list(train_experiment_manager.get_exp_generator())
     analyze_manager = AnalyzeManager(exp_generator)
     analyze_manager.run()
 
-    # # # 画图：
+    # 画图：
     matplot_drawer = MatplotController(analyze_manager)
     matplot_drawer.run()
 

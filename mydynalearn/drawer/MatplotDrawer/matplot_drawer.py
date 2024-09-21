@@ -19,6 +19,9 @@ class MatplotDrawer():
         # self.shrink_times = 1
         self.task_name = 'MatplotDrawer'
         self.logger = Log("MatplotDrawer")
+        self.title_fs = 16
+        self.axis_lable_fs = 14
+        self.legend_fs = 13
         self.config_drawer = Config.get_config_drawer()
         pass
 
@@ -84,36 +87,62 @@ class FigYtrureYpred(MatplotDrawer):
         self.corrcoef = model_performance_dict['R']
         self.STATES_MAP = dynamics_STATES_MAP
         self.test_result_df = test_result_df
+        self.title_fs = 16  # 标题字体大小
+        self.axis_lable_fs = 14  # 坐标轴标签字体大小
+        self.legend_fs = 12  # 图例字体大小
 
     def edit_ax(self):
         '''
         编辑ax
         :return:
         '''
-        self.ax.set_title(r' $R$ = {:0.5f}'.format(self.corrcoef))
+        self.ax.set_title(r' $R$ = {:0.5f}'.format(self.corrcoef), fontsize=self.title_fs)
         # self.ax.set_title(r'epoch = {:d}, $R$ = {:0.5f}'.format(self.epoch_index, self.corrcoef))
         self.ax.set_xticks(np.linspace(0, 1, 5))
         self.ax.set_yticks(np.linspace(0, 1, 5))
         self.ax.set_xlim([0, 1])
         self.ax.set_ylim([0, 1])
-        self.ax.set_xlabel("Target")  # 设置x轴标注
-        self.ax.set_ylabel("prediction")  # 设置y轴标注
-        self.ax.legend(title="Transition type", loc='upper left')
+        self.ax.set_xlabel("Target", fontsize=self.axis_lable_fs)  # 设置x轴标注
+        self.ax.set_ylabel("Prediction", fontsize=self.axis_lable_fs)  # 设置y轴标注
+        # 图例已在 draw 方法中手动添加，这里不需要再次添加
         self.ax.grid(True)
 
     def draw(self):
-        # 设置点的大小范围，例如从10到100
-        size_range = (20, 500)
+        '''
+        绘制图像，散点透明度为0.1，图例为高透明度
+        '''
+        # 创建绘图区域
         self.fig, self.ax = plt.subplots(figsize=(8, 6))
-        sns.scatterplot(x="trans_prob_true", y="trans_prob_pred",
-                        hue="pred_trans_type",
-                        palette=self.palette,
-                        size="weight",  # 使用 'weight' 列来决定每个点的大小
-                        sizes=size_range,  # 设置点的大小范围
-                        linewidth=0,
-                        alpha=0.1,
-                        data=self.test_result_df, ax=self.ax)
 
+        # 绘制散点图，设置透明度为0.1
+        scatter = sns.scatterplot(
+            x="trans_prob_true", y="trans_prob_pred",
+            hue="pred_trans_type",
+            palette=self.palette,
+            s=70,  # 点的大小
+            linewidth=0,
+            alpha=0.1,  # 设置散点的透明度为0.1
+            data=self.test_result_df, ax=self.ax
+        )
+
+        # 获取唯一的 `pred_trans_type`
+        unique_types = self.test_result_df['pred_trans_type'].unique()
+
+        # 获取调色板对应的颜色
+        num_colors = len(unique_types)
+        palette = sns.color_palette(self.palette, n_colors=num_colors)
+        color_mapping = dict(zip(unique_types, palette))
+
+        # 手动创建自定义图例
+        from matplotlib.lines import Line2D
+        legend_elements = [
+            Line2D([0], [0], marker='o', color='w', label=unique_type,
+                   markerfacecolor=color_mapping[unique_type], markersize=10, alpha=0.8)
+            for unique_type in unique_types
+        ]
+
+        # 添加自定义图例到图形
+        self.ax.legend(handles=legend_elements, title="Transition type", loc='upper left', fontsize=self.legend_fs)
 
 class FigBetaRho():
     def __init__(self, dynamics, x, stady_rho_dict, **kwargs):
@@ -225,7 +254,8 @@ class FigActiveNeighborsTransprob(MatplotDrawer):
         )
         # 绘制 trans_prob_true 的实线图（真实数据）
         sns.lineplot(
-            x='adj_act_edges',
+            # x='adj_act_edges',
+            x='adj_act_triangles',
             y='trans_prob_true',
             hue='transition_type',
             data=self.test_result_df,
@@ -289,12 +319,12 @@ class FigKLoss(MatplotDrawer):
             for i, ut in enumerate(unique_types)
         ]
 
-        # 添加自定义图例到图形
-        self.ax.legend(handles=legend_elements, loc='upper right', bbox_to_anchor=(1.3, 0.7), title="Transition Type",
+        # 添加自定义图例到图形, 调整 bbox_to_anchor 防止 legend 超出范围
+        self.ax.legend(handles=legend_elements, loc='upper right', bbox_to_anchor=(1, 1), title="Transition Type",
                        fontsize=10)
 
-        # self.ax.set_ylim(bottom=0)
-        self.ax.set_ylim([0, 0.007])
+        self.ax.set_ylim(bottom=0)
+        # self.ax.set_ylim([0, 0.007])
 
         self.ax.set_xlabel(self.x_lable)  # 设置x轴标注
         self.ax.set_ylabel("Loss")  # 设置y轴标注
@@ -325,6 +355,7 @@ class FigKLoss(MatplotDrawer):
             linestyle="-",  # 实线表示真实值
             linewidth=3,  # 设置线条粗细为 2
             alpha=0.8,  # 设置透明度为 0.8
+            errorbar=None,  # 不绘制区域
             legend=False  # 暂时不显示图例，后面一起处理
         )
 
@@ -399,7 +430,7 @@ class FigTimeEvolution(MatplotDrawer):
     def __init__(self,
                  test_result_info,
                  test_result_df,
-                 dynamics_STATES_MAP,
+                 dynamics_STATES_MAP,  # 动态传入 STATES_MAP
                  *args, **kwargs):
         super(FigTimeEvolution, self).__init__()
         self.config = self.config_drawer['fig_time_evolution']
@@ -414,7 +445,6 @@ class FigTimeEvolution(MatplotDrawer):
         编辑ax
         :return:
         '''
-
         # 设置图像标签和标题
         self.ax.set_xlabel('Time')
         self.ax.set_ylabel('Density')
@@ -430,48 +460,30 @@ class FigTimeEvolution(MatplotDrawer):
         '''
         绘制时间演化图像
         '''
-        # 提取列名
-        ori_columns = [col for col in self.test_result_df.columns if col.startswith('ori_x0_T')]
-        ml_columns = [col for col in self.test_result_df.columns if col.startswith('ml_x0_T')]
-
-        # 提取不同状态
-        state_U_columns = [col for col in ori_columns if col.endswith('_U')] + [col for col in ml_columns if
-                                                                                col.endswith('_U')]
-        state_A_columns = [col for col in ori_columns if col.endswith('_A')] + [col for col in ml_columns if
-                                                                                col.endswith('_A')]
+        # 提取列名，适配不同的动力学模型状态
+        state_columns_map = {}
+        for state_name, state_id in self.dynamics_STATES_MAP.items():
+            ori_cols = [col for col in self.test_result_df.columns if
+                        col.startswith(f'ori_x0_T') and col.endswith(f'_{state_name}')]
+            ml_cols = [col for col in self.test_result_df.columns if
+                       col.startswith(f'ml_x0_T') and col.endswith(f'_{state_name}')]
+            state_columns_map[state_name] = {'ori': ori_cols, 'ml': ml_cols}
 
         # 设置图像大小
         self.fig, self.ax = plt.subplots(figsize=(10 / self.shrink_times, 6 / self.shrink_times))
-        colors = sns.color_palette("deep", 2)  # 两种状态使用不同颜色，颜色调色盘
+        colors = sns.color_palette("deep", len(self.dynamics_STATES_MAP))  # 使用不同颜色，动态适配状态数量
 
-        # 绘制状态U的原始和机器学习动力学数据
-        for col in state_U_columns:
-            if col.startswith('ori_x0_T'):
+        # 绘制不同状态的原始和机器学习动力学数据
+        for i, (state_name, cols) in enumerate(state_columns_map.items()):
+            for col in cols['ori']:  # 绘制原始数据
                 sns.lineplot(data=self.test_result_df, x=self.test_result_df.index, y=col, label=f'{col}_ori',
                              ax=self.ax,
                              linewidth=2,
-                             color=colors[0])
-            else:
-                # 通过抽样减少数据点，例如每隔5个点取一个
-                sampled_df = self.test_result_df.iloc[::3, :]
+                             color=colors[i])
+            for col in cols['ml']:  # 绘制机器学习数据
+                sampled_df = self.test_result_df.iloc[::3, :]  # 抽样
                 sns.scatterplot(data=sampled_df, x=sampled_df.index, y=col, label=f'{col}_ml',
                                 ax=self.ax,
-                                color=colors[0],
-                                s=85,  # 散点大小，数字越大点越大
-                                alpha=0.5)
-
-        # 绘制状态A的原始和机器学习动力学数据
-        for col in state_A_columns:
-            if col.startswith('ori_x0_T'):
-                sns.lineplot(data=self.test_result_df, x=self.test_result_df.index, y=col, label=f'{col}_ori',
-                             ax=self.ax,
-                             linewidth=2,
-                             color=colors[1])
-            else:
-                # 通过抽样减少数据点，例如每隔5个点取一个
-                sampled_df = self.test_result_df.iloc[::3, :]
-                sns.scatterplot(data=sampled_df, x=sampled_df.index, y=col, label=f'{col}_ml',
-                                ax=self.ax,
-                                color=colors[1],
-                                s=85,  # 散点大小，数字越大点越大
+                                color=colors[i],
+                                s=85,  # 散点大小
                                 alpha=0.5)

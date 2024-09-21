@@ -26,13 +26,13 @@ class DynamicDatasetTimeEvolution(Dataset):
         self.network = network
         self.dynamics = dynamics
         self.TIME_EVOLUTION_STEPS = self.exp.config.dataset.TIME_EVOLUTION_STEPS
-        self.dataset_file_path = self._get_dataset_file_path(self.network.NAME,self.dynamics.NAME)
+        self.dataset_file_path = self._get_dataset_file_path()
         self.need_to_run = not os.path.exists(self.dataset_file_path)
         self._init_dataset()
 
 
-    def _get_dataset_file_path(self,network_name,dynamics_name):
-        dataset_file_name = f"TIME_EVOLUTION_DATASET_{network_name}_{dynamics_name}.pkl"
+    def _get_dataset_file_path(self):
+        dataset_file_name = f"TIME_EVOLUTION_DATASET_{self.network.NAME}_{self.dynamics.NAME}_{self.exp.model.NAME}_epoch{self.ml_model.epoch_index}.pkl"
         return os.path.join(self.config.dataset_dir_path, dataset_file_name)
 
     def __len__(self) -> int:
@@ -178,7 +178,8 @@ class DynamicDatasetTimeEvolution(Dataset):
         self.logger.log("run time evolution dynamics dataset")
         if self.is_dataset_exist():
             dataset = self._load_dataset()
+            # todo: 修改名称错误
         else:
-            dataset =  self._build_and_save_new_dataset()
+            dataset = self._build_and_save_new_dataset()
         self.logger.decrease_indent()
         return dataset
