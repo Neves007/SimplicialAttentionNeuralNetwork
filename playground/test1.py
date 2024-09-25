@@ -31,7 +31,7 @@ DATASET_CONFIGER = DatasetConfig().dataset()
 
 
 
-def create_network(NETWORK_NAME,AVG_K,AVG_K_DELTA):
+def create_datawork(NETWORK_NAME,AVG_K,AVG_K_DELTA):
     '''
     :param NETWORK_NAME: str
     :param AVG_K: int
@@ -41,7 +41,7 @@ def create_network(NETWORK_NAME,AVG_K,AVG_K_DELTA):
     # get network
     network_config = NETWORK_CONFIG[NETWORK_NAME]
     network = NETWORKS[NETWORK_NAME](network_config)
-    network.create_net(AVG_K,AVG_K_DELTA)
+    network.create_data(AVG_K,AVG_K_DELTA)
     return network
 
 
@@ -59,5 +59,5 @@ for AVG_K in DATASET_CONFIGER.AVG_K_LIST:
     AVG_K_DELTA_LIST = iter(torch.linspace(AVG_K_DELTA_MIN, AVG_K_DELTA_MAX, NUM_K_DELTA))
     for AVG_K_DELTA in AVG_K_DELTA_LIST:
         # 通过一阶和二阶平均度生成网络
-        network = create_network("ER",AVG_K,AVG_K_DELTA)
+        network = create_datawork("ER",AVG_K,AVG_K_DELTA)
         # yield network

@@ -30,4 +30,4 @@ class PickleLazyLoader(LazyLoader):
         Returns:
             数据：新创建的数据。
         """
-        pass
+        return self.data

@@ -9,7 +9,8 @@ from mydynalearn.dynamics.getter import get as get_dynamics
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 from mydynalearn.logger import Log
-class DynamicDataset(Dataset):
+from mydynalearn.util.lazy_loader import PickleLazyLoader
+class DynamicDataset(Dataset, PickleLazyLoader):
     '''数据集类
     通过网络network和dynamics来说生成动力学数据集
 
@@ -28,7 +29,7 @@ class DynamicDataset(Dataset):
         self.network = self._get_dataset_network()
         self.dynamics = self._get_dataset_dynamics()
         self.dataset_file_path = self._get_dataset_file_path(self.network.NAME,self.dynamics.NAME)
-        self.need_to_run = not os.path.exists(self.dataset_file_path)
+        super().__init__(self.dataset_file_path)
 
 
     def _get_dataset_file_path(self,network_name,dynamics_name):
@@ -87,7 +88,7 @@ class DynamicDataset(Dataset):
                 - 在T_INIT时间后重置初始节点，从而增加传播动力学异质性。
         '''
         # 获取动力学数据
-        self.network.create_net()  # 构造网络
+        self.network = self.network.get_data()  # 构造网络
         self.dynamics.set_network(self.network)  # 设置动力学网络
         self._init_dataset()
         # 生成数据集
@@ -127,20 +128,17 @@ class DynamicDataset(Dataset):
             self.dynamics.set_features(**onestep_spread_result)
             self._save_onesample_dataset(t, **onestep_spread_result)
 
-    def run(self):
-        self.logger.increase_indent()
-        if not self.is_dataset_exist():
-            self.logger.log("build dataset...")
-            self._buid_dataset()
-            train_set, val_set, test_set = self._partition_dataSet()
-            network = self.network
-            dynamics = self.dynamics
-            dataset = {
-                "network": network,
-                "dynamics": dynamics,
-                "train_set": train_set,
-                "val_set": val_set,
-                "test_set": test_set,
-            }
-            self.save(dataset)
-        self.logger.decrease_indent()
+    def _create_data(self):
+        self._buid_dataset()
+        train_set, val_set, test_set = self._partition_dataSet()
+        network = self.network
+        dynamics = self.dynamics
+        dataset = {
+            "network": network,
+            "dynamics": dynamics,
+            "train_set": train_set,
+            "val_set": val_set,
+            "test_set": test_set,
+        }
+        return dataset
+

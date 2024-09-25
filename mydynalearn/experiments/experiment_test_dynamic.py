@@ -18,7 +18,7 @@ class ExperimentTestDynamic():
     def run_dynamic_process(self):
         self.dataset.show_info()
         if self.dataset.is_need_to_run:
-            self.dataset.run()
+            self.dataset._create_data()
         else:
             self.dataset = self.dataset.load_dataset()
 

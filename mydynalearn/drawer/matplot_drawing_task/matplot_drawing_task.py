@@ -1,13 +1,5 @@
-import os
-from mydynalearn.config import *
 from mydynalearn.drawer.MatplotDrawer.matplot_drawer import *
-from mydynalearn.analyze.analyzer import runModelOnTestData, epochAnalyzer
-import pandas as pd
-from mydynalearn.analyze.utils.data_handler.dynamic_data_handler import DynamicDataHandler
-from mydynalearn.drawer.utils.utils import _get_metrics
-import re
-import itertools
-from mydynalearn.analyze.model_analyzer import ModelAnalyzer
+from mydynalearn.analyze.analyzer.model_analyzer import ModelAnalyzer
 from mydynalearn.logger import Log
 
 
@@ -22,7 +14,7 @@ class MatplotDrawingTask():
     def __init__(self, analyze_manager):
         self.analyze_manager = analyze_manager
         self.logger = Log("MatplotDrawingTask")
-        self.best_epoch_dataframe = self.analyze_manager.load_best_epoch_dataframe()
+        self.best_epoch_dataframe = self.analyze_manager.best_epoch_handler.get_data()
 
     def _get_analyze_result(self, data):
         '''

@@ -62,7 +62,7 @@ class TestDynamicDataset():
 
     def set_dataset_network(self):
         network = get_network(self.config)
-        network.create_net()
+        network.create_data()
         self.network = network
 
     def set_dataset_dynamics(self):

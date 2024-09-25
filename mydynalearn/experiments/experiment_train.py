@@ -35,8 +35,8 @@ class ExperimentTrain:
         创建常规的动力学数据集
         """
         self.logger.increase_indent()
-        self.logger.log(f"create dynamic dataset")
-        self.dataset.run()
+        self.logger.log(f"create dynamic dataset: network={self.network.NAME}, dynamics={self.dynamics.NAME}")
+        self.dataset.ensure_data_file_exists()
         self.logger.decrease_indent()
 
 
@@ -48,7 +48,7 @@ class ExperimentTrain:
         self.logger.increase_indent()
         self.logger.log(f"train model: {self.NAME}")
         if self.model.need_to_train:
-            dataset = self.dataset.load()
+            dataset = self.dataset.get_data()
             self.model.run(dataset)
         else:
             self.logger.log("The model has already been trained!")

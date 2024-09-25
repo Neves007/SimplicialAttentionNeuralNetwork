@@ -119,7 +119,7 @@ class DynamicDatasetTimeEvolution(Dataset):
         # 获取动力学数据
         self.logger.increase_indent()
         self.logger.log("Build original time evolution dataset")
-        self.network.create_net()  # 构造网络
+        self.network.create_data()  # 构造网络
         self.dynamics.set_network(self.network)  # 设置动力学网络
         self.dynamics.init_stateof_network()  # 在T_INIT时间后重置网络状态
         for t in range(self.TIME_EVOLUTION_STEPS):
@@ -139,7 +139,7 @@ class DynamicDatasetTimeEvolution(Dataset):
         # 获取动力学数据
         self.logger.increase_indent()
         self.logger.log("Build machine learning time evolution dataset")
-        self.network.create_net()  # 构造网络
+        self.network.create_data()  # 构造网络
         self.dynamics.set_network(self.network)  # 设置动力学网络
         self.dynamics.init_stateof_network()  # 在T_INIT时间后重置网络状态
         for t in range(self.TIME_EVOLUTION_STEPS):

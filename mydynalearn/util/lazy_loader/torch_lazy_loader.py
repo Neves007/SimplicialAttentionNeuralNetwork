@@ -6,7 +6,7 @@ class TorchLazyLoader(LazyLoader):
     def _read_from_file(self):
         """使用 torch.load 从文件中读取数据。"""
         try:
-            data = torch.load(self.data_file)
+            data = torch.load(self.data_file, weights_only=True)
             return data
         except Exception as e:
             print(f"读取文件 {self.data_file} 时出错: {e}")

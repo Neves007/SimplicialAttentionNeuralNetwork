@@ -34,9 +34,9 @@ if __name__ == '__main__':
     train_experiment_manager_realnet = ExperimentManagerRealnet(NUM_SAMPLES, TESTSET_TIMESTEP, EPOCHS, params)
     analyze_trained_model_to_realnet = AnalyzeTrainedModelToRealnet(train_experiment_manager, train_experiment_manager_realnet)
 
-    train_experiment_manager.run()
-    train_experiment_manager_realnet.run()
+    train_experiment_manager._create_data()
+    train_experiment_manager_realnet._create_data()
 
-    analyze_trained_model_to_realnet.run()
+    analyze_trained_model_to_realnet._create_data()
 
 

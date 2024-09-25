@@ -54,7 +54,7 @@ class Realnet(Network):
     def _unpack_inc_matrix_adj_info(self):
         return self.inc_matrix_adj0, self.inc_matrix_adj1, self.inc_matrix_adj2
 
-    def create_network(self):
+    def create_datawork(self):
 
         netsourve_file = os.path.join(self.REALNET_DATA_PATH, self.REALNET_SOURCEDATA_FILENAME)
         nodes, edges, triangles = generate_real_network(netsourve_file)
@@ -76,5 +76,5 @@ class Realnet(Network):
         self.set_attr(net_info)
 
     def build(self):
-        self.create_network()
+        self.create_datawork()
         self._update_adj()

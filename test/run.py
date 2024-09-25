@@ -43,19 +43,19 @@ from mydynalearn.drawer import MatplotController
 
 params = {
     "grpah_network": ["ER"],
-    "grpah_dynamics": ["UAU", "CompUAU"],
+    "grpah_dynamics": ["UAU"],
 
     "simplicial_network": ["SCER", "SCSF"],
-    "simplicial_dynamics": ["SCUAU", "SCCompUAU", "SCCoopUAU", "SCAsymUAU"],
+    "simplicial_dynamics": ["SCUAU"],
 
     "model": ["GAT", "SAT"],  # 至少选一个
     "IS_WEIGHT": [False]
 }
 fix_config = {
-    "NUM_SAMPLES": 10000,
+    "NUM_SAMPLES": 100,
     "TESTSET_TIMESTEP": 10,
-    "EPOCHS": 30,
-    "DEVICE": torch.device('cuda'),
+    "EPOCHS": 3,
+    "DEVICE": torch.device('cpu'),
 }
 
 if __name__ == '__main__':

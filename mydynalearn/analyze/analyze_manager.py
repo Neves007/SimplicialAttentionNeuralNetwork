@@ -1,10 +1,11 @@
-from .exp_models_analyzer import ExpModelsAnalyzer
+from mydynalearn.analyze.analyzer.exp_models_analyzer import ExpModelsAnalyzer
 from mydynalearn.config import Config
 import os
 import pandas as pd
-import numpy as np
 from mydynalearn.logger import Log
-class AnalyzeManager:
+from mydynalearn.util.lazy_loader import DataFrameLazyLoader
+from mydynalearn.analyze.utils.data_handler.best_epoch_handler import BestEpochHandler
+class AnalyzeManager():
     # todo: 添加save和load 
     def __init__(self, exp_generator, indent=0):
         """
@@ -15,33 +16,8 @@ class AnalyzeManager:
         self.logger = Log("AnalyzeManager")
         self.indent=indent
         self.config = config_analyze['default']
-        self.file_path = self.__get_best_epoch_dataframe_file_path()
         self.exp_generator = exp_generator
-        self.best_epoch_dataframe = pd.DataFrame()
-
-    def __get_best_epoch_dataframe_file_path(self):
-        root_dir_path = self.config.root_dir_path
-        dataframe_dir_name = self.config.dataframe_dir_name
-        # 创建文件夹
-        dataframe_dir_path = os.path.join(root_dir_path, dataframe_dir_name)
-        if not os.path.exists(dataframe_dir_path):
-            os.makedirs(dataframe_dir_path)
-        # 返回文件路径
-        best_epoch_dataframe_file_name = "BestEpochDataframe.csv"
-        best_epoch_dataframe_file_path = os.path.join(dataframe_dir_path, best_epoch_dataframe_file_name)
-        return best_epoch_dataframe_file_path
-    
-
-
-    def __add_best_epoch_result_item(self,best_epoch_exp_item):
-        self.best_epoch_dataframe = pd.concat([self.best_epoch_dataframe, best_epoch_exp_item])
-
-    def save_best_epoch_dataframe(self):
-        self.best_epoch_dataframe.to_csv(self.file_path, index=False)
-
-    def load_best_epoch_dataframe(self):
-        self.best_epoch_dataframe = pd.read_csv(self.file_path)
-        return self.best_epoch_dataframe
+        self.best_epoch_handler = BestEpochHandler(self.config,exp_generator)
 
     def main_analyze_exp(self):
         """
@@ -58,19 +34,7 @@ class AnalyzeManager:
         处理best_epoch_dataframe
         :return:
         '''
-        self.logger.increase_indent()
-        if os.path.exists(self.file_path):
-            self.load_best_epoch_dataframe()
-            self.logger.log(f"best epoch dataframe is already exists: load {self.file_path}")
-        else:
-            for exp in self.exp_generator:
-                # 实验模型分析器：用于分析一个实验中的所有epoch的模型
-                exp_models_analyzer = ExpModelsAnalyzer(self.config, exp)
-                best_epoch_exp_item, best_epoch_index = exp_models_analyzer.find_best_epoch()
-                self.__add_best_epoch_result_item(best_epoch_exp_item)
-            self.save_best_epoch_dataframe()
-            self.logger.log(f"build and save best epoch dataframe: {self.file_path}")
-        self.logger.decrease_indent()
+        self.best_epoch_handler.ensure_data_file_exists()
 
     def run(self):
         """
