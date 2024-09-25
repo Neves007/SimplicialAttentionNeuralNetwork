@@ -451,7 +451,7 @@ class FigTimeEvolution(MatplotDrawer):
         self.ax.set_title('Time Evolution of Dynamics (Original vs ML)')
 
         # 显示图例
-        self.ax.legend()
+        self.ax.legend(fontsize='small', markerscale=0.5,loc="upper right")
 
         # 调整图像布局
         plt.tight_layout()

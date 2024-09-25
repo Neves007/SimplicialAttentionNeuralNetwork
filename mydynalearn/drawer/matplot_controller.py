@@ -6,11 +6,11 @@ class MatplotController():
     def __init__(self,analyze_manager):
         self.TASKS = {
             # "FigYtrureYpredDrawingTask": FigYtrureYpredDrawingTask(analyze_manager),
-            "FigActiveNeighborsTransProb": FigActiveNeighborsTransProbDrawingTask(analyze_manager),
+            # "FigActiveNeighborsTransProb": FigActiveNeighborsTransProbDrawingTask(analyze_manager),
             # "FigConfusionMatrix": FigConfusionMatrixDrawingTask(analyze_manager),
             # "FigKLoss": FigKLossDrawingTask(analyze_manager),
             # "FigKDistribution": FigKDistributionDrawingTask(analyze_manager),
-            # "FigTimeEvolution": FigTimeEvolutionDrawingTask(analyze_manager),
+            "FigTimeEvolution": FigTimeEvolutionDrawingTask(analyze_manager),
         }
     def run(self):
         for task in self.TASKS.keys():

@@ -42,36 +42,34 @@ from mydynalearn.drawer import MatplotController
 '''
 
 params = {
-    "grpah_network": ["ER", "SF"],
-    "grpah_dynamics": ["UAU",],
+    "grpah_network": ["ER"],
+    "grpah_dynamics": ["UAU", "CompUAU"],
 
     "simplicial_network": ["SCER", "SCSF"],
-    "simplicial_dynamics": ["SCUAU"],
+    "simplicial_dynamics": ["SCUAU", "SCCompUAU", "SCCoopUAU", "SCAsymUAU"],
 
     "model": ["GAT", "SAT"],  # 至少选一个
     "IS_WEIGHT": [False]
 }
 fix_config = {
-    "NUM_SAMPLES": 100,
+    "NUM_SAMPLES": 10000,
     "TESTSET_TIMESTEP": 10,
-    "EPOCHS": 3,
+    "EPOCHS": 30,
     "DEVICE": torch.device('cuda'),
 }
 
-
 if __name__ == '__main__':
-    # 训练
+    # # 训练
     train_params = PasramsDealer.assemble_train_params(params)  # 实验的设置
     train_experiment_manager = TrainExperimentManager(fix_config, train_params)  # 返回实验对象
     train_experiment_manager.run()
 
-    # 分析：测试集分析训练模型
+    ## 分析：测试集分析训练模型
     exp_generator = list(train_experiment_manager.get_exp_generator())
     analyze_manager = AnalyzeManager(exp_generator)
     analyze_manager.run()
 
-    # 画图：
+    # # # 画图：
     matplot_drawer = MatplotController(analyze_manager)
     matplot_drawer.run()
-
 

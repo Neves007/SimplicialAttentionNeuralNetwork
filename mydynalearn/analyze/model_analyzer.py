@@ -49,7 +49,7 @@ class ModelAnalyzer:
         """
         self.dynamics_dataset_time_evolution = DynamicDatasetTimeEvolution(self.exp, self.test_model, self.network,
                                                                            self.dynamics)
-        return self.dynamics_dataset_time_evolution.run()
+        return self.dynamics_dataset_time_evolution.get_data()
 
     def analyze_model_performance(self):
         """

@@ -40,10 +40,16 @@ class ConfigTrainingExp:
     def set_path(self, root_dir="./output"):
         self.network_dir_path = os.path.join(root_dir, "network")
         self.dataset_dir_path = os.path.join(root_dir, "dataset")
+        self.time_evolution_dataset_dir_path = os.path.join(root_dir, "time_evolution_dataset")
+        self.ori_time_evolution_dataset_dir_path = os.path.join(self.time_evolution_dataset_dir_path, "ori")
+        self.ml_time_evolution_dataset_dir_path = os.path.join(self.time_evolution_dataset_dir_path, "ml")
         self.modelparams_dir_path = os.path.join(root_dir, "modelparams", self.NAME)
 
         self.make_dir(self.network_dir_path)
         self.make_dir(self.dataset_dir_path)
+        self.make_dir(self.time_evolution_dataset_dir_path)
+        self.make_dir(self.ori_time_evolution_dataset_dir_path)
+        self.make_dir(self.ml_time_evolution_dataset_dir_path)
         self.make_dir(self.modelparams_dir_path)
 
     def make_dir(self, dir):

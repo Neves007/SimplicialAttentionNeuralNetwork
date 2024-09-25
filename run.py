@@ -67,7 +67,7 @@ if __name__ == '__main__':
     ## 分析：测试集分析训练模型
     exp_generator = list(train_experiment_manager.get_exp_generator())
     analyze_manager = AnalyzeManager(exp_generator)
-    # analyze_manager.run()
+    analyze_manager.run()
 
     # # # 画图：
     matplot_drawer = MatplotController(analyze_manager)
