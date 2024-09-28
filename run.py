@@ -73,3 +73,4 @@ if __name__ == '__main__':
     matplot_drawer = MatplotController(analyze_manager)
     matplot_drawer.run()
 
+

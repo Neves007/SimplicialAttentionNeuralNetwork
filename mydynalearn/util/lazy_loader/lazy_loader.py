@@ -1,6 +1,6 @@
 import os
 from abc import ABC, abstractmethod
-from mydynalearn.logger import Log
+
 
 class LazyLoader(ABC):
     def __init__(self, data_file):
@@ -11,23 +11,17 @@ class LazyLoader(ABC):
         """
         self.data_file = data_file
         self.data = None
-        self.logger = Log("LazyLoader")
 
     def load_data(self):
         """加载数据，如果数据不存在则创建并保存。
         """
         if self.data is None:
             if self.data_file_exist():
-                self.logger.increase_indent()
-                self.logger.log(f"read data: {self.data_file}")
+
                 self.data = self._read_from_file()
-                self.logger.decrease_indent()
             else:
-                self.logger.increase_indent()
-                self.logger.log(f"create data and save it in: {self.data_file}")
                 self.data = self._create_data()
                 self._save_data()
-                self.logger.decrease_indent()
 
     def get_data(self):
         """获取数据，确保数据已被加载。
@@ -43,11 +37,8 @@ class LazyLoader(ABC):
         如果不存在，则创建数据并保存到文件。
         """
         if not self.data_file_exist():
-            self.logger.increase_indent()
-            self.logger.log(f"create data and save it in: {self.data_file}")
             self.data = self._create_data()
             self._save_data()
-            self.logger.decrease_indent()
 
     def data_file_exist(self):
         """检查数据文件是否存在。
